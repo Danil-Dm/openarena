@@ -7,32 +7,58 @@ This is a mod that adds new variables, such as elimination_items, weapon setting
 # Variable List:
 
 g_kill "1" // Allow the use of the kill command
+
 g_spawnselect "0" // Set spawn without deleting items 1-on 0-off
+
 elimination_items "0" // Items in elimination modes, last-man-standing
+
 elimination_flame "0" // Flamethrower
+
 elimination_antimatter "0" // Antimatter
+
 elimination_quad "0" // Quad
+
 elimination_haste "0" // Speed
+
 elimination_regen "0" // Regeneration
+
 elimination_invis "0" // Invisibility
+
 elimination_bsuit "0" // Battle Shield
+
 elimination_flight "0" // Flight
+
 g_drowndamage "1" // Damage from lack of air
+
 g_runes "1" // Runes
 g_spawnprotect "500" // Immortality time when spawn
+
 g_respawnwait "1700" // respawn time 2
+
 g_jumpheight "270" // Jump height
+
 g_ammolimit "200" // Weapon limit
+
 g_droppeditemtime "30" // Time to remove excess items
+
 g_autoflagreturn "30" // Auto flag return time
+
 g_armorprotect "0.66" // Armor protection level
+
 g_noplayerclip "0" // No invisible walls
+
 g_falldamagesmall "5" // Drop Damage Small
+
 g_falldamagebig "10" // Drop Damage Large
+
 g_randomteleport "0" // Random Teleports
+
 g_maxweaponpickup "1" // Maximum Weapon Pickup
+
 g_lavadamage "30" // Lava Damage
+
 g_slimedamage "10" // Slime damage
+
 g_waterdamage "0" // Water Damage
 
 // Respawn time of items
