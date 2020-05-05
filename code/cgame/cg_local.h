@@ -33,6 +33,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
+#ifdef MISSIONPACK
+#define CG_FONT_THRESHOLD 0.1
+#endif
+
 #define	POWERUP_BLINKS		5
 
 #define	POWERUP_BLINK_TIME	1000
@@ -72,20 +76,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	TEAMCHAT_WIDTH		80
 #define TEAMCHAT_HEIGHT		8
 
-#define	FRAGMSG_MAX		5
-#define	FRAGMSG_X		20
-#define	FRAGMSG_Y		300
-#define	FRAGMSG_FADETIME	7000
-
 // very large characters.pk
 #define	GIANT_WIDTH			32
 #define	GIANT_HEIGHT		48
 
-#define	NUM_CROSSHAIRS		10
+#define	NUM_CROSSHAIRS		99
 
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
-// leilei - change these to sorceress for baseoa3 as there is no sarge or sergei
+
 #define	DEFAULT_MODEL			"sarge"
 #ifdef MISSIONPACK
 #define	DEFAULT_TEAM_MODEL		"sergei"
@@ -161,13 +160,6 @@ typedef struct {
 	float			barrelAngle;
 	int				barrelTime;
 	qboolean		barrelSpinning;
-
-	// eye stuff...
-
-	vec3_t			eyepos;		// where our eyes at
-	vec3_t			eyelookat;	// what we seein'
-	lerpFrame_t		head;
-
 } playerEntity_t;
 
 //=================================================
@@ -207,22 +199,6 @@ typedef struct centity_s {
 	// exact interpolated position of entity on this frame
 	vec3_t			lerpOrigin;
 	vec3_t			lerpAngles;
-
-	int		newcamrunning;	// leilei - determines if we should look in a direction for running
-	vec3_t			eyesOrigin;
-	vec3_t			eyesAngles;
-
-	vec3_t			eyepos;		// where our eyes at
-	vec3_t			eyepos2;	// where our other eyes at
-	vec3_t			eyelookat;	// what we seein'
-
-	vec3_t			weapOrigin;	// leilei - for lazy bob
-	vec3_t			weapAngles;
-
-	float			startroll; 	// leilei - muzzleflashes - starting roll so it's not constantly flickering a roll every other frame.
-	int			muztime[5];	
-	int			muzslot;
-	float			muzroll[5];
 } centity_t;
 
 
@@ -306,7 +282,6 @@ typedef struct localEntity_s {
 	leBounceSoundType_t	leBounceSoundType;
 
 	refEntity_t		refEntity;		
-	trajectory_t		avelocity;		// leilei - angle velocity
 } localEntity_t;
 
 //======================================================================
@@ -404,8 +379,6 @@ typedef struct {
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
 
 	int		isDead;
-	vec3_t			eyepos;		// leilei - eye positions loaded from anim cfg
-	int		onepiece;		// leilei - g_enableFS meshes
 } clientInfo_t;
 
 
@@ -447,19 +420,6 @@ typedef struct weaponInfo_s {
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
 	qboolean		loopFireSound;
-	int			lfx;	// leilei - for weapon muzzleflash particle effects
-	int			lfxdrawn;	// (note- i may/may not take this out. I don't know.)	
-
-	//		leilei  - different muzzleflash styles
-	qhandle_t		flashModel_type1;		// Quake style			(gradient-textured oval sphere)
-	qhandle_t		flashModel_type2;		// u99 style			(additive-blended animated sprite)
-	qhandle_t		flashModel_type2a;		// 3rd person for U99 style	(sprite cloud)
-	qhandle_t		flashModel_type3;		// 64 style			(an alphablended sprite for 1st gen 3d hardware)
-	qhandle_t		flashModel_type4;		// Anime style			(whatever I darn well want)
-	qhandle_t		flashModel_type5;		// 2003 style			(4 intersecting planes that scale up and fade)
-	qhandle_t		flashModel_type5a;		// 3rd person for 2003 style 	(cone that scales up and doesn't fade))
-
-	//float			startroll; // starting roll so it's not constantly flickering a roll every other frame.
 } weaponInfo_t;
 
 
@@ -488,20 +448,6 @@ typedef struct {
 
 #define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
-
-
-// loadingscreen
-#ifdef SCRIPTHUD
-	typedef struct
-	{
-	  int time;
-	  int length;
-	} consoleLine_t;
-
-#define MAX_CONSOLE_TEXT 8192
-#define MAX_CONSOLE_LINES 32
-#endif
-// end loadingscreen
 
 //======================================================================
 
@@ -705,11 +651,10 @@ typedef struct {
 	// temp working variables for player view
 	float		bobfracsin;
 	int			bobcycle;
-	float			bobcycle2; /* leilei - for more bobbing styles */
 	float		xyspeed;
 	int     nextOrbitTime;
 
-	qboolean cameraMode;		// if rendering from a loaded camera
+	//qboolean cameraMode;		// if rendering from a loaded camera
 
 
 	// development tool
@@ -729,23 +674,6 @@ typedef struct {
         
         int redObeliskHealth;
         int blueObeliskHealth;
-
-	// leilei
-	float		bobfraccos;
-	float		bobfracsin2;
-
-// loadingscreen
-#ifdef SCRIPTHUD
-	float         mediaFraction;
-	float         soundFraction;
-	float         graphicFraction;
-	char          consoleText[ MAX_CONSOLE_TEXT ];
-	consoleLine_t consoleLines[ MAX_CONSOLE_LINES ];
-	int           numConsoleLines;
-	qboolean      consoleValid;
-#endif
-
-
 } cg_t;
 
 
@@ -844,6 +772,8 @@ typedef struct {
 	qhandle_t	smokePuffRageProShader;
 	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
+	qhandle_t	flameBallShader;
+	qhandle_t	antimatterBallShader;
 	qhandle_t	waterBubbleShader;
 	qhandle_t	bloodTrailShader;
 
@@ -872,8 +802,10 @@ typedef struct {
 	qhandle_t	lmarkbullet3;
 	qhandle_t	lmarkbullet4;
 
+//#ifdef MISSIONPACK
 	qhandle_t	nailPuffShader;
 	qhandle_t	blueProxMine;
+//#endif
 
 	qhandle_t	numberShaders[11];
 
@@ -924,6 +856,7 @@ typedef struct {
 	// special effects models
 	qhandle_t	teleportEffectModel;
 	qhandle_t	teleportEffectShader;
+//#ifdef MISSIONPACK
 	qhandle_t	kamikazeEffectModel;
 	qhandle_t	kamikazeShockWave;
 	qhandle_t	kamikazeHeadModel;
@@ -937,6 +870,7 @@ typedef struct {
 	qhandle_t	medkitUsageModel;
 	qhandle_t	dustPuffShader;
 	qhandle_t	heartShader;
+//#endif
 	qhandle_t	invulnerabilityPowerupModel;
 
 	// scoreboard headers
@@ -952,23 +886,6 @@ typedef struct {
 	qhandle_t	medalDefend;
 	qhandle_t	medalAssist;
 	qhandle_t	medalCapture;
-
-// frag message icon shaders
-	qhandle_t	bfgShader;
-	qhandle_t	chaingunShader;
-	qhandle_t	gauntletShader;
-	qhandle_t	grapplehookShader;
-	qhandle_t	grenadeShader;
-	qhandle_t	kamikazeShader;
-	qhandle_t	lightninggunShader;
-	qhandle_t	machinegunShader;
-	qhandle_t	nailgunShader;
-	qhandle_t	plasmaShader;
-	qhandle_t	proxlauncherShader;
-	qhandle_t	railgunShader;
-	qhandle_t	rocketShader;
-	qhandle_t	shotgunShader;
-	qhandle_t	skullShader;
 
 	// sounds
 	sfxHandle_t	quadSound;
@@ -986,6 +903,7 @@ typedef struct {
 	sfxHandle_t	sfx_railg;
 	sfxHandle_t	sfx_rockexp;
 	sfxHandle_t	sfx_plasmaexp;
+//#ifdef MISSIONPACK
 	sfxHandle_t	sfx_proxexp;
 	sfxHandle_t	sfx_nghit;
 	sfxHandle_t	sfx_nghitflesh;
@@ -1008,6 +926,7 @@ typedef struct {
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
 	sfxHandle_t	youSuckSound;
+//#endif
 	sfxHandle_t	gibSound;
 	sfxHandle_t	gibBounce1Sound;
 	sfxHandle_t	gibBounce2Sound;
@@ -1144,14 +1063,6 @@ typedef struct {
 
 } cgMedia_t;
 
-typedef struct {
-	char		targetName[32];
-	char		attackerName[32];
-	qhandle_t	causeShader;
-	int		fragTime;
-	qboolean	teamFrag;
-	char		message[200];
-} fragInfo_t;
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -1197,6 +1108,9 @@ typedef struct {
 
 	int				levelStartTime;
 
+//Forced FFA
+	int			ffa_gt;
+
 //Elimination
 	int				roundStartTime;	
 	int				roundtime;
@@ -1211,7 +1125,7 @@ typedef struct {
 	int				nopickup;
 
 //Double Domination DD
-	int 			takeAt;
+	int 				timetaken;
 
 //Domination
 	int domination_points_count;
@@ -1251,8 +1165,6 @@ typedef struct {
 	void *capturedItem;
 	qhandle_t activeCursor;
 
-	fragInfo_t fragMsg[FRAGMSG_MAX];
-
 	// orders
 	int currentOrder;
 	qboolean orderPending;
@@ -1288,202 +1200,220 @@ extern	int		mod_cgspread;
 extern	int		mod_lgrange;
 extern	int		mod_sgcount;
 extern	int		mod_sgspread;
-extern vmCvar_t cg_centertime;
-extern vmCvar_t cg_runpitch;
-extern vmCvar_t cg_runroll;
-extern vmCvar_t cg_bob;
-extern vmCvar_t cg_bobup;
-extern vmCvar_t cg_bobpitch;
-extern vmCvar_t cg_bobroll;
-extern vmCvar_t cg_bobmodel;	// leilei
-extern vmCvar_t cg_kickScale;
-extern vmCvar_t cg_swingSpeed;
-extern vmCvar_t cg_shadows;
-extern vmCvar_t cg_gibs;
-extern vmCvar_t cg_drawTimer;
-extern vmCvar_t cg_drawFPS;
-extern vmCvar_t cg_drawSnapshot;
-extern vmCvar_t cg_draw3dIcons;
-extern vmCvar_t cg_drawIcons;
-extern vmCvar_t cg_drawAmmoWarning;
-extern vmCvar_t cg_drawCrosshair;
-extern vmCvar_t cg_drawCrosshairNames;
-extern vmCvar_t cg_drawRewards;
-extern vmCvar_t cg_drawTeamOverlay;
-extern vmCvar_t cg_teamOverlayUserinfo;
-extern vmCvar_t cg_crosshairX;
-extern vmCvar_t cg_crosshairY;
-extern vmCvar_t cg_crosshairSize;
-extern vmCvar_t cg_crosshairHealth;
-extern vmCvar_t cg_drawStatus;
-extern vmCvar_t cg_draw2D;
-extern vmCvar_t cg_animSpeed;
-extern vmCvar_t cg_debugAnim;
-extern vmCvar_t cg_debugPosition;
-extern vmCvar_t cg_debugEvents;
-extern vmCvar_t cg_railTrailTime;
-extern vmCvar_t cg_errorDecay;
-extern vmCvar_t cg_nopredict;
-extern vmCvar_t cg_noPlayerAnims;
-extern vmCvar_t cg_showmiss;
-extern vmCvar_t cg_footsteps;
-extern vmCvar_t cg_addMarks;
-extern vmCvar_t cg_brassTime;
-extern vmCvar_t cg_gun_frame;
-extern vmCvar_t cg_gun_x;
-extern vmCvar_t cg_gun_y;
-extern vmCvar_t cg_gun_z;
-extern vmCvar_t cg_drawGun;
-extern vmCvar_t cg_viewsize;
-extern vmCvar_t cg_viewnudge;	// leilei
-extern vmCvar_t cg_tracerChance;
-extern vmCvar_t cg_tracerWidth;
-extern vmCvar_t cg_tracerLength;
-extern vmCvar_t cg_autoswitch;
-extern vmCvar_t cg_ignore;
-extern vmCvar_t cg_simpleItems;
-extern vmCvar_t cg_fov;
-extern vmCvar_t cg_zoomFov;
-extern vmCvar_t cg_thirdPersonRange;
-extern vmCvar_t cg_thirdPersonAngle;
-extern vmCvar_t cg_thirdPerson;
-extern vmCvar_t cg_lagometer;
-extern vmCvar_t cg_drawAttacker;
-extern vmCvar_t cg_drawSpeed;
-extern vmCvar_t cg_synchronousClients;
-extern vmCvar_t cg_teamChatTime;
-extern vmCvar_t cg_teamChatHeight;
-extern vmCvar_t cg_stats;
-extern vmCvar_t cg_forceModel;
-extern vmCvar_t cg_buildScript;
-extern vmCvar_t cg_paused;
-extern vmCvar_t cg_blood;
-extern vmCvar_t cg_predictItems;
-extern vmCvar_t cg_deferPlayers;
-extern vmCvar_t cg_drawFriend;
-extern vmCvar_t cg_teamChatsOnly;
-extern vmCvar_t cg_noVoiceChats;
-extern vmCvar_t cg_noVoiceText;
-extern vmCvar_t cg_scorePlum;
-extern vmCvar_t cg_obituaryOutput;
+extern	int		mod_jumpheight;
+extern 	int		mod_gdelay;
+extern 	int		mod_mgdelay;
+extern 	int		mod_sgdelay;
+extern 	int		mod_gldelay;
+extern 	int		mod_rldelay;
+extern 	int		mod_lgdelay;
+extern 	int		mod_pgdelay;
+extern 	int		mod_rgdelay;
+extern 	int		mod_bfgdelay;
+extern 	int		mod_ngdelay;
+extern 	int		mod_pldelay;
+extern 	int		mod_cgdelay;
+extern 	int		mod_ftdelay;
+extern	int		mod_amdelay;
+extern	int 	mod_hastefirespeed;
+extern	int 	mod_ammoregenfirespeed;
+extern	int 	mod_scoutfirespeed;
+extern	int		mod_guardfirespeed;
+extern	int		mod_doublerfirespeed;
+extern	int		mod_noplayerclip;
+extern	int		mod_ammolimit;
+extern	int		mod_invulmove;
+extern	int		mod_teamred_firespeed;
+extern	int		mod_teamblue_firespeed;
+extern	int 	mod_medkitlimit;
+extern	int 	mod_medkitinf;
+extern	int 	mod_teleporterinf;
+extern	int 	mod_portalinf;
+extern	int 	mod_kamikazeinf;
+extern	int 	mod_invulinf;
+extern	vmCvar_t		cg_gibtime;
+extern	vmCvar_t		cg_centertime;
+extern	vmCvar_t		cg_runpitch;
+extern	vmCvar_t		cg_runroll;
+extern	vmCvar_t		cg_bobup;
+extern	vmCvar_t		cg_bobpitch;
+extern	vmCvar_t		cg_bobroll;
+extern	vmCvar_t		cg_swingSpeed;
+extern	vmCvar_t		cg_shadows;
+extern	vmCvar_t		cg_gibs;
+extern	vmCvar_t		cg_drawTimer;
+extern	vmCvar_t		cg_drawFPS;
+extern	vmCvar_t		cg_drawSnapshot;
+extern	vmCvar_t		cg_draw3dIcons;
+extern	vmCvar_t		cg_drawIcons;
+extern	vmCvar_t		cg_drawAmmoWarning;
+extern	vmCvar_t		cg_drawCrosshair;
+extern	vmCvar_t		cg_drawCrosshairNames;
+extern	vmCvar_t		cg_drawRewards;
+extern	vmCvar_t		cg_drawTeamOverlay;
+extern	vmCvar_t		cg_teamOverlayUserinfo;
+extern	vmCvar_t		cg_crosshairX;
+extern	vmCvar_t		cg_crosshairY;
+extern	vmCvar_t		cg_crosshairSize;
+extern	vmCvar_t		cg_crosshairHealth;
+extern	vmCvar_t		cg_drawStatus;
+extern	vmCvar_t		cg_draw2D;
+extern	vmCvar_t		cg_animSpeed;
+extern	vmCvar_t		cg_debugAnim;
+extern	vmCvar_t		cg_debugPosition;
+extern	vmCvar_t		cg_debugEvents;
+extern	vmCvar_t		cg_railTrailTime;
+extern	vmCvar_t		cg_errorDecay;
+extern	vmCvar_t		cg_nopredict;
+extern	vmCvar_t		cg_noPlayerAnims;
+extern	vmCvar_t		cg_showmiss;
+extern	vmCvar_t		cg_footsteps;
+extern	vmCvar_t		cg_addMarks;
+extern	vmCvar_t		cg_brassTime;
+extern	vmCvar_t		cg_gun_frame;
+extern	vmCvar_t		cg_gun_x;
+extern	vmCvar_t		cg_gun_y;
+extern	vmCvar_t		cg_gun_z;
+extern	vmCvar_t		cg_drawGun;
+extern	vmCvar_t		cg_viewsize;
+extern	vmCvar_t		cg_tracerChance;
+extern	vmCvar_t		cg_tracerWidth;
+extern	vmCvar_t		cg_tracerLength;
+extern	vmCvar_t		cg_autoswitch;
+extern	vmCvar_t		cg_ignore;
+extern	vmCvar_t		cg_simpleItems;
+extern	vmCvar_t		cg_fov;
+extern	vmCvar_t		cg_zoomFov;
+extern	vmCvar_t		cg_thirdPersonOffset;
+extern	vmCvar_t		cg_thirdPersonRange;
+extern	vmCvar_t		cg_thirdPersonAngle;
+extern	vmCvar_t		cg_thirdPerson;
+extern	vmCvar_t		cg_lagometer;
+extern	vmCvar_t		cg_drawAttacker;
+extern	vmCvar_t		cg_drawSpeed;
+extern	vmCvar_t		cg_synchronousClients;
+extern	vmCvar_t		cg_teamChatTime;
+extern	vmCvar_t		cg_teamChatHeight;
+extern	vmCvar_t		cg_stats;
+extern	vmCvar_t 		cg_forceModel;
+extern	vmCvar_t 		cg_buildScript;
+extern	vmCvar_t		cg_paused;
+extern	vmCvar_t		cg_blood;
+extern	vmCvar_t		cg_predictItems;
+extern	vmCvar_t		cg_deferPlayers;
+extern	vmCvar_t		cg_drawFriend;
+extern	vmCvar_t		cg_teamChatsOnly;
+extern	vmCvar_t		cg_noVoiceChats;
+extern	vmCvar_t		cg_noVoiceText;
+extern  vmCvar_t		cg_scorePlum;
 //unlagged - smooth clients #2
 // this is done server-side now
-//extern vmCvar_t cg_smoothClients;
+//extern	vmCvar_t		cg_smoothClients;
 //unlagged - smooth clients #2
-extern vmCvar_t pmove_fixed;
-extern vmCvar_t pmove_msec;
-extern vmCvar_t pmove_float;
-//extern vmCvar_t cg_pmove_fixed;
-extern vmCvar_t cg_cameraOrbit;
-extern vmCvar_t cg_cameraOrbitDelay;
-extern vmCvar_t cg_timescaleFadeEnd;
-extern vmCvar_t cg_timescaleFadeSpeed;
-extern vmCvar_t cg_timescale;
-//extern vmCvar_t cg_cameraMode;
-extern vmCvar_t cg_smallFont;
-extern vmCvar_t cg_bigFont;
-extern vmCvar_t cg_noTaunt;
-extern vmCvar_t cg_noProjectileTrail;
-extern vmCvar_t cg_oldRail;
-extern vmCvar_t cg_oldRocket;
-extern vmCvar_t cg_leiEnhancement;			// LEILEI'S LINE!
-extern vmCvar_t cg_leiGoreNoise;			// LEILEI'S LINE!
-extern vmCvar_t cg_leiBrassNoise;			// LEILEI'S LINE!
-extern vmCvar_t cg_leiSuperGoreyAwesome;	// LEILEI'S LINE!
-extern vmCvar_t cg_muzzleflashStyle;		// Leilei
-extern vmCvar_t cg_leiDebug;
-extern vmCvar_t cg_deathcam;
-extern vmCvar_t cg_cameramode;
-extern vmCvar_t cg_cameraEyes;
-extern vmCvar_t cg_cameraEyes_Fwd;
-extern vmCvar_t cg_cameraEyes_Up;
-extern vmCvar_t cg_modelEyes_Up;
-extern vmCvar_t cg_modelEyes_Right;
-extern vmCvar_t cg_modelEyes_Fwd;
-extern vmCvar_t cg_oldPlasma;
-extern vmCvar_t cg_trueLightning;
-extern vmCvar_t cg_music;
+extern	vmCvar_t		pmove_fixed;
+extern	vmCvar_t		pmove_msec;
+extern	vmCvar_t		pmove_float;
+//extern	vmCvar_t		cg_pmove_fixed;
+extern	vmCvar_t		cg_cameraOrbit;
+extern	vmCvar_t		cg_cameraOrbitDelay;
+extern	vmCvar_t		cg_timescaleFadeEnd;
+extern	vmCvar_t		cg_timescaleFadeSpeed;
+extern	vmCvar_t		cg_timescale;
+extern	vmCvar_t		cg_cameraMode;
+extern  vmCvar_t		cg_smallFont;
+extern  vmCvar_t		cg_bigFont;
+extern	vmCvar_t		cg_noTaunt;
+extern	vmCvar_t		cg_noProjectileTrail;
+extern	vmCvar_t		cg_oldRail;
+extern	vmCvar_t		cg_oldRocket;
+
+extern	vmCvar_t		cg_leiEnhancement;			// LEILEI'S LINE!
+extern	vmCvar_t		cg_leiGoreNoise;			// LEILEI'S LINE!
+extern	vmCvar_t		cg_leiBrassNoise;			// LEILEI'S LINE!
+extern	vmCvar_t		cg_leiSuperGoreyAwesome;	// LEILEI'S LINE!
+extern	vmCvar_t		cg_oldPlasma;
+extern	vmCvar_t		cg_trueLightning;
+extern	vmCvar_t		cg_music;
 #ifdef MISSIONPACK
-extern vmCvar_t cg_redTeamName;
-extern vmCvar_t cg_blueTeamName;
-extern vmCvar_t cg_currentSelectedPlayer;
-extern vmCvar_t cg_currentSelectedPlayerName;
-extern vmCvar_t cg_singlePlayer;
-extern vmCvar_t cg_singlePlayerActive;
-extern vmCvar_t cg_recordSPDemo;
-extern vmCvar_t cg_recordSPDemoName;
+extern	vmCvar_t		cg_redTeamName;
+extern	vmCvar_t		cg_blueTeamName;
+extern	vmCvar_t		cg_currentSelectedPlayer;
+extern	vmCvar_t		cg_currentSelectedPlayerName;
+extern	vmCvar_t		cg_singlePlayer;
+extern	vmCvar_t		cg_singlePlayerActive;
+extern  vmCvar_t		cg_recordSPDemo;
+extern  vmCvar_t		cg_recordSPDemoName;
 #endif
 //Sago: Moved outside
-extern vmCvar_t cg_obeliskRespawnDelay;
-extern vmCvar_t cg_enableDust;
-extern vmCvar_t cg_enableBreath;
-extern vmCvar_t cg_enableQ;		// leilei
-extern vmCvar_t cg_enableFS;		// leilei
+extern	vmCvar_t		cg_obeliskRespawnDelay;
+extern	vmCvar_t		cg_enableDust;
+extern	vmCvar_t		cg_enableBreath;
+
 //unlagged - client options
-extern vmCvar_t cg_delag;
-//extern vmCvar_t cg_debugDelag;
-//extern vmCvar_t cg_drawBBox;
-extern vmCvar_t cg_cmdTimeNudge;
-extern vmCvar_t sv_fps;
-extern vmCvar_t cg_projectileNudge;
-extern vmCvar_t cg_optimizePrediction;
-extern vmCvar_t cl_timeNudge;
-//extern vmCvar_t cg_latentSnaps;
-//extern vmCvar_t cg_latentCmds;
-//extern vmCvar_t cg_plOut;
+extern	vmCvar_t		cg_delag;
+//extern	vmCvar_t		cg_debugDelag;
+//extern	vmCvar_t		cg_drawBBox;
+extern	vmCvar_t		cg_cmdTimeNudge;
+extern	vmCvar_t		sv_fps;
+extern	vmCvar_t		cg_projectileNudge;
+extern	vmCvar_t		cg_optimizePrediction;
+extern	vmCvar_t		cl_timeNudge;
+//extern	vmCvar_t		cg_latentSnaps;
+//extern	vmCvar_t		cg_latentCmds;
+//extern	vmCvar_t		cg_plOut;
 //unlagged - client options
+
 //extra CVARS elimination
-extern vmCvar_t cg_alwaysWeaponBar;
-extern vmCvar_t cg_hitsound;
-extern vmCvar_t cg_voip_teamonly;
-extern vmCvar_t cg_voteflags;
-extern vmCvar_t cg_cyclegrapple;
-extern vmCvar_t cg_vote_custom_commands;
-extern vmCvar_t cg_autovertex;
+extern	vmCvar_t		cg_alwaysWeaponBar;
+extern	vmCvar_t		cg_hitsound;
+extern  vmCvar_t                cg_voip_teamonly;
+extern  vmCvar_t                cg_voteflags;
+extern  vmCvar_t                cg_cyclegrapple;
+extern  vmCvar_t                cg_vote_custom_commands;
+
+extern  vmCvar_t                cg_autovertex;
+
 //Cvar to adjust the size of the fragmessage
-extern vmCvar_t cg_fragmsgsize;
-extern vmCvar_t cg_crosshairPulse;
-extern vmCvar_t cg_differentCrosshairs;
-extern vmCvar_t cg_ch1;
-extern vmCvar_t cg_ch1size;
-extern vmCvar_t cg_ch2;
-extern vmCvar_t cg_ch2size;
-extern vmCvar_t cg_ch3;
-extern vmCvar_t cg_ch3size;
-extern vmCvar_t cg_ch4;
-extern vmCvar_t cg_ch4size;
-extern vmCvar_t cg_ch5;
-extern vmCvar_t cg_ch5size;
-extern vmCvar_t cg_ch6;
-extern vmCvar_t cg_ch6size;
-extern vmCvar_t cg_ch7;
-extern vmCvar_t cg_ch7size;
-extern vmCvar_t cg_ch8;
-extern vmCvar_t cg_ch8size;
-extern vmCvar_t cg_ch9;
-extern vmCvar_t cg_ch9size;
-extern vmCvar_t cg_ch10;
-extern vmCvar_t cg_ch10size;
-extern vmCvar_t cg_ch11;
-extern vmCvar_t cg_ch11size;
-extern vmCvar_t cg_ch12;
-extern vmCvar_t cg_ch12size;
-extern vmCvar_t cg_ch13;
-extern vmCvar_t cg_ch13size;
-extern vmCvar_t cg_crosshairColorRed;
-extern vmCvar_t cg_crosshairColorGreen;
-extern vmCvar_t cg_crosshairColorBlue;
-extern vmCvar_t cg_weaponBarStyle;
-extern vmCvar_t cg_weaponOrder;
-extern vmCvar_t cg_chatBeep;
-extern vmCvar_t cg_teamChatBeep;
-/* Neon_Knight: Toggleable missionpack checks. */
-extern vmCvar_t cg_missionpackChecks;
-/* /Neon_Knight */
-extern vmCvar_t cg_leiChibi;
-/* Neon_Knight: Developer mode. */
-extern vmCvar_t cg_developer;
-/* /Neon_Knight */
+extern	vmCvar_t		cg_fragmsgsize;
+
+extern	vmCvar_t		cg_crosshairPulse;
+extern	vmCvar_t		cg_differentCrosshairs;
+extern	vmCvar_t		cg_ch1;
+extern	vmCvar_t		cg_ch1size;
+extern	vmCvar_t		cg_ch2;
+extern	vmCvar_t		cg_ch2size;
+extern	vmCvar_t		cg_ch3;
+extern	vmCvar_t		cg_ch3size;
+extern	vmCvar_t		cg_ch4;
+extern	vmCvar_t		cg_ch4size;
+extern	vmCvar_t		cg_ch5;
+extern	vmCvar_t		cg_ch5size;
+extern	vmCvar_t		cg_ch6;
+extern	vmCvar_t		cg_ch6size;
+extern	vmCvar_t		cg_ch7;
+extern	vmCvar_t		cg_ch7size;
+extern	vmCvar_t		cg_ch8;
+extern	vmCvar_t		cg_ch8size;
+extern	vmCvar_t		cg_ch9;
+extern	vmCvar_t		cg_ch9size;
+extern	vmCvar_t		cg_ch10;
+extern	vmCvar_t		cg_ch10size;
+extern	vmCvar_t		cg_ch11;
+extern	vmCvar_t		cg_ch11size;
+extern	vmCvar_t		cg_ch12;
+extern	vmCvar_t		cg_ch12size;
+extern	vmCvar_t		cg_ch13;
+extern	vmCvar_t		cg_ch13size;
+
+extern	vmCvar_t                cg_crosshairColorRed;
+extern	vmCvar_t                cg_crosshairColorGreen;
+extern	vmCvar_t                cg_crosshairColorBlue;
+
+extern vmCvar_t			cg_weaponBarStyle;
+
+extern vmCvar_t                 cg_weaponOrder;
+extern vmCvar_t			cg_chatBeep;
+extern vmCvar_t			cg_teamChatBeep;
 
 //unlagged - cg_unlagged.c
 void CG_PredictWeaponEffects( centity_t *cent );
@@ -1497,8 +1427,8 @@ qboolean CG_Cvar_ClampInt( const char *name, vmCvar_t *vmCvar, int min, int max 
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
-void QDECL CG_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
-void QDECL CG_Error( const char *msg, ... ) __attribute__ ((format (printf, 1, 2))) __attribute__((noreturn));
+void QDECL CG_Printf( const char *msg, ... );
+void QDECL CG_Error( const char *msg, ... ) __attribute__((noreturn));
 
 void CG_StartMusic( void );
 
@@ -1514,7 +1444,7 @@ void CG_RankRunFrame( void );
 void CG_SetScoreSelection(void *menu);
 //score_t *CG_GetSelectedScore( void );
 void CG_BuildSpectatorString( void );
-float CG_GetCVar(const char *cvar);
+
 //unlagged, sagos modfication
 void SnapVectorTowards( vec3_t v, vec3_t to );
 
@@ -1607,14 +1537,6 @@ qboolean CG_YourTeamHasFlag( void );
 qboolean CG_OtherTeamHasFlag( void );
 qhandle_t CG_StatusHandle(int task);
 
-// loadingscreen
-#ifdef SCRIPTHUD
-	void  CG_DrawLoadingScreen( void );
-	void  CG_UpdateMediaFraction( float newFract );
-	void  CG_UpdateSoundFraction( float newFract );
-	void  CG_UpdateGraphicFraction( float newFract );
-#endif
-// end loadingscreen
 
 
 //
@@ -1652,7 +1574,7 @@ void CG_PainEvent( centity_t *cent, int health );
 void CG_SetEntitySoundPosition( centity_t *cent );
 void CG_AddPacketEntities( void );
 void CG_Beam( centity_t *cent );
-void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out,vec3_t angles_in, vec3_t angles_out );
+void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out );
 
 void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
 							qhandle_t parentModel, char *tagName );
@@ -1664,7 +1586,6 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 //
 // cg_weapons.c
 //
-void CG_BestWeapon_f( void );
 void CG_NextWeapon_f( void );
 void CG_PrevWeapon_f( void );
 void CG_Weapon_f( void );
@@ -1706,6 +1627,10 @@ void	CG_ImpactMark( qhandle_t markShader,
 				    float r, float g, float b, float a, 
 					qboolean alphaFade, 
 					float radius, qboolean temporary );
+void    CG_LeiSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void    CG_LeiSparks2 (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void    CG_LeiPuff (vec3_t org, vec3_t vel, int duration, float x, float y, float speed, float size);
+
 
 //
 // cg_localents.c
@@ -1728,12 +1653,14 @@ localEntity_t *CG_SmokePuff( const vec3_t p,
 				   qhandle_t hShader );
 void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
 void CG_SpawnEffect( vec3_t org );
+//#ifdef MISSIONPACK
 void CG_KamikazeEffect( vec3_t org );
 void CG_ObeliskExplode( vec3_t org, int entityNum );
 void CG_ObeliskPain( vec3_t org );
 void CG_InvulnerabilityImpact( vec3_t org, vec3_t angles );
 void CG_InvulnerabilityJuiced( vec3_t org );
 void CG_LightningBoltBeam( vec3_t start, vec3_t end );
+//#endif
 void CG_ScorePlum( int client, vec3_t org, int score );
 
 void CG_GibPlayer( vec3_t playerOrigin );
@@ -1767,7 +1694,7 @@ void CG_DrawInformation( void );
 // cg_scoreboard.c
 //
 qboolean CG_DrawOldScoreboard( void );
-void CG_DrawTourneyScoreboard( void );
+void CG_DrawOldTourneyScoreboard( void );
 
 //
 // cg_challenges.c
@@ -1992,60 +1919,20 @@ qboolean	trap_getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
 
 qboolean	trap_GetEntityToken( char *buffer, int bufferSize );
 
-
+void	CG_ClearParticles (void);
+void	CG_AddParticles (void);
+void	CG_ParticleSnow (qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum);
+void	CG_ParticleSmoke (qhandle_t pshader, centity_t *cent);
+void	CG_AddParticleShrapnel (localEntity_t *le);
+void	CG_ParticleSnowFlurry (qhandle_t pshader, centity_t *cent);
+void	CG_ParticleBulletDebris (vec3_t	org, vec3_t vel, int duration);
+void	CG_ParticleSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
+void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
+void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
+void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 extern qboolean		initparticles;
+int CG_NewParticleArea ( int num );
 
-extern int wideAdjustX;
-
-void	trap_R_LFX_ParticleEffect( int effect, const vec3_t origin, const vec3_t velocity ); // leilei - particle effects. this allows to pick an effect, such as..
-
-#define	LFX_SMOKEPUFF		1;
-#define	LFX_BULLETHIT		2;
-#define	LFX_SHOTGUNHIT		3;
-#define	LFX_GRENADEHIT		4;
-#define	LFX_ROCKETHIT		5;
-#define	LFX_PLASMAHIT		6;
-#define	LFX_RAILHIT		7;
-#define	LFX_LIGHTNINGHIT	8;
-#define	LFX_BFGHIT		9;
-#define	LFX_NAILHIT		10;
-#define	LFX_PROXHIT		11;
-#define	LFX_CHAINHIT		12;
-#define	LFX_GRAPPLEHIT		13;
-#define	LFX_BLOODSPRAY		14;
-#define	LFX_BLOODSPURT		15;
-#define	LFX_GIBBING		16;
-#define	LFX_COREDESTROY		17;
-#define	LFX_TELEPORT		18;
-#define	LFX_WATERSPLASH		19;
-#define	LFX_WATERSPLASHBIG 	20;
-#define	LFX_SPARK		21;
-#define	LFX_RAILHIT2		30; // next 10 are alt colors
-#define	LFX_RAILHIT6		40;
-#define	LFX_ITEMSPAWN		41;
-#define	LFX_INVULHIT		42;
-#define	LFX_LIGHTNINGBEAM	43;
-#define	LFX_HOOKBEAMLOOSE	44;
-#define	LFX_HOOKBEAMTIGHT	45;
-#define	LFX_BUBBLETRAIL		46;
-#define	LFX_GIBTRAIL		47;
-
-#define LFX_FLASHMGUN		62;
-#define LFX_FLASHSHOTGUN	63;
-#define LFX_FLASHGRENADE	64;
-#define LFX_FLASHROCKET		65;
-#define LFX_FLASHPLASMA		66;
-#define LFX_FLASHRAIL		67;
-#define LFX_FLASHBFG		68;
-#define LFX_FLASHNAIL		69;
-#define LFX_FLASHPROX		70;
-#define LFX_FLASHVULCAN		71;
 
 // LEILEI ENHANCEMENT
 
-/* Neon_Knight: Useful check in order to have code consistency. */
-qboolean CG_IsATeamGametype(int check);	/* Whether the gametype is team-based or not.*/
-qboolean CG_UsesTeamFlags(int check);	/* Whether the gametype uses the red and blue flags. */
-qboolean CG_UsesTheWhiteFlag(int check);	/* Whether the gametype uses the neutral flag. */
-qboolean CG_IsARoundBasedGametype(int check);	/* Whether the gametype uses the neutral flag. */
-/* /Neon_Knight */

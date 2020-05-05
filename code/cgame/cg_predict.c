@@ -263,11 +263,8 @@ static void CG_TouchItem( centity_t *cent ) {
 	//For instantgib
 	qboolean	canBePicked;
 
-	if(CG_IsARoundBasedGametype(cgs.gametype) && !CG_UsesTeamFlags(cgs.gametype))
+	if(cgs.gametype == GT_ELIMINATION || cgs.gametype == GT_LMS)
 		return; //No weapon pickup in elimination
-
-	if(CG_IsARoundBasedGametype(cgs.gametype) && cgs.roundStartTime > cgs.roundtime)
-		return; //We cannot pickup before the round has started
 
 	//normally we can
 	canBePicked = qtrue;
@@ -296,31 +293,33 @@ static void CG_TouchItem( centity_t *cent ) {
 
 	// Special case for flags.  
 	// We don't predict touching our own flag
+#if 1 //MISSIONPACK
 	if( cgs.gametype == GT_1FCTF ) {
-		if( item->giType == IT_TEAM && item->giTag != PW_NEUTRALFLAG ) {
+		if( item->giTag != PW_NEUTRALFLAG ) {
 			return;
 		}
 	}
-	if (cgs.gametype == GT_POSSESSION) {
-		if( item->giType == IT_TEAM && item->giTag == PW_NEUTRALFLAG ) {
-			canBePicked = qtrue;
-		}
-	}
-	
-	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION ) {
+	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION || cgs.gametype == GT_HARVESTER ) {
+#else
+	if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION ) {
+#endif
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
-			item->giType == IT_TEAM && item->giTag == PW_REDFLAG)
+			item->giTag == PW_REDFLAG)
 			return;
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
-			item->giType == IT_TEAM && item->giTag == PW_BLUEFLAG)
+			item->giTag == PW_BLUEFLAG)
 			return;
 		//Even in instantgib, we can predict our enemy flag
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_RED &&
-			item->giType == IT_TEAM && item->giTag == PW_BLUEFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_RED))
+			item->giTag == PW_BLUEFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_RED))
 			canBePicked = qtrue;
 		if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_BLUE &&
-			item->giType == IT_TEAM && item->giTag == PW_REDFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_BLUE))
+			item->giTag == PW_REDFLAG && (!(cgs.elimflags&EF_ONEWAY) || cgs.attackingTeam == TEAM_BLUE))
 			canBePicked = qtrue;
+		if (item->giTag == WP_RAILGUN)
+			canBePicked = qfalse;
+		if (item->giTag == WP_PLASMAGUN)
+			canBePicked = qfalse;
 	}
 
 	//Currently we don't predict anything in Double Domination because it looks like we take a flag
@@ -666,11 +665,9 @@ void CG_PredictPlayerState( void ) {
 
 	if ( pmove_msec.integer < 8 ) {
 		trap_Cvar_Set("pmove_msec", "8");
-		trap_Cvar_Update(&pmove_msec);
 	}
 	else if (pmove_msec.integer > 33) {
 		trap_Cvar_Set("pmove_msec", "33");
-		trap_Cvar_Update(&pmove_msec);
 	}
 
 	cg_pmove.pmove_fixed = pmove_fixed.integer;// | cg_pmove_fixed.integer;
@@ -801,9 +798,9 @@ void CG_PredictPlayerState( void ) {
 				}
 				cg.thisFrameTeleport = qfalse;
 			} else {
-				vec3_t	adjusted,new_angles;
+				vec3_t	adjusted;
 				CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
-					cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted, cg.predictedPlayerState.viewangles, new_angles );
+					cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted );
 
 				if ( cg_showmiss.integer ) {
 					if (!VectorCompare( oldPlayerState.origin, adjusted )) {
@@ -923,7 +920,7 @@ void CG_PredictPlayerState( void ) {
 	// adjust for the movement of the groundentity
 	CG_AdjustPositionForMover( cg.predictedPlayerState.origin, 
 		cg.predictedPlayerState.groundEntityNum, 
-		cg.physicsTime, cg.time, cg.predictedPlayerState.origin,cg.predictedPlayerState.viewangles,cg.predictedPlayerState.viewangles );
+		cg.physicsTime, cg.time, cg.predictedPlayerState.origin );
 
 	if ( cg_showmiss.integer ) {
 		if (cg.predictedPlayerState.eventSequence > oldPlayerState.eventSequence + MAX_PS_EVENTS) {

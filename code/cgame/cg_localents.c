@@ -74,7 +74,7 @@ void CG_FreeLocalEntity( localEntity_t *le ) {
 ===================
 CG_AllocLocalEntity
 
-Will always succeed, even if it requires freeing an old active entity
+Will allways succeed, even if it requires freeing an old active entity
 ===================
 */
 localEntity_t	*CG_AllocLocalEntity( void ) {
@@ -144,6 +144,9 @@ void CG_BloodTrail( localEntity_t *le ) {
 		blood->leType = LE_FALL_SCALE_FADE;
 		// drop a total of 40 units over its lifetime
 		blood->pos.trDelta[2] = 40;
+		if ( cg_leiSuperGoreyAwesome.integer ) {
+//			blood = CG_SpurtBlood( newOrigin, vec3_origin, 3); // LEILEI more gore plz
+			}
 	}
 }
 
@@ -744,6 +747,7 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 }
 
 
+//#ifdef MISSIONPACK
 /*
 ====================
 CG_AddKamikaze
@@ -917,6 +921,7 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap_R_AddRefEntityToScene( &le->refEntity );
 }
 
+//#endif
 /*
 ===================
 CG_AddScorePlum
@@ -1069,6 +1074,7 @@ void CG_AddLocalEntities( void ) {
 			CG_AddScorePlum( le );
 			break;
 
+//#ifdef MISSIONPACK
 		case LE_KAMIKAZE:
 			CG_AddKamikaze( le );
 			break;
@@ -1081,6 +1087,7 @@ void CG_AddLocalEntities( void ) {
 		case LE_SHOWREFENTITY:
 			CG_AddRefEntity( le );
 			break;
+//#endif
 
 		case LE_GORE:			// blood
 			CG_AddGore( le );

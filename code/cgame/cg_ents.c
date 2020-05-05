@@ -340,7 +340,7 @@ static void CG_Item( centity_t *cent ) {
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
 
-	if ( wi && wi->barrelModel ) {
+	if ( item->giType == IT_WEAPON && wi->barrelModel ) {
 		refEntity_t	barrel;
 
 		memset( &barrel, 0, sizeof( barrel ) );
@@ -462,17 +462,38 @@ static void CG_Missile( centity_t *cent ) {
 		trap_R_AddRefEntityToScene( &ent );
 		return;
 	}
+	if ( cent->currentState.weapon == WP_FLAMETHROWER ) {
+		ent.reType = RT_SPRITE;
+		ent.radius = 20;
+		ent.rotation = 1;
+		ent.customShader = cgs.media.flameBallShader;
+		trap_R_AddRefEntityToScene( &ent );
+		return;
+	}
+	
+	if ( cent->currentState.weapon == WP_ANTIMATTER ) {
+		ent.reType = RT_SPRITE;
+		ent.radius = 50;
+		ent.rotation = 1;
+		ent.customShader = cgs.media.antimatterBallShader;
+		trap_R_AddRefEntityToScene( &ent );
+		return;
+	}
+
+
 
 	// flicker between two skins
 	ent.skinNum = cg.clientFrame & 1;
 	ent.hModel = weapon->missileModel;
 	ent.renderfx = weapon->missileRenderfx | RF_NOSHADOW;
 
+//#ifdef MISSIONPACK
 	if ( cent->currentState.weapon == WP_PROX_LAUNCHER ) {
 		if (s1->generic1 == TEAM_BLUE) {
 			ent.hModel = cgs.media.blueProxMine;
 		}
 	}
+//#endif
 
 	// convert direction of travel into axis
 	if ( VectorNormalize2( s1->pos.trDelta, ent.axis[0] ) == 0 ) {
@@ -483,10 +504,12 @@ static void CG_Missile( centity_t *cent ) {
 	if ( s1->pos.trType != TR_STATIONARY ) {
 		RotateAroundDirection( ent.axis, cg.time / 4 );
 	} else {
+//#ifdef MISSIONPACK
 		if ( s1->weapon == WP_PROX_LAUNCHER ) {
 			AnglesToAxis( cent->lerpAngles, ent.axis );
 		}
 		else
+//#endif
 		{
 			RotateAroundDirection( ent.axis, s1->time );
 		}
@@ -645,43 +668,6 @@ static void CG_Portal( centity_t *cent ) {
 	trap_R_AddRefEntityToScene(&ent);
 }
 
-/*
-================
-CG_CreateRotationMatrix
-================
-*/
-void CG_CreateRotationMatrix(vec3_t angles, vec3_t matrix[3]) {
-	AngleVectors(angles, matrix[0], matrix[1], matrix[2]);
-	VectorInverse(matrix[1]);
-}
-
-/*
-================
-CG_TransposeMatrix
-================
-*/
-void CG_TransposeMatrix(vec3_t matrix[3], vec3_t transpose[3]) {
-	int i, j;
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < 3; j++) {
-			transpose[i][j] = matrix[j][i];
-		}
-	}
-}
-
-/*
-================
-CG_RotatePoint
-================
-*/
-void CG_RotatePoint(vec3_t point, vec3_t matrix[3]) {
-	vec3_t tvec;
-
-	VectorCopy(point, tvec);
-	point[0] = DotProduct(matrix[0], tvec);
-	point[1] = DotProduct(matrix[1], tvec);
-	point[2] = DotProduct(matrix[2], tvec);
-}
 
 /*
 =========================
@@ -690,23 +676,19 @@ CG_AdjustPositionForMover
 Also called by client movement prediction code
 =========================
 */
-void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out, vec3_t angles_in, vec3_t angles_out ) {
+void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out ) {
 	centity_t	*cent;
 	vec3_t	oldOrigin, origin, deltaOrigin;
 	vec3_t	oldAngles, angles, deltaAngles;
-	vec3_t	matrix[3], transpose[3];
-	vec3_t	org, org2, move2;
 
 	if ( moverNum <= 0 || moverNum >= ENTITYNUM_MAX_NORMAL ) {
 		VectorCopy( in, out );
-		VectorCopy( angles_in, angles_out );
 		return;
 	}
 
 	cent = &cg_entities[ moverNum ];
 	if ( cent->currentState.eType != ET_MOVER ) {
 		VectorCopy( in, out );
-		VectorCopy( angles_in, angles_out );
 		return;
 	}
 
@@ -719,18 +701,11 @@ void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int
 	VectorSubtract( origin, oldOrigin, deltaOrigin );
 	VectorSubtract( angles, oldAngles, deltaAngles );
 
-	// origin change when on a rotating object
-	CG_CreateRotationMatrix( deltaAngles, transpose );
-	CG_TransposeMatrix( transpose, matrix );
-	VectorSubtract( in, oldOrigin, org );
-	VectorCopy( org, org2 );
-	CG_RotatePoint( org2, matrix );
-	VectorSubtract( org2, org, move2 );
-	VectorAdd( deltaOrigin, move2, deltaOrigin );
-
 	VectorAdd( in, deltaOrigin, out );
-	VectorAdd( angles_in, deltaAngles, angles_out );
+
+	// FIXME: origin change when on a rotating object
 }
+
 
 /*
 =============================
@@ -774,10 +749,26 @@ CG_CalcEntityLerpPositions
 ===============
 */
 static void CG_CalcEntityLerpPositions( centity_t *cent ) {
+
 //unlagged - projectile nudge
 	// this will be set to how far forward projectiles will be extrapolated
 	int timeshift = 0;
 //unlagged - projectile nudge
+
+//unlagged - smooth clients #2
+	// this is done server-side now - cg_smoothClients is undefined
+	// players will always be TR_INTERPOLATE
+/*
+	// if this player does not want to see extrapolated players
+	if ( !cg_smoothClients.integer ) {
+		// make sure the clients use TR_INTERPOLATE
+		if ( cent->currentState.number < MAX_CLIENTS ) {
+			cent->currentState.pos.trType = TR_INTERPOLATE;
+			cent->nextState.pos.trType = TR_INTERPOLATE;
+		}
+	}
+*/
+//unlagged - smooth clients #2
 
 	if ( cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE ) {
 		CG_InterpolateEntityPosition( cent );
@@ -849,7 +840,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	// player state
 	if ( cent != &cg.predictedPlayerEntity ) {
 		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, 
-		cg.snap->serverTime, cg.time, cent->lerpOrigin, cent->lerpAngles, cent->lerpAngles );
+		cg.snap->serverTime, cg.time, cent->lerpOrigin );
 	}
 }
 
@@ -860,11 +851,15 @@ CG_TeamBase
 */
 static void CG_TeamBase( centity_t *cent ) {
 	refEntity_t model;
+//#ifdef MISSIONPACK
 	vec3_t angles;
 	int t, h;
 	float c;
 
-	if ( CG_UsesTeamFlags(cgs.gametype) ) {
+	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF ) {
+//#else
+//	if ( cgs.gametype == GT_CTF) {
+//#endif
 		// show the flag base
 		memset(&model, 0, sizeof(model));
 		model.reType = RT_MODEL;
@@ -882,6 +877,7 @@ static void CG_TeamBase( centity_t *cent ) {
 		}
 		trap_R_AddRefEntityToScene( &model );
 	}
+//#ifdef MISSIONPACK
 	else if ( cgs.gametype == GT_OBELISK ) {
 		// show the obelisk
 		memset(&model, 0, sizeof(model));
@@ -998,6 +994,7 @@ static void CG_TeamBase( centity_t *cent ) {
 		}
 		trap_R_AddRefEntityToScene( &model );
 	}
+//#endif
 }
 
 /*

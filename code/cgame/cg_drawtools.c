@@ -37,11 +37,8 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 		*x += 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * 640 / 480 ) );
 	}
 #endif
-
-
 	// scale for screen sizes
-	//*x *= cgs.screenXScale;
-	*x = *x * cgs.screenXScale + cgs.screenXBias;	// leilei - widescreen adjust
+	*x *= cgs.screenXScale;
 	*y *= cgs.screenYScale;
 	*w *= cgs.screenXScale;
 	*h *= cgs.screenYScale;
@@ -85,7 +82,7 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 }
 /*
 ================
-CG_DrawRect
+UI_DrawRect
 
 Coordinates are 640*480 virtual values
 =================
@@ -93,8 +90,8 @@ Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
 	trap_R_SetColor( color );
 
-	CG_DrawTopBottom(x, y, width, height, size);
-	CG_DrawSides(x, y + size, width, height - size * 2, size);
+  CG_DrawTopBottom(x, y, width, height, size);
+  CG_DrawSides(x, y, width, height, size);
 
 	trap_R_SetColor( NULL );
 }

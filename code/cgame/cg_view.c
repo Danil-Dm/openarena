@@ -71,7 +71,6 @@ can then be moved around
 void CG_TestModel_f (void) {
 	vec3_t		angles;
 
-	cg.testGun = qfalse;
 	memset( &cg.testModelEntity, 0, sizeof(cg.testModelEntity) );
 	if ( trap_Argc() < 2 ) {
 		return;
@@ -97,6 +96,7 @@ void CG_TestModel_f (void) {
 	angles[ROLL] = 0;
 
 	AnglesToAxis( angles, cg.testModelEntity.axis );
+	cg.testGun = qfalse;
 }
 
 /*
@@ -108,11 +108,6 @@ Replaces the current view weapon with the given model
 */
 void CG_TestGun_f (void) {
 	CG_TestModel_f();
-
-	if ( !cg.testModelEntity.hModel ) {
-		return;
-	}
-
 	cg.testGun = qtrue;
 	cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 }
@@ -186,7 +181,6 @@ Sets the coordinates of the rendered window
 */
 static void CG_CalcVrect (void) {
 	int		size;
-	int		size2;
 
 	// the intermission should allways be full screen
 	if ( cg.snap->ps.pm_type == PM_INTERMISSION ) {
@@ -196,18 +190,13 @@ static void CG_CalcVrect (void) {
 		if (cg_viewsize.integer < 30) {
 			trap_Cvar_Set ("cg_viewsize","30");
 			size = 30;
-		} else if (cg_viewsize.integer > 120) {
-			trap_Cvar_Set ("cg_viewsize","120");	// leilei - increased to 120 for retro sbar disabling
-			size = 120;
+		} else if (cg_viewsize.integer > 100) {
+			trap_Cvar_Set ("cg_viewsize","100");
+			size = 100;
 		} else {
 			size = cg_viewsize.integer;
 		}
 
-	}
-
-	size2 = size;
-	if (size>100){
-		size = 100;	// leilei - size should actually be normal...
 	}
 	cg.refdef.width = cgs.glconfig.vidWidth*size/100;
 	cg.refdef.width &= ~1;
@@ -217,31 +206,11 @@ static void CG_CalcVrect (void) {
 
 	cg.refdef.x = (cgs.glconfig.vidWidth - cg.refdef.width)/2;
 	cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height)/2;
-
-	// leilei - nudge
-		if (cg_viewnudge.integer) {
-			int nudged = 0;
-
-			if (size2 < 110) {
-				nudged = 48;
-			}
-			else if (size2 < 120) {
-				nudged = 24;
-			}
-
-
-			nudged = nudged * (cgs.glconfig.vidHeight / 480.0);
-			cg.refdef.y = ( cgs.glconfig.vidHeight  - cg.refdef.height) /2 - nudged;
-
-		}
 }
 
 //==============================================================================
 
-// leilei - eyes hack
 
-extern vec3_t headpos;
-extern vec3_t headang;
 /*
 ===============
 CG_OffsetThirdPersonView
@@ -253,136 +222,73 @@ static void CG_OffsetThirdPersonView( void ) {
 	vec3_t		forward, right, up;
 	vec3_t		view;
 	vec3_t		focusAngles;
+	trace_t		trace;
+	static vec3_t	mins = { -4, -4, -4 };
+	static vec3_t	maxs = { 4, 4, 4 };
 	vec3_t		focusPoint;
 	float		focusDist;
 	float		forwardScale, sideScale;
 
-
-	float		range = cg_thirdPersonRange.value;
-
-		
 	cg.refdef.vieworg[2] += cg.predictedPlayerState.viewheight;
 
 	VectorCopy( cg.refdefViewAngles, focusAngles );
 
 	// if dead, look at killer
-	if ( (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) && !CG_IsARoundBasedGametype(cgs.gametype) ) {
+	if ( (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) && 
+				(cgs.gametype !=GT_ELIMINATION && cgs.gametype !=GT_CTF_ELIMINATION && cgs.gametype !=GT_LMS) ) {
 		focusAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
 		cg.refdefViewAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
 	}
 
-	if (cg_deathcam.integer == 2 && (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) ){	// leilei - deathcam
-
-		range = 100;
-		//origin = cg.refdef.vieworg;
-	//	focusAngles[YAW] = cg.refdefViewAngles[YAW];
-	//	focusAngles[PITCH] = cg.refdefViewAngles[PITCH];
+	if ( focusAngles[PITCH] > 45 ) {
+		focusAngles[PITCH] = 45;		// don't go too far overhead
 	}
+	AngleVectors( focusAngles, forward, right, NULL );
 
-	if (cg_cameramode.integer && (cg.predictedPlayerState.stats[STAT_HEALTH] > 0))		// leilei this mode is off to the player's right
-	{											
-		// and should look towards a 3d crosshair
-		AngleVectors( focusAngles, forward, NULL, NULL );
-		VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
-		VectorCopy( cg.refdef.vieworg, view );
+	VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
 
-		view[2] += 3;
+	VectorCopy( cg.refdef.vieworg, view );
 
-		cg.refdefViewAngles[PITCH] *= 0.5;
+	view[2] += 8;
+	VectorMA( view, cg_thirdPersonOffset.value, right, view );
 
-		// hmm HMMhmmhHMHMHMhmhmh
+	cg.refdefViewAngles[PITCH] *= 0.5;
 
-		//cg.refdefViewAngles[YAW] -= cg_leiDebug.value;
-		AngleVectors( focusAngles, forward, NULL, NULL );
-		VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
-		VectorCopy( cg.refdef.vieworg, view );
+	AngleVectors( cg.refdefViewAngles, forward, right, up );
 
-		AngleVectors( cg.refdefViewAngles, forward, right, up );
+	forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
+	sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
+	VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
+	VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
 
-		forwardScale = cos( 0 / 180 * M_PI );
-		sideScale = sin( 0 / 180 * M_PI ) - 0.465;
-		VectorMA( view, -range * forwardScale, forward, view );
-		VectorMA( view, -range * sideScale, right, view );
+	// trace a ray from the origin to the viewpoint to make sure the view isn't
+	// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
 
-		VectorCopy( view, cg.refdef.vieworg );
+	if (!cg_cameraMode.integer) {
+		CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_SOLID );
 
-		// select pitch to look at focus point from vieword
-		VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-		focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
-		if ( focusDist < 1 ) {
-			focusDist = 1;	// should never happen
-		}
-		cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
+		if ( trace.fraction != 1.0 ) {
+			VectorCopy( trace.endpos, view );
+			view[2] += (1.0 - trace.fraction) * 32;
+			// try another trace to this position, because a tunnel may have the ceiling
+			// close enogh that this is poking out
 
-		// leilei - make it look to a 3d cursor
-
-		//cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;	 // can't do this right now.
-
-		{
-			vec3_t			forward, up;
-
-			cg.refdef.vieworg[2] -= 24;
-			AngleVectors( cg.refdefViewAngles, forward, NULL, up );
-			VectorMA( cg.refdef.vieworg, 1, forward, cg.refdef.vieworg );
-			VectorMA( cg.refdef.vieworg, 24, up, cg.refdef.vieworg );
-		}
-
-
-	}
-	else
-	{
-		if ( focusAngles[PITCH] > 45 ) {
-			focusAngles[PITCH] = 45;		// don't go too far overhead
-		}
-		AngleVectors( focusAngles, forward, NULL, NULL );
-
-		VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
-
-		VectorCopy( cg.refdef.vieworg, view );
-
-		view[2] += 8;
-
-		cg.refdefViewAngles[PITCH] *= 0.5;
-
-		AngleVectors( cg.refdefViewAngles, forward, right, up );
-
-		forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
-		sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
-		VectorMA( view, -range * forwardScale, forward, view );
-		VectorMA( view, -range * sideScale, right, view );
-
-		// trace a ray from the origin to the viewpoint to make sure the view isn't
-		// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
-	/*
-		if (!cg_cameraMode.integer) {
 			CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_SOLID );
-
-			if ( trace.fraction != 1.0 ) {
-				VectorCopy( trace.endpos, view );
-				view[2] += (1.0 - trace.fraction) * 32;
-				// try another trace to this position, because a tunnel may have the ceiling
-				// close enough that this is poking out
-
-				CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_SOLID );
-				VectorCopy( trace.endpos, view );
-			}
+			VectorCopy( trace.endpos, view );
 		}
-	*/
-
-
-		VectorCopy( view, cg.refdef.vieworg );
-
-		// select pitch to look at focus point from vieword
-		VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-		focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
-		if ( focusDist < 1 ) {
-			focusDist = 1;	// should never happen
-		}
-		cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
-		cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;
 	}
 
-	
+
+	VectorCopy( view, cg.refdef.vieworg );
+
+	// select pitch to look at focus point from vieword
+	VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
+	focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
+	if ( focusDist < 1 ) {
+		focusDist = 1;	// should never happen
+	}
+	cg.refdefViewAngles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
+	cg.refdefViewAngles[YAW] -= cg_thirdPersonAngle.value;
 }
 
 
@@ -435,17 +341,17 @@ static void CG_OffsetFirstPersonView( void ) {
 	VectorAdd (angles, cg.kick_angles, angles);
 
 	// add angles based on damage kick
-	if ( cg.damageTime && !CG_IsARoundBasedGametype(cgs.gametype)) {
+	if ( cg.damageTime && cgs.gametype!=GT_ELIMINATION && cgs.gametype!=GT_CTF_ELIMINATION && cgs.gametype!=GT_LMS) {
 		ratio = cg.time - cg.damageTime;
 		if ( ratio < DAMAGE_DEFLECT_TIME ) {
 			ratio /= DAMAGE_DEFLECT_TIME;
-			angles[PITCH] += ratio * cg.v_dmg_pitch * cg_kickScale.value;
-			angles[ROLL] += ratio * cg.v_dmg_roll * cg_kickScale.value;
+			angles[PITCH] += ratio * cg.v_dmg_pitch;
+			angles[ROLL] += ratio * cg.v_dmg_roll;
 		} else {
 			ratio = 1.0 - ( ratio - DAMAGE_DEFLECT_TIME ) / DAMAGE_RETURN_TIME;
 			if ( ratio > 0 ) {
-				angles[PITCH] += ratio * cg.v_dmg_pitch * cg_kickScale.value;
-				angles[ROLL] += ratio * cg.v_dmg_roll * cg_kickScale.value;
+				angles[PITCH] += ratio * cg.v_dmg_pitch;
+				angles[ROLL] += ratio * cg.v_dmg_roll;
 			}
 		}
 	}
@@ -469,45 +375,19 @@ static void CG_OffsetFirstPersonView( void ) {
 
 	// add angles based on bob
 
-	if ( cg_bob.integer == 6 ) // leilei - sweeney bob
-	{
-		vec3_t		forward, right, up;
-		speed = cg.xyspeed;
-		if (speed > 320) {
-			speed = 320;
-		}
-		delta = cg.bobfracsin * 0.006 * speed;
-		if (cg.bobcycle & 1) {
-			delta = -delta;
-		}
-		AngleVectors (angles, forward, right, up);
-		VectorMA (origin, delta, right, origin);
-	}
-	else if ( cg_bob.integer ) 
-	{
-		// make sure the bob is visible even at low speeds
-		speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
+	// make sure the bob is visible even at low speeds
+	speed = cg.xyspeed > 200 ? cg.xyspeed : 200;
 
-		delta = cg.bobfracsin * cg_bobpitch.value * speed;
-		if (cg.predictedPlayerState.pm_flags & PMF_DUCKED) {
-			delta *= 3;		// crouching
-		}
-		// leilei - no pitch for 3 or 4
-		if ( cg_bob.integer == 1 || cg_bob.integer == 2 ) {
-			angles[PITCH] += delta;
-		}
-		delta = cg.bobfracsin * cg_bobroll.value * speed;
-		if (cg.predictedPlayerState.pm_flags & PMF_DUCKED) {
-			delta *= 3;		// crouching accentuates roll
-		}
-		if (cg.bobcycle & 1) {
-			delta = -delta;
-		}
-		// leilei - no roll for 2 or 4
-		if ( cg_bob.integer == 1 || cg_bob.integer == 3 || cg_bob.integer == 5 ) {
-			angles[ROLL] += delta;
-		}
-	}
+	delta = cg.bobfracsin * cg_bobpitch.value * speed;
+	if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
+		delta *= 3;		// crouching
+	angles[PITCH] += delta;
+	delta = cg.bobfracsin * cg_bobroll.value * speed;
+	if (cg.predictedPlayerState.pm_flags & PMF_DUCKED)
+		delta *= 3;		// crouching accentuates roll
+	if (cg.bobcycle & 1)
+		delta = -delta;
+	angles[ROLL] += delta;
 
 //===================================
 
@@ -521,14 +401,14 @@ static void CG_OffsetFirstPersonView( void ) {
 			* (DUCK_TIME - timeDelta) / DUCK_TIME;
 	}
 
-	if ( cg_bob.integer ) {
-		// add bob height
-		bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
-		if (bob > 6) {
-			bob = 6;
-		}
-		origin[2] += bob;
+	// add bob height
+	bob = cg.bobfracsin * cg.xyspeed * cg_bobup.value;
+	if (bob > 6) {
+		bob = 6;
 	}
+
+	origin[2] += bob;
+
 
 	// add fall height
 	delta = cg.time - cg.landTime;
@@ -613,57 +493,45 @@ static int CG_CalcFov( void ) {
 			fov_x = cg_fov.value;
 			if ( fov_x < 1 ) {
 				fov_x = 1;
-			} 
-			else if ( fov_x > 160 ) {
+			} else if ( fov_x > 160 ) {
 				fov_x = 160;
 			}
-			if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>140 ) {
-				fov_x = 140;
-			}
+                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && fov_x>140 )
+                            fov_x = 140;
 
 		}
 
-		if ( cgs.dmflags & DF_FIXED_FOV ) {
+                if ( cgs.dmflags & DF_FIXED_FOV ) {
 			// dmflag to prevent wide fov for all clients
 			zoomFov = 22.5;
-		} 
-		else {
-			// account for zooms
-			zoomFov = cg_zoomFov.value;
-			if ( zoomFov < 1 ) {
-				zoomFov = 1;
-			} 
-			else if ( zoomFov > 160 ) {
-				zoomFov = 160;
-			}
+		} else {
+                        // account for zooms
+                        zoomFov = cg_zoomFov.value;
+                        if ( zoomFov < 1 ) {
+                                zoomFov = 1;
+                        } else if ( zoomFov > 160 ) {
+                                zoomFov = 160;
+                        }
 
-			if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>140 ) {
-				zoomFov = 140;
-			}
-		}
+                        if( (cgs.videoflags & VF_LOCK_CVARS_BASIC) && zoomFov>140 )
+                                zoomFov = 140;
+                }
 
 		if ( cg.zoomed ) {
 			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
 			if ( f > 1.0 ) {
 				fov_x = zoomFov;
-			} 
-			else {
+			} else {
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 			}
-		}
-		else {
+		} else {
 			f = ( cg.time - cg.zoomTime ) / (float)ZOOM_TIME;
 			if ( f > 1.0 ) {
-			} 
-			else {
+				fov_x = fov_x;
+			} else {
 				fov_x = zoomFov + f * ( fov_x - zoomFov );
 			}
 		}
-	}
-
-	if (cg_cameramode.integer == 1 && cg_thirdPerson.integer){
-		// fov scaling for the modern third person view
-		fov_x = fov_x * 0.93 * (cg.xyspeed * (0.0006) + 1);
 	}
 
 	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
@@ -690,8 +558,7 @@ static int CG_CalcFov( void ) {
 
 	if ( !cg.zoomed ) {
 		cg.zoomSensitivity = 1;
-	} 
-	else {
+	} else {
 		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
 	}
 
@@ -715,9 +582,9 @@ static void CG_DamageBlendBlob( void ) {
 		return;
 	}
 
-	if (cg.cameraMode) {
-		return;
-	}
+	//if (cg.cameraMode) {
+	//	return;
+	//}
 
 	// ragePro systems can't fade blends, so don't obscure the screen
 	if ( cgs.glconfig.hardwareType == GLHW_RAGEPRO ) {
@@ -769,7 +636,20 @@ static int CG_CalcViewValues( void ) {
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
-
+/*
+	if (cg.cameraMode) {
+		vec3_t origin, angles;
+		if (trap_getCameraInfo(cg.time, &origin, &angles)) {
+			VectorCopy(origin, cg.refdef.vieworg);
+			angles[ROLL] = 0;
+			VectorCopy(angles, cg.refdefViewAngles);
+			AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
+			return CG_CalcFov();
+		} else {
+			cg.cameraMode = qfalse;
+		}
+	}
+*/
 	// intermission view
 	if ( ps->pm_type == PM_INTERMISSION ) {
 		VectorCopy( ps->origin, cg.refdef.vieworg );
@@ -781,13 +661,9 @@ static int CG_CalcViewValues( void ) {
 	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
 	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
 
-	cg.bobfraccos = fabs( cos( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
-	cg.bobfracsin2 = fabs( sin( ( ps->bobCycle & 127) / 127.0 * (M_PI) ));
-
 	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
 		ps->velocity[1] * ps->velocity[1] );
 
-	cg.bobcycle2 = ps->bobCycle; // leilei - copy the bobcycle so we can use it directly elsewhere
 
 	VectorCopy( ps->origin, cg.refdef.vieworg );
 	VectorCopy( ps->viewangles, cg.refdefViewAngles );
@@ -818,30 +694,6 @@ static int CG_CalcViewValues( void ) {
 	} else {
 		// offset for local bobbing and kicks
 		CG_OffsetFirstPersonView();
-	}
-
-	// leilei - View-from-the-model-eyes feature, aka "fullbody awareness" lol
-	if (cg_cameraEyes.integer && !cg.renderingThirdPerson){
-		vec3_t		forward, up;	
-		cg.refdefViewAngles[ROLL] = headang[ROLL];
-		cg.refdefViewAngles[PITCH] = headang[PITCH];
-		cg.refdefViewAngles[YAW] = headang[YAW];
-
-		AngleVectors( headang, forward, NULL, up );
-		if (cg_cameraEyes.integer == 2){
-			VectorMA( headpos, 0, forward, headpos );
-			VectorMA( headpos, 4, up, headpos );
-		}
-		else
-		{
-			VectorMA( headpos, cg_cameraEyes_Fwd.value, forward, headpos );
-			VectorMA( headpos, cg_cameraEyes_Up.value, up, headpos );
-		}
-
-		cg.refdef.vieworg[0] = ps->origin[0] + headpos[0];
-		cg.refdef.vieworg[1] = ps->origin[1] + headpos[1];
-		cg.refdef.vieworg[2] = ps->origin[2] + headpos[2];
-		
 	}
 
 	// position eye reletive to origin
@@ -932,13 +784,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// if we are only updating the screen as a loading
 	// pacifier, don't even try to read snapshots
 	if ( cg.infoScreenText[0] != 0 ) {
-// loadingscreen
-#ifdef SCRIPTHUD
-		CG_DrawLoadingScreen( );
-#else
 		CG_DrawInformation();
-#endif
-// end loadingscreen
 		return;
 	}
 
@@ -955,13 +801,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// if we haven't received any snapshots yet, all
 	// we can draw is the information screen
 	if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) ) {
-// loadingscreen
-#ifdef SCRIPTHUD
-		CG_DrawLoadingScreen( );
-#else
 		CG_DrawInformation();
-#endif
-// end loadingscreen
 		return;
 	}
 
@@ -975,15 +815,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	CG_PredictPlayerState();
 
 	// decide on third person view
-
-	if (!cg_deathcam.integer) {
-		// leilei - allow first person deathcam
-		cg.renderingThirdPerson = cg_thirdPerson.integer;
-	}
-	else {
-		cg.renderingThirdPerson = cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR
-			&& (cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0));
-	}
+	cg.renderingThirdPerson = cg_thirdPerson.integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
 
 	// build cg.refdef
 	inwater = CG_CalcViewValues();
@@ -997,6 +829,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if ( !cg.hyperspace ) {
 		CG_AddPacketEntities();			// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
+		CG_AddParticles ();
 		CG_AddLocalEntities();
 	}
 	CG_AddViewWeapon( &cg.predictedPlayerState );
@@ -1032,15 +865,13 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if (cg_timescale.value != cg_timescaleFadeEnd.value) {
 		if (cg_timescale.value < cg_timescaleFadeEnd.value) {
 			cg_timescale.value += cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-			if (cg_timescale.value > cg_timescaleFadeEnd.value) {
+			if (cg_timescale.value > cg_timescaleFadeEnd.value)
 				cg_timescale.value = cg_timescaleFadeEnd.value;
-			}
 		}
 		else {
 			cg_timescale.value -= cg_timescaleFadeSpeed.value * ((float)cg.frametime) / 1000;
-			if (cg_timescale.value < cg_timescaleFadeEnd.value) {
+			if (cg_timescale.value < cg_timescaleFadeEnd.value)
 				cg_timescale.value = cg_timescaleFadeEnd.value;
-			}
 		}
 		if (cg_timescaleFadeSpeed.value) {
 			trap_Cvar_Set("timescale", va("%f", cg_timescale.value));

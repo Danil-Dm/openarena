@@ -142,10 +142,9 @@ static void CG_TransitionSnapshot( void ) {
 	// execute any server string commands before transitioning entities
 	CG_ExecuteNewServerCommands( cg.nextSnap->serverCommandSequence );
 
- 	// if we had a map_restart, set everthing with initial
-	if ( cg.mapRestart ) {
-		//Sago: Something is wrong here... missing initial?
- 	}
+	// if we had a map_restart, set everthing with initial
+	if ( !cg.snap ) {
+	}
 
 	// clear the currentValid flag for all entities in the existing snapshot
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
@@ -235,12 +234,12 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 	}
 
 	// if changing follow mode, don't interpolate
-	if ( cg.snap && cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum ) {
+	if ( cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum ) {
 		cg.nextFrameTeleport = qtrue;
 	}
 
 	// if changing server restarts, don't interpolate
-	if ( cg.snap && ( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) ) {
+	if ( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) {
 		cg.nextFrameTeleport = qtrue;
 	}
 

@@ -631,7 +631,7 @@ void CG_LaunchGib( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
 
 	le->leType = LE_FRAGMENT;
 	le->startTime = cg.time;
-	le->endTime = le->startTime + 5000 + random() * 3000;
+	le->endTime = le->startTime + cg_gibtime.integer*1000 + random() * 3000;
 
 	VectorCopy( origin, re->origin );
 	AxisCopy( axisDefault, re->axis );
@@ -646,7 +646,12 @@ void CG_LaunchGib( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
 
 	le->leBounceSoundType = LEBS_BLOOD;
 	le->leMarkType = LEMT_BLOOD;
-
+		if ( cg_leiSuperGoreyAwesome.integer ) {
+			CG_SpurtBlood( origin, velocity, 7); // LEILEI toss some extra juice
+			CG_SpurtBlood( origin, velocity, 22); 
+			CG_SpurtBlood( origin, velocity, 11); 
+			}
+	
 }
 
 
@@ -741,7 +746,7 @@ void CG_GibPlayer( vec3_t playerOrigin ) {
 
 /*
 ==================
-CG_LaunchExplode
+CG_LaunchGib
 ==================
 */
 void CG_LaunchExplode( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
@@ -774,7 +779,7 @@ void CG_LaunchExplode( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
 #define	EXP_JUMP		150
 /*
 ===================
-CG_BigExplode
+CG_GibPlayer
 
 Generated a bunch of gibs launching out from the bodies location
 ===================
