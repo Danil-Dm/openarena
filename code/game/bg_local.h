@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //
 // bg_local.h -- local definitions for the bg (both games) files
+#include "g_local.h"
 
 #define	MIN_WALK_NORMAL	0.7f		// can't walk on very steep slopes
 
@@ -59,6 +60,7 @@ extern	pml_t		pml;
 // movement parameters
 extern	float	pm_stopspeed;
 extern	float	pm_duckScale;
+extern	float	pm_swimScale;
 extern	float	pm_wadeScale;
 
 extern	float	pm_accelerate;

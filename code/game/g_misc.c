@@ -171,7 +171,7 @@ void locateCamera( gentity_t *ent ) {
 
 	owner = G_PickTarget( ent->target );
 	if ( !owner ) {
-		G_Printf( "Couldn't find target for misc_partal_surface\n" );
+                G_Printf( "Couldn't find target for misc_partal_surface\n" );
 		G_FreeEntity( ent );
 		return;
 	}
@@ -370,13 +370,13 @@ void DropPortalDestination( gentity_t *player ) {
 
 	ent->r.contents = CONTENTS_CORPSE;
 	ent->takedamage = qtrue;
-	ent->health = 200;
+	ent->health = g_portalhealth.integer;
 	ent->die = PortalDie;
 
 	VectorCopy( player->s.apos.trBase, ent->s.angles );
 
 	ent->think = G_FreeEntity;
-	ent->nextthink = level.time + 2 * 60 * 1000;
+	ent->nextthink = level.time + g_portaltimeout.integer * 1000;
 
 	trap_LinkEntity( ent );
 
@@ -439,7 +439,7 @@ static void PortalTouch( gentity_t *self, gentity_t *other, trace_t *trace) {
 static void PortalEnable( gentity_t *self ) {
 	self->touch = PortalTouch;
 	self->think = G_FreeEntity;
-	self->nextthink = level.time + 2 * 60 * 1000;
+	self->nextthink = level.time + g_portaltimeout.integer * 1000;
 }
 
 
@@ -463,7 +463,7 @@ void DropPortalSource( gentity_t *player ) {
 
 	ent->r.contents = CONTENTS_CORPSE | CONTENTS_TRIGGER;
 	ent->takedamage = qtrue;
-	ent->health = 200;
+	ent->health = g_portalhealth.integer;
 	ent->die = PortalDie;
 
 	trap_LinkEntity( ent );
@@ -485,95 +485,4 @@ void DropPortalSource( gentity_t *player ) {
 		}
 	}
 
-}
-
-static int countItems(const char* itemname, qboolean exclude_no_bots) {
-	gentity_t	*spot;
-	int			count;
-
-	count = 0;
-	spot = NULL;
-
-	while ((spot = G_Find (spot, FOFS(classname), itemname)) != NULL) {
-			if(exclude_no_bots && spot->flags & (FL_NO_BOTS|FL_NO_HUMANS) )
-		continue; //Do not count no_humans or no_bots items
-			count++;
-	}
-	G_Printf("Number of %s: %i\n",itemname,count);
-	return count;
-}
-
-static int countFfaSpawnpoints(void) {
-    return countItems("info_player_deathmatch",qtrue);
-}
-
-static int countDdSpawnpoints(void) {
-	int mincount,tmp;
-	mincount = 100;
-
-	tmp = countItems("info_player_dd_red",qtrue);
-	if(!tmp){
-	tmp = countFfaSpawnpoints(); //tmp==0 -> Fallback to FFA spawnpoints!
-	}
-	if(tmp<mincount)
-		mincount=tmp;
-
-	tmp = countItems("info_player_dd_blue",qtrue);
-	if(!tmp){
-	tmp = countFfaSpawnpoints(); //tmp==0 -> Fallback to FFA spawnpoints!
-	}
-	if(tmp<mincount)
-		mincount=tmp;
-
-	return mincount;
-
-}
-
-static int countCtfSpawnpoints(void) {
-	int mincount,tmp;
-
-	mincount=100;
-
-	tmp = countItems("team_CTF_redplayer",qtrue);
-	if(!tmp){
-		tmp = countFfaSpawnpoints(); //tmp==0 -> Fallback to FFA spawnpoints!
-	}
-	if(tmp<mincount) {
-		mincount=tmp;
-	}
-
-	tmp = countItems("team_CTF_blueplayer",qtrue);
-	if(!tmp){
-		tmp = countFfaSpawnpoints(); //tmp==0 -> Fallback to FFA spawnpoints!
-	}
-	if(tmp<mincount) {
-		mincount=tmp;
-	}
-
-	tmp = countItems("team_CTF_redspawn",qtrue);
-	if(!tmp){
-		tmp = countFfaSpawnpoints(); //tmp==0 -> Fallback to FFA spawnpoints!
-	}
-	if(tmp<mincount)
-		mincount=tmp;
-
-	tmp = countItems("team_CTF_bluespawn",qtrue);
-	if(!tmp){
-		tmp = countFfaSpawnpoints(); //tmp==0 -> Fallback to FFA spawnpoints!
-	}
-	if(tmp<mincount) {
-		mincount=tmp;
-	}
-
-	return mincount;
-}
-
-int MinSpawnpointCount(void) {
-	if(!G_IsATeamGametype(g_gametype.integer)) {
-		return countFfaSpawnpoints();
-	}
-	if(g_gametype.integer == GT_DOUBLE_D ) {
-		return countDdSpawnpoints();
-	}
-	return countCtfSpawnpoints();
 }

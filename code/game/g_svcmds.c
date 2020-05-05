@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ==============================================================================
 
 PACKET FILTERING
-
+ 
 
 You can add or remove addresses from the filter list with:
 
@@ -59,7 +59,8 @@ still, you should rely on PB for banning instead
 ==============================================================================
 */
 
-typedef struct ipFilter_s {
+typedef struct ipFilter_s
+{
 	unsigned	mask;
 	unsigned	compare;
 } ipFilter_t;
@@ -80,15 +81,19 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 	int		i, j;
 	byte	b[4];
 	byte	m[4];
-
-	for (i=0 ; i<4 ; i++) {
+	
+	for (i=0 ; i<4 ; i++)
+	{
 		b[i] = 0;
 		m[i] = 0;
 	}
-
-	for (i=0 ; i<4 ; i++) {
-		if (*s < '0' || *s > '9') {
-			if (*s == '*') { // 'match any'
+	
+	for (i=0 ; i<4 ; i++)
+	{
+		if (*s < '0' || *s > '9')
+		{
+			if (*s == '*') // 'match any'
+			{
 				// b[i] and m[i] to 0
 				s++;
 				if (!*s)
@@ -96,12 +101,13 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 				s++;
 				continue;
 			}
-			G_Printf( "Bad filter address: %s\n", s );
+                        G_Printf( "Bad filter address: %s\n", s );
 			return qfalse;
 		}
-
+		
 		j = 0;
-		while (*s >= '0' && *s <= '9') {
+		while (*s >= '0' && *s <= '9')
+		{
 			num[j++] = *s++;
 		}
 		num[j] = 0;
@@ -112,10 +118,10 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 			break;
 		s++;
 	}
-
+	
 	f->mask = *(unsigned *)m;
 	f->compare = *(unsigned *)b;
-
+	
 	return qtrue;
 }
 
@@ -133,24 +139,28 @@ static void UpdateIPBans (void)
 	char	ip[64];
 
 	*iplist_final = 0;
-	for (i = 0 ; i < numIPFilters ; i++) {
+	for (i = 0 ; i < numIPFilters ; i++)
+	{
 		if (ipFilters[i].compare == 0xffffffff)
 			continue;
 
 		*(unsigned *)b = ipFilters[i].compare;
 		*(unsigned *)m = ipFilters[i].mask;
 		*ip = 0;
-		for (j = 0 ; j < 4 ; j++) {
+		for (j = 0 ; j < 4 ; j++)
+		{
 			if (m[j]!=255)
 				Q_strcat(ip, sizeof(ip), "*");
 			else
 				Q_strcat(ip, sizeof(ip), va("%i", b[j]));
 			Q_strcat(ip, sizeof(ip), (j<3) ? "." : " ");
-		}
-		if (strlen(iplist_final)+strlen(ip) < MAX_CVAR_VALUE_STRING) {
+		}		
+		if (strlen(iplist_final)+strlen(ip) < MAX_CVAR_VALUE_STRING)
+		{
 			Q_strcat( iplist_final, sizeof(iplist_final), ip);
 		}
-		else {
+		else
+		{
 			Com_Printf("g_banIPs overflowed at MAX_CVAR_VALUE_STRING\n");
 			break;
 		}
@@ -183,7 +193,7 @@ qboolean G_FilterPacket (char *from)
 			break;
 		i++, p++;
 	}
-
+	
 	in = *(unsigned *)m;
 
 	for (i=0 ; i<numIPFilters ; i++)
@@ -205,14 +215,16 @@ static void AddIP( char *str )
 	for (i = 0 ; i < numIPFilters ; i++)
 		if (ipFilters[i].compare == 0xffffffff)
 			break;		// free spot
-	if (i == numIPFilters) {
-		if (numIPFilters == MAX_IPFILTERS) {
-			G_Printf ("IP filter list is full\n");
+	if (i == numIPFilters)
+	{
+		if (numIPFilters == MAX_IPFILTERS)
+		{
+                        G_Printf ("IP filter list is full\n");
 			return;
 		}
 		numIPFilters++;
 	}
-
+	
 	if (!StringToFilter (str, &ipFilters[i]))
 		ipFilters[i].compare = 0xffffffffu;
 
@@ -224,7 +236,7 @@ static void AddIP( char *str )
 G_ProcessIPBans
 =================
 */
-void G_ProcessIPBans(void)
+void G_ProcessIPBans(void) 
 {
 	char *s, *t;
 	char		str[MAX_CVAR_VALUE_STRING];
@@ -254,7 +266,7 @@ void Svcmd_AddIP_f (void)
 	char		str[MAX_TOKEN_CHARS];
 
 	if ( trap_Argc() < 2 ) {
-		G_Printf("Usage:  addip <ip-mask>\n");
+                G_Printf("Usage:  addip <ip-mask>\n");
 		return;
 	}
 
@@ -276,7 +288,7 @@ void Svcmd_RemoveIP_f (void)
 	char		str[MAX_TOKEN_CHARS];
 
 	if ( trap_Argc() < 2 ) {
-		G_Printf("Usage:  sv removeip <ip-mask>\n");
+                G_Printf("Usage:  sv removeip <ip-mask>\n");
 		return;
 	}
 
@@ -287,15 +299,15 @@ void Svcmd_RemoveIP_f (void)
 
 	for (i=0 ; i<numIPFilters ; i++) {
 		if (ipFilters[i].mask == f.mask	&&
-		        ipFilters[i].compare == f.compare) {
+			ipFilters[i].compare == f.compare) {
 			ipFilters[i].compare = 0xffffffffu;
-			G_Printf ("Removed.\n");
+                        G_Printf ("Removed.\n");
 
 			UpdateIPBans();
 			return;
 		}
 	}
-	G_Printf ( "Didn't find %s.\n", str );
+        G_Printf ( "Didn't find %s.\n", str );
 }
 
 /*
@@ -303,17 +315,16 @@ void Svcmd_RemoveIP_f (void)
 Svcmd_EntityList_f
 ===================
 */
-void	Svcmd_EntityList_f (void)
-{
+void	Svcmd_EntityList_f (void) {
 	int			e;
 	gentity_t		*check;
 
-	check = g_entities;
-	for (e = 0; e < level.num_entities ; e++, check++) {
+	check = g_entities+1;
+	for (e = 1; e < level.num_entities ; e++, check++) {
 		if ( !check->inuse ) {
 			continue;
 		}
-		G_Printf("%3i:", e);
+                G_Printf("%3i:", e);
 		switch ( check->s.eType ) {
 		case ET_GENERAL:
 			G_Printf("ET_GENERAL          ");
@@ -358,12 +369,11 @@ void	Svcmd_EntityList_f (void)
 		if ( check->classname ) {
 			G_Printf("%s", check->classname);
 		}
-		G_Printf("\n");
+                G_Printf("\n");
 	}
 }
 
-gclient_t	*ClientForString( const char *s )
-{
+gclient_t	*ClientForString( const char *s ) {
 	gclient_t	*cl;
 	int			i;
 	int			idnum;
@@ -378,7 +388,7 @@ gclient_t	*ClientForString( const char *s )
 
 		cl = &level.clients[idnum];
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
-			G_Printf( "Client %i is not connected\n", idnum );
+                        G_Printf( "Client %i is not connected\n", idnum );
 			return NULL;
 		}
 		return cl;
@@ -390,11 +400,11 @@ gclient_t	*ClientForString( const char *s )
 		if ( cl->pers.connected == CON_DISCONNECTED ) {
 			continue;
 		}
-		if ( Q_strequal( cl->pers.netname, s ) ) {
+		if ( !Q_stricmp( cl->pers.netname, s ) ) {
 			return cl;
 		}
 	}
-	G_Printf( "User %s is not on the server\n", s );
+        G_Printf( "User %s is not on the server\n", s );
 
 	return NULL;
 }
@@ -406,8 +416,7 @@ Svcmd_ForceTeam_f
 forceteam <player> <team>
 ===================
 */
-void	Svcmd_ForceTeam_f( void )
-{
+void	Svcmd_ForceTeam_f( void ) {
 	gclient_t	*cl;
 	char		str[MAX_TOKEN_CHARS];
 
@@ -423,39 +432,37 @@ void	Svcmd_ForceTeam_f( void )
 	SetTeam( &g_entities[cl - level.clients], str );
 }
 
-void	ClientKick_f( void )
-{
-	int idnum, i;
-	char	str[MAX_TOKEN_CHARS];
+void	ClientKick_f( void ) {
+        int idnum, i;
+        char	str[MAX_TOKEN_CHARS];
 
-	trap_Argv( 1, str, sizeof( str ) );
+        trap_Argv( 1, str, sizeof( str ) );
 
-	for (i = 0; str[i]; i++) {
+        for (i = 0; str[i]; i++) {
 		if (str[i] < '0' || str[i] > '9') {
-			G_Printf("not a valid client number: \"%s\"\n",str);
+                    G_Printf("not a valid client number: \"%s\"\n",str);
 			return;
 		}
 	}
 
-	idnum = atoi( str );
+        idnum = atoi( str );
 
-	//Local client
-	if ( strequals( level.clients[idnum].pers.ip, "localhost" ) ) {
-		G_Printf("Kick failed - local player\n");
-		return;
-	}
+        //Local client
+        if( !strcmp( level.clients[idnum].pers.ip, "localhost" ) ) {
+            G_Printf("Kick failed - local player\n");
+            return;
+        }
 
-	//Now clientkick has been moved into game, but we still need to find the idnum the server expects....
-	//FIXME: To fix this, we need a relieble way to generate difference between the server's client number and the game's client numbers
-	//FIXME: This should not depend on the engine's clientkick at all
-	trap_DropClient( idnum, "was kicked" );
-	//trap_SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", level.clients[idnum].ps.clientNum) );
-
+        //Now clientkick has been moved into game, but we still need to find the idnum the server expects....
+        //FIXME: To fix this, we need a relieble way to generate difference between the server's client number and the game's client numbers
+        //FIXME: This should not depend on the engine's clientkick at all
+        trap_DropClient( idnum, "was kicked" );
+        //trap_SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", level.clients[idnum].ps.clientNum) );
+        
 }
 
-void EndGame_f ( void )
-{
-	ExitLevel();
+void EndGame_f ( void ) {
+    ExitLevel();
 }
 
 //KK-OAX Moved this Declaration to g_local.h
@@ -467,35 +474,41 @@ Server Command Table
 Not Worth Listing Elsewhere
 ================
 */
-struct {
-	char      *cmd;
-	qboolean  dedicated; //if it has to be entered from a dedicated server or RCON
-	void      ( *function )( void );
+struct
+{
+  char      *cmd;
+  qboolean  dedicated; //if it has to be entered from a dedicated server or RCON
+  void      ( *function )( void );
 } svcmds[ ] = {
 
-	{ "entityList", qfalse, Svcmd_EntityList_f },
-	{ "forceTeam", qfalse, Svcmd_ForceTeam_f },
-	{ "game_memory", qfalse, Svcmd_GameMem_f },
-	{ "addbot", qfalse, Svcmd_AddBot_f },
-	{ "botlist", qfalse, Svcmd_BotList_f },
-	{ "abort_podium", qfalse, Svcmd_AbortPodium_f },
-	{ "addip", qfalse, Svcmd_AddIP_f },
-	{ "removeip", qfalse, Svcmd_RemoveIP_f },
-
-	//KK-OAX Uses wrapper in g_svccmds_ext.c
-	{ "listip", qfalse, Svcmd_ListIP_f },
-	//KK-OAX New
-	{ "status", qfalse, Svcmd_Status_f },
-	{ "eject", qfalse, Svcmd_EjectClient_f },
-	{ "dumpuser", qfalse, Svcmd_DumpUser_f },
-	// don't handle communication commands unless dedicated
-	{ "cp", qtrue, Svcmd_CenterPrint_f },
-	{ "say_team", qtrue, Svcmd_TeamMessage_f },
-	{ "say", qtrue, Svcmd_MessageWrapper },
-	{ "chat", qtrue, Svcmd_Chat_f },
-	//Kicks a player by number in the game logic rather than the server number
-	{ "clientkick_game", qfalse, ClientKick_f },
-	{ "endgamenow", qfalse, EndGame_f },
+  { "entityList", qfalse, Svcmd_EntityList_f },
+  { "forceTeam", qfalse, Svcmd_ForceTeam_f },
+  { "game_memory", qfalse, Svcmd_GameMem_f },
+  { "addbot", qfalse, Svcmd_AddBot_f },
+  { "botlist", qfalse, Svcmd_BotList_f }, 
+  { "abort_podium", qfalse, Svcmd_AbortPodium_f },
+  { "addip", qfalse, Svcmd_AddIP_f },
+  { "removeip", qfalse, Svcmd_RemoveIP_f },
+  
+  //KK-OAX Uses wrapper in g_svccmds_ext.c
+  { "listip", qfalse, Svcmd_ListIP_f }, 
+  //KK-OAX New
+  { "status", qfalse, Svcmd_Status_f },
+  { "eject", qfalse, Svcmd_EjectClient_f },
+  { "dumpuser", qfalse, Svcmd_DumpUser_f },
+  // don't handle communication commands unless dedicated
+  { "cp", qtrue, Svcmd_CenterPrint_f },
+  { "say_team", qtrue, Svcmd_TeamMessage_f },
+  { "say", qtrue, Svcmd_MessageWrapper },
+  { "chat", qtrue, Svcmd_Chat_f },
+  /*{ "m", qtrue, Svcmd_MessageWrapper },
+  { "a", qtrue, Svcmd_MessageWrapper },
+  { "bp", qtrue, Svcmd_BannerPrint_f }, */
+  //Shuffle the teams
+  { "shuffle", qfalse, ShuffleTeams },
+  //Kicks a player by number in the game logic rather than the server number
+  { "clientkick_game", qfalse, ClientKick_f },
+  { "endgamenow", qfalse, EndGame_f },
 };
 
 /*
@@ -506,27 +519,29 @@ ConsoleCommand
 */
 qboolean  ConsoleCommand( void )
 {
-	char cmd[ MAX_TOKEN_CHARS ];
-	int  i;
+  char cmd[ MAX_TOKEN_CHARS ];
+  int  i;
 
-	trap_Argv( 0, cmd, sizeof( cmd ) );
+  trap_Argv( 0, cmd, sizeof( cmd ) );
 
-	for( i = 0; i < sizeof( svcmds ) / sizeof( svcmds[ 0 ] ); i++ ) {
-		if( Q_strequal( cmd, svcmds[ i ].cmd ) ) {
-			if( svcmds[ i ].dedicated && !g_dedicated.integer )
-				return qfalse;
-			svcmds[ i ].function( );
-			return qtrue;
-		}
-	}
-	// KK-OAX Will be enabled when admin is added.
-	// see if this is an admin command
-	if( G_admin_cmd_check( NULL, qfalse ) )
-		return qtrue;
+  for( i = 0; i < sizeof( svcmds ) / sizeof( svcmds[ 0 ] ); i++ )
+  {
+    if( !Q_stricmp( cmd, svcmds[ i ].cmd ) )
+    {
+      if( svcmds[ i ].dedicated && !g_dedicated.integer )
+        return qfalse;
+      svcmds[ i ].function( );
+      return qtrue;
+    }
+  }
+  // KK-OAX Will be enabled when admin is added. 
+  // see if this is an admin command
+  if( G_admin_cmd_check( NULL, qfalse ) )
+    return qtrue;
 
-	if( g_dedicated.integer )
-		G_Printf( "unknown command: %s\n", cmd );
+  if( g_dedicated.integer )
+    G_Printf( "unknown command: %s\n", cmd );
 
-	return qfalse;
+  return qfalse;
 }
 

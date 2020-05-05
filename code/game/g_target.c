@@ -349,7 +349,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 		return;
 	dest = 	G_PickTarget( self->target );
 	if (!dest) {
-		G_Printf ("Couldn't find teleporter destination\n");
+                G_Printf ("Couldn't find teleporter destination\n");
 		return;
 	}
 
@@ -360,9 +360,8 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 The activator will be teleported away.
 */
 void SP_target_teleporter( gentity_t *self ) {
-	if (!self->targetname) {
-		G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
-	}
+	if (!self->targetname)
+            G_Printf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
 
 	self->use = target_teleporter_use;
 }
@@ -437,9 +436,9 @@ static void target_location_linkup(gentity_t *ent)
 	trap_SetConfigstring( CS_LOCATIONS, "unknown" );
 
 	for (i = 0, ent = g_entities, n = 1;
-		i < level.num_entities;
-		i++, ent++) {
-		if (ent->classname && Q_strequal(ent->classname, "target_location") ) {
+			i < level.num_entities;
+			i++, ent++) {
+		if (ent->classname && !Q_stricmp(ent->classname, "target_location") ) {
 			// lets overload some variables!
 			ent->health = n; // use for location marking
 			trap_SetConfigstring( CS_LOCATIONS + n, ent->message );

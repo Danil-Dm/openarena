@@ -32,7 +32,7 @@ qboolean	G_SpawnString( const char *key, const char *defaultString, char **out )
 	}
 
 	for ( i = 0 ; i < level.numSpawnVars ; i++ ) {
-		if ( Q_strequal( key, level.spawnVars[i][0] ) ) {
+		if ( !Q_stricmp( key, level.spawnVars[i][0] ) ) {
 			*out = level.spawnVars[i][1];
 			return qtrue;
 		}
@@ -129,6 +129,10 @@ typedef struct {
 void SP_info_player_start (gentity_t *ent);
 void SP_info_player_deathmatch (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
+//For Double Domination:
+void SP_info_player_dd (gentity_t *ent);
+void SP_info_player_dd_red (gentity_t *ent);
+void SP_info_player_dd_blue (gentity_t *ent);
 //standard domination:
 void SP_domination_point ( gentity_t *ent);
 
@@ -202,13 +206,11 @@ spawn_t	spawns[] = {
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_intermission", SP_info_player_intermission},
 //Double Domination player spawn:
-	{"info_player_dd", SP_info_player_deathmatch},
-	{"info_player_dd_red", SP_info_player_deathmatch},
-	{"info_player_dd_blue", SP_info_player_deathmatch},
+	{"info_player_dd", SP_info_player_dd},
+        {"info_player_dd_red", SP_info_player_dd_red},
+        {"info_player_dd_blue", SP_info_player_dd_blue},
 //Standard Domination point spawn:
 	{"domination_point", SP_domination_point},
-	{"info_player_dom_red", SP_info_player_deathmatch},
-	{"info_player_dom_blue", SP_info_player_deathmatch},
 
 
 	{"info_null", SP_info_null},
@@ -291,28 +293,28 @@ returning qfalse if not found
 qboolean G_CallSpawn( gentity_t *ent ) {
 	spawn_t	*s;
 	gitem_t	*item;
-	char cvarname[128];
-	char itemname[128];
+        char cvarname[128];
+        char itemname[128];
 
-		//Construct a replace cvar:
+        //Construct a replace cvar:
 	Com_sprintf(cvarname, sizeof(cvarname), "replace_%s", ent->classname);
 
-		//Look an alternative item up:
-		trap_Cvar_VariableStringBuffer(cvarname,itemname,sizeof(itemname));
-		if(itemname[0]==0) //If nothing found use original
-			Com_sprintf(itemname, sizeof(itemname), "%s", ent->classname);
-		else
-			G_Printf ("%s replaced by %s\n", ent->classname, itemname);
+        //Look an alternative item up:
+        trap_Cvar_VariableStringBuffer(cvarname,itemname,sizeof(itemname));
+        if(itemname[0]==0) //If nothing found use original
+            Com_sprintf(itemname, sizeof(itemname), "%s", ent->classname);
+        else
+            G_Printf ("%s replaced by %s\n", ent->classname, itemname);
 
 
 	if ( itemname[0]==0) {
-		G_Printf ("G_CallSpawn: NULL classname\n");
+                G_Printf ("G_CallSpawn: NULL classname\n");
 		return qfalse;
 	}
 
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
-		if ( strequals(item->classname, itemname) ) {
+		if ( !strcmp(item->classname, itemname) ) {
 			G_SpawnItem( ent, item );
 			return qtrue;
 		}
@@ -320,13 +322,13 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 
 	// check normal spawn functions
 	for ( s=spawns ; s->name ; s++ ) {
-		if ( strequals(s->name, itemname) ) {
+		if ( !strcmp(s->name, itemname) ) {
 			// found it
 			s->spawn(ent);
 			return qtrue;
 		}
 	}
-	G_Printf ("%s doesn't have a spawn function\n", itemname);
+        G_Printf ("%s doesn't have a spawn function\n", itemname);
 	return qfalse;
 }
 
@@ -343,14 +345,14 @@ char *G_NewString( const char *string ) {
 	int		i,l;
 	
 	l = strlen(string) + 1;
-	//KK-OAX Changed to Tremulous's BG_Alloc
+    //KK-OAX Changed to Tremulous's BG_Alloc
 	newb = BG_Alloc( l );
 
 	new_p = newb;
 
 	// turn \n into a real linefeed
 	for ( i=0 ; i< l ; i++ ) {
-		if ((i < l-1) && (string[i] == '\\')) {
+		if (string[i] == '\\' && i < l-1) {
 			i++;
 			if (string[i] == 'n') {
 				*new_p++ = '\n';
@@ -383,7 +385,7 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent ) {
 	vec3_t	vec;
 
 	for ( f=fields ; f->name ; f++ ) {
-		if ( Q_strequal(f->name, key) ) {
+		if ( !Q_stricmp(f->name, key) ) {
 			// found it
 			b = (byte *)ent;
 
@@ -433,8 +435,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", 
-	"elimination", "ctf", "lms", "dd", "dom", "pos"};
+	static char *gametypeNames[] = {"ffa", "tournament", "single", "team", "ctf", "oneflag", "obelisk", "harvester", "elimination", "ctf", "lms", "dd", "dom"};
 
 	// get the next free entity
 	ent = G_Spawn();
@@ -451,8 +452,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 			return;
 		}
 	}
-	// check for "notteam" flag
-	if (G_IsATeamGametype(g_gametype.integer)) {
+	// check for "notteam" flag (GT_FFA, GT_TOURNAMENT, GT_SINGLE_PLAYER)
+	if ( g_gametype.integer >= GT_TEAM && !g_ffa_gt ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
 			G_FreeEntity( ent );
@@ -480,8 +481,8 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	}
 #endif
 
-	if( G_SpawnString( "!gametype", NULL, &value ) ) {
-		if( g_gametype.integer >= GT_FFA && g_gametype.integer < ARRAY_LEN(gametypeNames) ) {
+        if( G_SpawnString( "!gametype", NULL, &value ) ) {
+		if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[g_gametype.integer];
 
 			s = strstr( value, gametypeName );
@@ -493,7 +494,7 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 	}
 
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
-		if( g_gametype.integer >= GT_FFA && g_gametype.integer < ARRAY_LEN(gametypeNames) ) {
+		if( g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[g_gametype.integer];
 
 			s = strstr( value, gametypeName );
@@ -607,7 +608,7 @@ void SP_worldspawn( void ) {
 	char	*s;
 
 	G_SpawnString( "classname", "", &s );
-	if ( !Q_strequal( s, "worldspawn" ) ) {
+	if ( Q_stricmp( s, "worldspawn" ) ) {
 		G_Error( "SP_worldspawn: The first entity isn't 'worldspawn'" );
 	}
 
@@ -616,7 +617,7 @@ void SP_worldspawn( void ) {
 
 	trap_SetConfigstring( CS_LEVEL_START_TIME, va("%i", level.startTime ) );
 
-	if ( *g_music.string && !Q_strequal( g_music.string, "none" ) ) {
+	if ( *g_music.string && Q_stricmp( g_music.string, "none" ) ) {
 		trap_SetConfigstring( CS_MUSIC, g_music.string );
 	} else {
 		G_SpawnString( "music", "", &s );   
@@ -631,26 +632,20 @@ void SP_worldspawn( void ) {
 	G_SpawnString( "gravity", "800", &s );
 	trap_Cvar_Set( "g_gravity", s );
 
-	G_SpawnString( "enableFS", "0", &s );
-	trap_Cvar_Set( "g_enableFS", s );
-
 	G_SpawnString( "enableDust", "0", &s );
 	trap_Cvar_Set( "g_enableDust", s );
 
 	G_SpawnString( "enableBreath", "0", &s );
 	trap_Cvar_Set( "g_enableBreath", s );
 
-	G_SpawnString( "enableQ", "0", &s );
-	trap_Cvar_Set( "g_enableQ", s );
-
 	g_entities[ENTITYNUM_WORLD].s.number = ENTITYNUM_WORLD;
-	g_entities[ENTITYNUM_WORLD].r.ownerNum = ENTITYNUM_NONE;
+        g_entities[ENTITYNUM_WORLD].r.ownerNum = ENTITYNUM_NONE;
 	g_entities[ENTITYNUM_WORLD].classname = "worldspawn";
 
-	g_entities[ENTITYNUM_NONE].s.number = ENTITYNUM_NONE;
-	g_entities[ENTITYNUM_NONE].r.ownerNum = ENTITYNUM_NONE;
-	g_entities[ENTITYNUM_NONE].classname = "nothing";
-
+        g_entities[ENTITYNUM_NONE].s.number = ENTITYNUM_NONE;
+        g_entities[ENTITYNUM_NONE].r.ownerNum = ENTITYNUM_NONE;
+        g_entities[ENTITYNUM_NONE].classname = "nothing";
+        
 	// see if we want a warmup time
 	trap_SetConfigstring( CS_WARMUP, "" );
 	if ( g_restarted.integer ) {

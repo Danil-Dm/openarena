@@ -59,11 +59,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_DOMINATION_POINTS 6
 #define MAX_DOMINATION_POINTS_NAMES 20
 
-// leilei - q scale game cvar
-
-#define QUACK_SCALE		0.85
-#define	QUACK_VIEWHEIGHT	22
-
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
@@ -130,19 +125,9 @@ typedef enum {
 	GT_LMS,				// Last man standing
 	GT_DOUBLE_D,			// Double Domination
 	GT_DOMINATION,			// Standard domination 12
-	GT_POSSESSION,
 	GT_MAX_GAME_TYPE
 	
 } gametype_t;
-
-#define GAMETYPE_IS_A_TEAM_GAME(gametype) (gametype != GT_FFA && gametype != GT_TOURNAMENT && gametype != GT_SINGLE_PLAYER && gametype != GT_LMS && gametype != GT_POSSESSION)
-#define GAMETYPE_USES_RED_AND_BLUE_FLAG(gametype) (gametype == GT_CTF || gametype == GT_1FCTF || gametype == GT_CTF_ELIMINATION)
-#define GAMETYPE_USES_WHITE_FLAG(gametype) (gametype == GT_1FCTF || gametype == GT_POSSESSION)
-/*
- Returns true for round based games like (CTF)Elimination and LMS
- */
-#define GAMETYPE_IS_ROUND_BASED(gametype) (gametype == GT_ELIMINATION || gametype == GT_CTF_ELIMINATION || gametype == GT_LMS)
-#define GAMETYPE_USES_OBELISKS(gametype) (gametype == GT_HARVESTER || gametype == GT_OBELISK)
 
 typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
 
@@ -189,7 +174,8 @@ typedef enum {
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
 #define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
 //Elimination players cannot fire in warmup
-#define PMF_ELIMWARMUP		32768	//Bit 15
+#define PMF_ELIMWARMUP		32768	//I hope this is more than 16 signed bits! (it's not but it just works anyway...)
+//Don't add anymore, I have already set the sign bit :-(
 
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
@@ -222,11 +208,11 @@ typedef struct {
 	int			pmove_fixed;
 	int			pmove_msec;
 
-	//Sago's pmove
-	int                     pmove_float;
-
-	//Flags effecting movement (see dmflags)
-	int                     pmove_flags;
+        //Sago's pmove
+        int                     pmove_float;
+        
+        //Flags effecting movement (see dmflags)
+        int                     pmove_flags;
 
 	// callbacks to test the world
 	// these will be different functions during game and cgame
@@ -246,12 +232,12 @@ void Pmove (pmove_t *pmove);
 typedef enum {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
+	STAT_PERSISTANT_POWERUP,
 	STAT_WEAPONS,					// 16 bit fields
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-	STAT_MAX_HEALTH,					// health / armor limit, changable by handicap
-	STAT_PERSISTANT_POWERUP
+	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 } statIndex_t;
 
 
@@ -375,9 +361,10 @@ typedef enum {
 	WP_NAILGUN,
 	WP_PROX_LAUNCHER,
 	WP_CHAINGUN,
+	WP_FLAMETHROWER,
+	WP_ANTIMATTER,
 
-	WP_NUM_WEAPONS,
-	WP_NUM_INVALID
+	WP_NUM_WEAPONS
 } weapon_t;
 
 
@@ -568,23 +555,6 @@ typedef enum {
 	TORSO_AFFIRMATIVE,
 	TORSO_NEGATIVE,
 
-	TORSO_RUN, 	// run with gun
-	TORSO_RUN2, 	// run with gauntlet
-	TORSO_RUN3, 	// run with flag in left hand, gun in right
-	TORSO_STAND3, 	// stand /w flag in left hand (if has flag)
-	TORSO_JUMP, 	// jump with gun
-	TORSO_JUMP2, 	// jump with gauntlet
-	TORSO_JUMP3, 	// jump with flag
-	TORSO_FALL, 	// fall with gun
-	TORSO_FALL2, 	// fall with gauntlet
-	TORSO_FALL3, 	// fall with flag
-	TORSO_TALK, 	// fall with flag
-//	TORSO_AIMUP, 	// aiming upward
-//	TORSO_AIMDOWN, 	// aiming downward
-	TORSO_STRAFE, 	// strafing sideways
-	LEGS_STRAFE_LEFT, // strafing to the player's left
-	LEGS_STRAFE_RIGHT, // strafing to the player's right
-
 //	BOTH_POSE,		// leilei - crappy ui posing code trying
 
 	MAX_ANIMATIONS,
@@ -661,6 +631,10 @@ typedef enum {
 	MOD_LIGHTNING,
 	MOD_BFG,
 	MOD_BFG_SPLASH,
+	MOD_FLAME,
+	MOD_FLAME_SPLASH,
+	MOD_ANTIMATTER,
+	MOD_ANTIMATTER_SPLASH,
 	MOD_WATER,
 	MOD_SLIME,
 	MOD_LAVA,
@@ -738,7 +712,6 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define DF_LIGHT_VOTING                 512
 #define DF_NO_SELF_DAMAGE               1024
 #define DF_PLAYER_OVERLAY               2048
-#define DF_FAST_WATER_MOVE				4096
 
 //g_videoflags->integer
 #define VF_LOCK_CVARS_BASIC             1
@@ -853,25 +826,6 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 
 //KK-OAX
 //bg_misc.c
-const char *BG_TeamName( team_t team );
-
-typedef struct mapinfo_result_s {
-	int minPlayers;
-	int maxPlayers;
-	int recommendedPlayers;
-	int minTeamSize;
-	int maxTeamSize;
-	int timeLimit;
-	int fragLimit;
-	int captureLimit;
-	char mpBots[1024];
-	char author[64];
-	char description[8192];
-	char gametypeSupported[GT_MAX_GAME_TYPE]; //y/n
-} mapinfo_result_t;
-
-qboolean MatchesGametype(int gametype, const char* gametypeName);
-void MapInfoGet(const char* mapname, int gametype, mapinfo_result_t *result);
-
+char *BG_TeamName( team_t team );
 
 #endif

@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-// g_weapon.c
+// g_weapon.c 
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
@@ -36,8 +36,7 @@ static	vec3_t	muzzle;
 G_BounceProjectile
 ================
 */
-void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout )
-{
+void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout ) {
 	vec3_t v, newv;
 	float dot;
 
@@ -58,8 +57,7 @@ GAUNTLET
 ======================================================================
 */
 
-void Weapon_Gauntlet( gentity_t *ent )
-{
+void Weapon_Gauntlet( gentity_t *ent ) {
 
 }
 
@@ -68,8 +66,7 @@ void Weapon_Gauntlet( gentity_t *ent )
 CheckGauntletAttack
 ===============
 */
-qboolean CheckGauntletAttack( gentity_t *ent )
-{
+qboolean CheckGauntletAttack( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		end;
 	gentity_t	*tent;
@@ -109,12 +106,11 @@ qboolean CheckGauntletAttack( gentity_t *ent )
 	if (ent->client->ps.powerups[PW_QUAD] ) {
 		G_AddEvent( ent, EV_POWERUP_QUAD, 0 );
 		s_quadFactor = g_quadfactor.value;
-	}
-	else {
+	} else {
 		s_quadFactor = 1;
 	}
 	if( ent->client->persistantPowerup && ent->client->persistantPowerup->item && ent->client->persistantPowerup->item->giTag == PW_DOUBLER ) {
-		s_quadFactor *= g_doublerdamagefactor.integer;
+		s_quadFactor *= 2;
 	}
 
 	if(g_instantgib.integer)
@@ -122,7 +118,7 @@ qboolean CheckGauntletAttack( gentity_t *ent )
 	else
 		damage = g_gdamage.integer * s_quadFactor;
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-	          damage, 0, MOD_GAUNTLET );
+		damage, 0, MOD_GAUNTLET );
 
 	return qtrue;
 }
@@ -142,7 +138,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating
+rather than blindly truncating.  This prevents it from truncating 
 into a wall.
 ======================
 */
@@ -171,19 +167,17 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating
+rather than blindly truncating.  This prevents it from truncating 
 into a wall.
 ======================
 */
-void SnapVectorTowards( vec3_t v, vec3_t to )
-{
+void SnapVectorTowards( vec3_t v, vec3_t to ) {
 	int		i;
 
 	for ( i = 0 ; i < 3 ; i++ ) {
 		if ( to[i] <= v[i] ) {
 			v[i] = (int)v[i];
-		}
-		else {
+		} else {
 			v[i] = (int)v[i] + 1;
 		}
 	}
@@ -196,8 +190,7 @@ void SnapVectorTowards( vec3_t v, vec3_t to )
 #define	MACHINEGUN_DAMAGE	g_mgdamage.integer
 #define	MACHINEGUN_TEAM_DAMAGE	g_mgdamage.integer		// wimpier MG in teamplay
 
-void Bullet_Fire (gentity_t *ent, float spread, int damage )
-{
+void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 	trace_t		tr;
 	vec3_t		end;
 	vec3_t		impactpoint, bouncedir;
@@ -216,11 +209,11 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage )
 
 //unlagged - attack prediction #2
 	// this has to match what's on the client
-	/*
-		r = random() * M_PI * 2.0f;
-		u = sin(r) * crandom() * spread * 16;
-		r = cos(r) * crandom() * spread * 16;
-	*/
+/*
+	r = random() * M_PI * 2.0f;
+	u = sin(r) * crandom() * spread * 16;
+	r = cos(r) * crandom() * spread * 16;
+*/
 	r = Q_random(&seed) * M_PI * 2.0f;
 	u = sin(r) * Q_crandom(&seed) * spread * 16;
 	r = cos(r) * Q_crandom(&seed) * spread * 16;
@@ -239,17 +232,27 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage )
 //unlagged - backward reconciliation #2
 
 		trap_Trace (&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-
+                
 //unlagged - backward reconciliation #2
 		// put them back
 		G_UndoTimeShiftFor( ent );
 //unlagged - backward reconciliation #2
-
+                
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			return;
 		}
 
 		traceEnt = &g_entities[ tr.entityNum ];
+		
+	 //freaky - explode machinegun bullets
+    if(g_mgexplode.integer) {
+       tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+	   tent->s.otherEntityNum = traceEnt->s.number;
+	   tent->s.eventParm = DirToByte( tr.plane.normal );
+	   tent->s.weapon = WP_ROCKET_LAUNCHER;
+	   G_RadiusDamage(tr.endpos, ent, g_mgsdamage.value/*70*/ * s_quadFactor, g_mgsradius.value/*50*/ * s_quadFactor, traceEnt, MOD_MACHINEGUN);
+	}
+    //end
 
 		// snap the endpos to integers, but nudged towards the line
 		SnapVectorTowards( tr.endpos, muzzle );
@@ -266,8 +269,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage )
 			if( LogAccuracyHit( traceEnt, ent ) ) {
 				ent->client->accuracy_hits++;
 			}
-		}
-		else {
+		} else {
 			tent = G_TempEntity( tr.endpos, EV_BULLET_HIT_WALL );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 //unlagged - attack prediction #2
@@ -293,16 +295,18 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage )
 				continue;
 			}
 			else {
-				if(spread == CHAINGUN_SPREAD) {
-					G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-					          damage, 0, MOD_CHAINGUN);
-					ent->client->accuracy[WP_CHAINGUN][1]++;
-				}
-				else {
-					G_Damage( traceEnt, ent, ent, forward, tr.endpos,
-					          damage, 0, MOD_MACHINEGUN);
-					ent->client->accuracy[WP_MACHINEGUN][1]++;
-				}
+                            if(spread == CHAINGUN_SPREAD)
+                            {
+                                G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+					damage, 0, MOD_CHAINGUN);
+                                ent->client->accuracy[WP_CHAINGUN][1]++;
+                            }
+                            else
+                            {
+				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+					damage, 0, MOD_MACHINEGUN);
+                                ent->client->accuracy[WP_MACHINEGUN][1]++;
+                            }
 			}
 		}
 		break;
@@ -318,8 +322,7 @@ BFG
 ======================================================================
 */
 
-void BFG_Fire ( gentity_t *ent )
-{
+void BFG_Fire ( gentity_t *ent ) {
 	gentity_t	*m;
 
 	m = fire_bfg (ent, muzzle, forward);
@@ -342,14 +345,13 @@ SHOTGUN
 // client predicts same spreads
 #define	DEFAULT_SHOTGUN_DAMAGE	g_sgdamage.integer
 
-qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent )
-{
+qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	trace_t		tr;
 	int			damage, i, passent;
 	gentity_t	*traceEnt;
+	gentity_t		*tent; //freaky - bullet explosions
 	vec3_t		impactpoint, bouncedir;
 	vec3_t		tr_start, tr_end;
-	qboolean	hitClient = qfalse;
 
 	passent = ent->s.number;
 	VectorCopy( start, tr_start );
@@ -357,6 +359,17 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent )
 	for (i = 0; i < 10; i++) {
 		trap_Trace (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
 		traceEnt = &g_entities[ tr.entityNum ];
+		
+		    //freaky - explode shotgun bullets
+	if(g_sgexplode.integer) {
+       tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+	   tent->s.otherEntityNum = traceEnt->s.number;
+	   tent->s.eventParm = DirToByte( tr.plane.normal );
+	   tent->s.weapon = WP_ROCKET_LAUNCHER;
+	   G_RadiusDamage(tr.endpos, ent, g_sgsdamage.value/*45*/ * s_quadFactor, g_sgsradius.value/*35*/ * s_quadFactor, traceEnt, MOD_SHOTGUN);
+	}
+    //end
+		
 
 		// send bullet impact
 		if (  tr.surfaceFlags & SURF_NOIMPACT ) {
@@ -378,11 +391,13 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent )
 				}
 				continue;
 			}
-			if( LogAccuracyHit( traceEnt, ent ) ) {
-				hitClient = qtrue;
+			else {
+				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+					damage, 0, MOD_SHOTGUN);
+				if( LogAccuracyHit( traceEnt, ent ) ) {
+					return qtrue;
+				}
 			}
-			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
-			return hitClient;
 		}
 		return qfalse;
 	}
@@ -390,12 +405,12 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent )
 }
 
 // this should match CG_ShotgunPattern
-void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
-{
+void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent ) {
 	int			i;
 	float		r, u;
 	vec3_t		end;
 	vec3_t		forward, right, up;
+	int			oldScore;
 	qboolean	hitClient = qfalse;
 
 //unlagged - attack prediction #2
@@ -409,6 +424,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
 	PerpendicularVector( right, forward );
 	CrossProduct( forward, right, up );
 
+	oldScore = ent->client->ps.persistant[PERS_SCORE];
 
 //unlagged - backward reconciliation #2
 	// backward-reconcile the other clients
@@ -427,8 +443,8 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
 			ent->client->accuracy_hits++;
 		}
 	}
-	if( hitClient )
-		ent->client->accuracy[WP_SHOTGUN][1]++;
+        if( hitClient )
+            ent->client->accuracy[WP_SHOTGUN][1]++;
 
 //unlagged - backward reconciliation #2
 	// put them back
@@ -437,8 +453,7 @@ void ShotgunPattern( vec3_t origin, vec3_t origin2, int seed, gentity_t *ent )
 }
 
 
-void weapon_supershotgun_fire (gentity_t *ent)
-{
+void weapon_supershotgun_fire (gentity_t *ent) {
 	gentity_t		*tent;
 
 	// send shotgun blast
@@ -465,8 +480,7 @@ GRENADE LAUNCHER
 ======================================================================
 */
 
-void weapon_grenadelauncher_fire (gentity_t *ent)
-{
+void weapon_grenadelauncher_fire (gentity_t *ent) {
 	gentity_t	*m;
 
 	// extra vertical velocity
@@ -488,8 +502,7 @@ ROCKET
 ======================================================================
 */
 
-void Weapon_RocketLauncher_Fire (gentity_t *ent)
-{
+void Weapon_RocketLauncher_Fire (gentity_t *ent) {
 	gentity_t	*m;
 
 	m = fire_rocket (ent, muzzle, forward);
@@ -508,8 +521,7 @@ PLASMA GUN
 ======================================================================
 */
 
-void Weapon_Plasmagun_Fire (gentity_t *ent)
-{
+void Weapon_Plasmagun_Fire (gentity_t *ent) {
 	gentity_t	*m;
 
 	m = fire_plasma (ent, muzzle, forward);
@@ -534,8 +546,7 @@ weapon_railgun_fire
 =================
 */
 #define	MAX_RAIL_HITS	4
-void weapon_railgun_fire (gentity_t *ent)
-{
+void weapon_railgun_fire (gentity_t *ent) {
 	vec3_t		end;
 	vec3_t impactpoint, bouncedir;
 	trace_t		trace;
@@ -604,8 +615,7 @@ void weapon_railgun_fire (gentity_t *ent)
 		trap_UnlinkEntity( traceEnt );
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
-	}
-	while ( unlinked < MAX_RAIL_HITS );
+	} while ( unlinked < MAX_RAIL_HITS );
 
 //unlagged - backward reconciliation #2
 	// put them back
@@ -636,8 +646,7 @@ void weapon_railgun_fire (gentity_t *ent)
 	// no explosion at end if SURF_NOIMPACT, but still make the trail
 	if ( trace.surfaceFlags & SURF_NOIMPACT ) {
 		tent->s.eventParm = 255;	// don't make the explosion at the end
-	}
-	else {
+	} else {
 		tent->s.eventParm = DirToByte( trace.plane.normal );
 	}
 	tent->s.clientNum = ent->s.clientNum;
@@ -646,23 +655,22 @@ void weapon_railgun_fire (gentity_t *ent)
 	if ( hits == 0 ) {
 		// complete miss
 		ent->client->accurateCount = 0;
-	}
-	else {
+	} else {
 		// check for "impressive" reward sound
 		ent->client->accurateCount += hits;
 		if ( ent->client->accurateCount >= 2 ) {
 			ent->client->accurateCount -= 2;
 			ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-			G_LogPrintf( "Award: %i %i: %s gained the %s award!\n", ent->client->ps.clientNum, 2, ent->client->pers.netname, "IMPRESSIVE" );
-			if(!level.hadBots) //There has not been any bots
-				ChallengeMessage(ent,AWARD_IMPRESSIVE);
-			// add the sprite over the player's head
+                        G_LogPrintf( "Award: %i %i: %s gained the %s award!\n", ent->client->ps.clientNum, 2, ent->client->pers.netname, "IMPRESSIVE" );
+                        if(!level.hadBots) //There has not been any bots
+                            ChallengeMessage(ent,AWARD_IMPRESSIVE);
+                        // add the sprite over the player's head
 			ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 			ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
 		ent->client->accuracy_hits++;
-		ent->client->accuracy[WP_RAILGUN][1]++;
+                ent->client->accuracy[WP_RAILGUN][1]++;
 	}
 
 }
@@ -716,8 +724,7 @@ LIGHTNING GUN
 ======================================================================
 */
 
-void Weapon_LightningFire( gentity_t *ent )
-{
+void Weapon_LightningFire( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		end;
 	vec3_t impactpoint, bouncedir;
@@ -732,15 +739,15 @@ void Weapon_LightningFire( gentity_t *ent )
 
 //Sago: I'm not sure this should recieve backward reconciliation. It is not a real instant hit weapon, it can normally be dogded
 //unlagged - backward reconciliation #2
-		// backward-reconcile the other clients
-		G_DoTimeShiftFor( ent );
+	// backward-reconcile the other clients
+	G_DoTimeShiftFor( ent );
 //unlagged - backward reconciliation #2
 
 		trap_Trace( &tr, muzzle, NULL, NULL, end, passent, MASK_SHOT );
 
 //unlagged - backward reconciliation #2
-		// put them back
-		G_UndoTimeShiftFor( ent );
+	// put them back
+	G_UndoTimeShiftFor( ent );
 //unlagged - backward reconciliation #2
 
 		// if not the first trace (the lightning bounced of an invulnerability sphere)
@@ -759,6 +766,16 @@ void Weapon_LightningFire( gentity_t *ent )
 
 		traceEnt = &g_entities[ tr.entityNum ];
 
+   //freaky - explode lightning
+	if(g_lgexplode.integer) {
+        tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
+		tent->s.otherEntityNum = traceEnt->s.number;
+		tent->s.eventParm = DirToByte( tr.plane.normal );
+		tent->s.weapon = WP_ROCKET_LAUNCHER;
+		G_RadiusDamage(tr.endpos, ent, /*70*/g_lgsdamage.value * s_quadFactor, /*75*/g_lgsradius.integer * s_quadFactor, traceEnt, MOD_LIGHTNING);
+	}
+    //end
+
 		if ( traceEnt->takedamage) {
 			if ( traceEnt->client && traceEnt->client->invulnerabilityTime > level.time ) {
 				if (G_InvulnerabilityEffect( traceEnt, forward, tr.endpos, impactpoint, bouncedir )) {
@@ -775,10 +792,10 @@ void Weapon_LightningFire( gentity_t *ent )
 				}
 				continue;
 			}
-			if( LogAccuracyHit( traceEnt, ent ) ) {
-				ent->client->accuracy_hits++;
+			else {
+				G_Damage( traceEnt, ent, ent, forward, tr.endpos,
+					damage, 0, MOD_LIGHTNING);
 			}
-			G_Damage( traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_LIGHTNING);
 		}
 
 		if ( traceEnt->takedamage && traceEnt->client ) {
@@ -786,8 +803,11 @@ void Weapon_LightningFire( gentity_t *ent )
 			tent->s.otherEntityNum = traceEnt->s.number;
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 			tent->s.weapon = ent->s.weapon;
-		}
-		else if ( !( tr.surfaceFlags & SURF_NOIMPACT ) ) {
+			if( LogAccuracyHit( traceEnt, ent ) ) {
+				ent->client->accuracy_hits++;
+                                ent->client->accuracy[WP_LIGHTNING][1]++;
+			}
+		} else if ( !( tr.surfaceFlags & SURF_NOIMPACT ) ) {
 			tent = G_TempEntity( tr.endpos, EV_MISSILE_MISS );
 			tent->s.eventParm = DirToByte( tr.plane.normal );
 		}
@@ -804,8 +824,7 @@ NAILGUN
 ======================================================================
 */
 
-void Weapon_Nailgun_Fire (gentity_t *ent)
-{
+void Weapon_Nailgun_Fire (gentity_t *ent) {
 	gentity_t	*m;
 	int			count;
 
@@ -827,8 +846,7 @@ PROXIMITY MINE LAUNCHER
 ======================================================================
 */
 
-void weapon_proxlauncher_fire (gentity_t *ent)
-{
+void weapon_proxlauncher_fire (gentity_t *ent) {
 	gentity_t	*m;
 
 	// extra vertical velocity
@@ -836,6 +854,28 @@ void weapon_proxlauncher_fire (gentity_t *ent)
 	VectorNormalize( forward );
 
 	m = fire_prox (ent, muzzle, forward);
+	m->damage *= s_quadFactor;
+	m->splashDamage *= s_quadFactor;
+
+//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
+}
+
+
+
+void Weapon_Flamethrower_Fire (gentity_t *ent) {
+	gentity_t	*m;
+
+	m = fire_flame (ent, muzzle, forward);
+	m->damage *= s_quadFactor;
+	m->splashDamage *= s_quadFactor;
+
+//	VectorAdd( m->s.pos.trDelta, ent->client->ps.velocity, m->s.pos.trDelta );	// "real" physics
+}
+
+void Weapon_Antimatter_Fire (gentity_t *ent) {
+	gentity_t	*m;
+
+	m = fire_antimatter (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
 
@@ -851,8 +891,7 @@ void weapon_proxlauncher_fire (gentity_t *ent)
 LogAccuracyHit
 ===============
 */
-qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker )
-{
+qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker ) {
 	if( !target->takedamage ) {
 		return qfalse;
 	}
@@ -888,8 +927,7 @@ CalcMuzzlePoint
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint )
-{
+void CalcMuzzlePoint ( gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
 	VectorCopy( ent->s.pos.trBase, muzzlePoint );
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
@@ -904,8 +942,7 @@ CalcMuzzlePointOrigin
 set muzzle location relative to pivoting eye
 ===============
 */
-void CalcMuzzlePointOrigin ( gentity_t *ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint )
-{
+void CalcMuzzlePointOrigin ( gentity_t *ent, vec3_t origin, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint ) {
 	VectorCopy( ent->s.pos.trBase, muzzlePoint );
 	muzzlePoint[2] += ent->client->ps.viewheight;
 	VectorMA( muzzlePoint, 14, forward, muzzlePoint );
@@ -920,8 +957,7 @@ void CalcMuzzlePointOrigin ( gentity_t *ent, vec3_t origin, vec3_t forward, vec3
 FireWeapon
 ===============
 */
-void FireWeapon( gentity_t *ent )
-{
+void FireWeapon( gentity_t *ent ) {
 	//Make people drop out of follow mode (this should be moved, so people can change betwean players.)
 	if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
 		StopFollowing( ent );
@@ -930,8 +966,7 @@ void FireWeapon( gentity_t *ent )
 
 	if (ent->client->ps.powerups[PW_QUAD] ) {
 		s_quadFactor = g_quadfactor.value;
-	}
-	else {
+	} else {
 		s_quadFactor = 1;
 	}
 	if( ent->client->persistantPowerup && ent->client->persistantPowerup->item && ent->client->persistantPowerup->item->giTag == PW_DOUBLER ) {
@@ -946,19 +981,24 @@ void FireWeapon( gentity_t *ent )
 	if( ent->client->persistantPowerup && ent->client->persistantPowerup->item && ent->client->persistantPowerup->item->giTag == PW_SCOUT ) {
 	s_quadFactor *= g_scoutdamagefactor.value;
 	}
+	if( ent->client->sess.sessionTeam == TEAM_BLUE ) {
+	s_quadFactor *= g_teamblue_damage.value;
+	}
+	if( ent->client->sess.sessionTeam == TEAM_RED ) {
+	s_quadFactor *= g_teamred_damage.value;
+	}
 
-	if (ent->client->spawnprotected)
-		ent->client->spawnprotected = qfalse;
+        if (ent->client->spawnprotected)
+            ent->client->spawnprotected = qfalse;
 
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	if( ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET ) {
 		if( ent->s.weapon == WP_NAILGUN ) {
 			ent->client->accuracy_shots += NUM_NAILSHOTS;
-			ent->client->accuracy[WP_NAILGUN][0]++;
-		}
-		else {
+                        ent->client->accuracy[WP_NAILGUN][0]++;
+		} else {
 			ent->client->accuracy_shots++;
-			ent->client->accuracy[ent->s.weapon][0]++;
+                        ent->client->accuracy[ent->s.weapon][0]++;
 		}
 	}
 
@@ -981,8 +1021,7 @@ void FireWeapon( gentity_t *ent )
 	case WP_MACHINEGUN:
 		if ( g_gametype.integer != GT_TEAM ) {
 			Bullet_Fire( ent, mod_mgspread, MACHINEGUN_DAMAGE );
-		}
-		else {
+		} else {
 			Bullet_Fire( ent, mod_mgspread, MACHINEGUN_TEAM_DAMAGE );
 		}
 		break;
@@ -1013,6 +1052,12 @@ void FireWeapon( gentity_t *ent )
 	case WP_CHAINGUN:
 		Bullet_Fire( ent, mod_cgspread, CHAINGUN_DAMAGE );
 		break;
+	case WP_FLAMETHROWER:
+		Weapon_Flamethrower_Fire( ent );
+		break;
+	case WP_ANTIMATTER:
+		Weapon_Antimatter_Fire( ent );
+		break;
 	default:
 // FIXME		G_Error( "Bad ent->s.weapon" );
 		break;
@@ -1025,8 +1070,7 @@ void FireWeapon( gentity_t *ent )
 KamikazeRadiusDamage
 ===============
 */
-static void KamikazeRadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius )
-{
+static void KamikazeRadiusDamage( vec3_t origin, gentity_t *attacker, float damage, float radius ) {
 	float		dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];
@@ -1063,11 +1107,9 @@ static void KamikazeRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
 		for ( i = 0 ; i < 3 ; i++ ) {
 			if ( origin[i] < ent->r.absmin[i] ) {
 				v[i] = ent->r.absmin[i] - origin[i];
-			}
-			else if ( origin[i] > ent->r.absmax[i] ) {
+			} else if ( origin[i] > ent->r.absmax[i] ) {
 				v[i] = origin[i] - ent->r.absmax[i];
-			}
-			else {
+			} else {
 				v[i] = 0;
 			}
 		}
@@ -1078,12 +1120,12 @@ static void KamikazeRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
 		}
 
 //		if( CanDamage (ent, origin) ) {
-		VectorSubtract (ent->r.currentOrigin, origin, dir);
-		// push the center of mass higher than the origin so players
-		// get knocked into the air more
-		dir[2] += 24;
-		G_Damage( ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS|DAMAGE_NO_TEAM_PROTECTION, MOD_KAMIKAZE );
-		ent->kamikazeTime = level.time + 3000;
+			VectorSubtract (ent->r.currentOrigin, origin, dir);
+			// push the center of mass higher than the origin so players
+			// get knocked into the air more
+			dir[2] += 24;
+			G_Damage( ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS|DAMAGE_NO_TEAM_PROTECTION, MOD_KAMIKAZE );
+			ent->kamikazeTime = level.time + 3000;
 //		}
 	}
 }
@@ -1093,8 +1135,7 @@ static void KamikazeRadiusDamage( vec3_t origin, gentity_t *attacker, float dama
 KamikazeShockWave
 ===============
 */
-static void KamikazeShockWave( vec3_t origin, gentity_t *attacker, float damage, float push, float radius )
-{
+static void KamikazeShockWave( vec3_t origin, gentity_t *attacker, float damage, float push, float radius ) {
 	float		dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];
@@ -1126,11 +1167,9 @@ static void KamikazeShockWave( vec3_t origin, gentity_t *attacker, float damage,
 		for ( i = 0 ; i < 3 ; i++ ) {
 			if ( origin[i] < ent->r.absmin[i] ) {
 				v[i] = ent->r.absmin[i] - origin[i];
-			}
-			else if ( origin[i] > ent->r.absmax[i] ) {
+			} else if ( origin[i] > ent->r.absmax[i] ) {
 				v[i] = origin[i] - ent->r.absmax[i];
-			}
-			else {
+			} else {
 				v[i] = 0;
 			}
 		}
@@ -1141,18 +1180,18 @@ static void KamikazeShockWave( vec3_t origin, gentity_t *attacker, float damage,
 		}
 
 //		if( CanDamage (ent, origin) ) {
-		VectorSubtract (ent->r.currentOrigin, origin, dir);
-		dir[2] += 24;
-		G_Damage( ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS|DAMAGE_NO_TEAM_PROTECTION, MOD_KAMIKAZE );
-		//
-		dir[2] = 0;
-		VectorNormalize(dir);
-		if ( ent->client ) {
-			ent->client->ps.velocity[0] = dir[0] * push;
-			ent->client->ps.velocity[1] = dir[1] * push;
-			ent->client->ps.velocity[2] = 100;
-		}
-		ent->kamikazeShockTime = level.time + 3000;
+			VectorSubtract (ent->r.currentOrigin, origin, dir);
+			dir[2] += 24;
+			G_Damage( ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS|DAMAGE_NO_TEAM_PROTECTION, MOD_KAMIKAZE );
+			//
+			dir[2] = 0;
+			VectorNormalize(dir);
+			if ( ent->client ) {
+				ent->client->ps.velocity[0] = dir[0] * push;
+				ent->client->ps.velocity[1] = dir[1] * push;
+				ent->client->ps.velocity[2] = 100;
+			}
+			ent->kamikazeShockTime = level.time + 3000;
 //		}
 	}
 }
@@ -1162,8 +1201,7 @@ static void KamikazeShockWave( vec3_t origin, gentity_t *attacker, float damage,
 KamikazeDamage
 ===============
 */
-static void KamikazeDamage( gentity_t *self )
-{
+static void KamikazeDamage( gentity_t *self ) {
 	int i;
 	float t;
 	gentity_t *ent;
@@ -1194,7 +1232,8 @@ static void KamikazeDamage( gentity_t *self )
 	newangles[0] = crandom() * 2;
 	newangles[1] = crandom() * 2;
 	newangles[2] = 0;
-	for (i = 0; i < MAX_CLIENTS; i++) {
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
 		ent = &g_entities[i];
 		if (!ent->inuse)
 			continue;
@@ -1219,8 +1258,7 @@ static void KamikazeDamage( gentity_t *self )
 G_StartKamikaze
 ===============
 */
-void G_StartKamikaze( gentity_t *ent )
-{
+void G_StartKamikaze( gentity_t *ent ) {
 	gentity_t	*explosion;
 	gentity_t	*te;
 	vec3_t		snapped;
@@ -1261,7 +1299,7 @@ void G_StartKamikaze( gentity_t *ent )
 		G_Damage( ent, ent, ent, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_KAMIKAZE );
 	}
 	else {
-		if ( strequals(ent->activator->classname, "bodyque") ) {
+		if ( !strcmp(ent->activator->classname, "bodyque") ) {
 			explosion->activator = &g_entities[ent->activator->r.ownerNum];
 		}
 		else {

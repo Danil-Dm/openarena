@@ -258,7 +258,7 @@ typedef struct bot_state_s
 	float leadmessage_time;							//last time a messaged was sent to the team mate
 	float leadbackup_time;							//time backing up towards team mate
 	//
-	char teamleader[MAX_NETNAME];					//netname of the team leader
+	char teamleader[32];							//netname of the team leader
 	float askteamleader_time;						//time asked for team leader
 	float becometeamleader_time;					//time the bot will become the team leader
 	float teamgiveorders_time;						//time to give team orders
@@ -299,7 +299,7 @@ extern float floattime;
 #define FloatTime() floattime
 
 // from the game source
-void	QDECL BotAI_Print(int type, const char *fmt, ...) __attribute__((format(printf,2,3)));
+void	QDECL BotAI_Print(int type, char *fmt, ...);
 void	QDECL QDECL BotAI_BotInitialChat( bot_state_t *bs, char *type, ... );
 void	BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask);
 int		BotAI_GetClientState( int clientNum, playerState_t *state );

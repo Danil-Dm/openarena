@@ -40,7 +40,7 @@ G_WriteClientSessionData
 Called on game shutdown
 ================
 */
-static void G_WriteClientSessionData( const gclient_t *client ) {
+void G_WriteClientSessionData( gclient_t *client ) {
 	const char	*s;
 	const char	*var;
 
@@ -108,25 +108,17 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 
 	sess = &client->sess;
 
-	// check for team preference, mainly for bots
-	value = Info_ValueForKey( userinfo, "teampref" );
-	// check for human's team preference set by start server menu
-	if ( !value[0] && g_localTeamPref.string[0] && client->pers.localClient ) {
-		value = g_localTeamPref.string;
-		// clear team so it's only used once
-		trap_Cvar_Set( "g_localTeamPref", "" );
-	}
-
 	// initial team determination
-	if (G_IsATeamGametype(g_gametype.integer)) {
-		// always spawn as spectator in team games
-		sess->sessionTeam = TEAM_SPECTATOR;
-		sess->spectatorState = SPECTATOR_FREE;
-
-		if ( value[0] || g_teamAutoJoin.integer ) {
-			SetTeam( &g_entities[client - level.clients], value );
+	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
+		if ( g_teamAutoJoin.integer ) {
+			sess->sessionTeam = PickTeam( -1 );
+			BroadcastTeamChange( client, -1 );
+		} else {
+			// always spawn as spectator in team games
+			sess->sessionTeam = TEAM_SPECTATOR;	
 		}
 	} else {
+		value = Info_ValueForKey( userinfo, "team" );
 		if ( value[0] == 's' ) {
 			// a willing spectator, not a waiting-in-line
 			sess->sessionTeam = TEAM_SPECTATOR;
@@ -153,10 +145,10 @@ void G_InitSessionData( gclient_t *client, char *userinfo ) {
 				break;
 			}
 		}
-		sess->spectatorState = SPECTATOR_FREE;
 	}
 
-	AddTournamentQueue(client);
+	sess->spectatorState = SPECTATOR_FREE;
+	 AddTournamentQueue(client);
 
 	G_WriteClientSessionData( client );
 }
@@ -179,7 +171,7 @@ void G_InitWorldSession( void ) {
 	// client sessions
 	if ( g_gametype.integer != gt ) {
 		level.newSession = qtrue;
-		G_Printf( "Gametype changed, clearing session data.\n" );
+                G_Printf( "Gametype changed, clearing session data.\n" );
 	}
 }
 

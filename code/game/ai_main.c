@@ -94,7 +94,7 @@ void ExitLevel( void );
 BotAI_Print
 ==================
 */
-void QDECL BotAI_Print(int type, const char *fmt, ...) {
+void QDECL BotAI_Print(int type, char *fmt, ...) {
 	char str[2048];
 	va_list ap;
 
@@ -188,10 +188,8 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	memset( state, 0, sizeof(entityState_t) );
 	if (!ent->inuse) return qfalse;
 	if (!ent->r.linked) return qfalse;
-	if ( !(G_IsARoundBasedGametype(g_gametype.integer) ||g_instantgib.integer || g_rockets.integer || g_elimination_allgametypes.integer)
-	       && (ent->r.svFlags & SVF_NOCLIENT) ) {
-		return qfalse;
-	}
+        if ( !(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS ||g_instantgib.integer || g_rockets.integer || g_elimination_allgametypes.integer || g_gametype.integer==GT_CTF_ELIMINATION)
+	&& (ent->r.svFlags & SVF_NOCLIENT) ) return qfalse;
 	memcpy( state, &ent->s, sizeof(entityState_t) );
 	return qtrue;
 }
@@ -258,7 +256,7 @@ void BotTestAAS(vec3_t origin) {
 	if (bot_testsolid.integer) {
 		if (!trap_AAS_Initialized()) return;
 		areanum = BotPointAreaNum(origin);
-		if (areanum) BotAI_Print(PRT_MESSAGE, "\rempty area");
+		if (areanum) BotAI_Print(PRT_MESSAGE, "\remtpy area");
 		else BotAI_Print(PRT_MESSAGE, "\r^1SOLID area");
 	}
 	else if (bot_testclusters.integer) {
@@ -284,15 +282,11 @@ void BotReportStatus(bot_state_t *bs) {
 	char *leader, flagstatus[32];
 	//
 	ClientName(bs->client, netname, sizeof(netname));
-	if ( Q_strequal(netname, bs->teamleader) ) {
-		leader = "L";
-	}
-	else {
-		leader = " ";
-	}
+	if (Q_stricmp(netname, bs->teamleader) == 0) leader = "L";
+	else leader = " ";
 
 	strcpy(flagstatus, "  ");
-	if (G_UsesTeamFlags(gametype) && !G_UsesTheWhiteFlag(gametype)) {
+	if (gametype == GT_CTF || gametype == GT_CTF_ELIMINATION) {
 		if (BotCTFCarryingFlag(bs)) {
 			if (BotTeam(bs) == TEAM_RED) strcpy(flagstatus, S_COLOR_RED"F ");
 			else strcpy(flagstatus, S_COLOR_BLUE"F ");
@@ -406,7 +400,7 @@ void BotTeamplayReport(void) {
 	char buf[MAX_INFO_STRING];
 
 	BotAI_Print(PRT_MESSAGE, S_COLOR_RED"RED\n");
-	for (i = 0; i < level.maxclients; i++) {
+	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		//
 		if ( !botstates[i] || !botstates[i]->inuse ) continue;
 		//
@@ -419,7 +413,7 @@ void BotTeamplayReport(void) {
 		}
 	}
 	BotAI_Print(PRT_MESSAGE, S_COLOR_BLUE"BLUE\n");
-	for (i = 0; i < level.maxclients; i++) {
+	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		//
 		if ( !botstates[i] || !botstates[i]->inuse ) continue;
 		//
@@ -446,20 +440,16 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 	bot_goal_t goal;
 	//
 	ClientName(bs->client, netname, sizeof(netname));
-	if ( Q_strequal(netname, bs->teamleader) ) {
-		leader = "L";
-	}
-	else {
-		leader = " ";
-	}
+	if (Q_stricmp(netname, bs->teamleader) == 0) leader = "L";
+	else leader = " ";
 
 	strcpy(carrying, "  ");
-	if (G_UsesTeamFlags(gametype) && !G_UsesTheWhiteFlag(gametype)) {
+	if (gametype == GT_CTF || gametype == GT_CTF_ELIMINATION) {
 		if (BotCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F ");
 		}
 	}
-	else if (G_UsesTheWhiteFlag(gametype)) {
+	else if (gametype == GT_1FCTF) {
 		if (Bot1FCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F ");
 		}
@@ -556,11 +546,11 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 			break;
 		}
 	}
-	cs = va("l\\%s\\c\\%s\\a\\%s",
-	            leader,
-	            carrying,
-	            action);
-	trap_SetConfigstring (CS_BOTINFO + bs->client, cs);
+  	cs = va("l\\%s\\c\\%s\\a\\%s",
+				leader,
+				carrying,
+				action);
+  	trap_SetConfigstring (CS_BOTINFO + bs->client, cs);
 }
 
 /*
@@ -572,7 +562,7 @@ void BotUpdateInfoConfigStrings(void) {
 	int i;
 	char buf[MAX_INFO_STRING];
 
-	for (i = 0; i < level.maxclients; i++) {
+	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		//
 		if ( !botstates[i] || !botstates[i]->inuse )
 			continue;
@@ -807,7 +797,7 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 		//
 		if (bot_challenge.integer) {
 			//smooth slowdown view model
-			diff = fabs(AngleDifference(bs->viewangles[i], bs->ideal_viewangles[i]));
+			diff = abs(AngleDifference(bs->viewangles[i], bs->ideal_viewangles[i]));
 			anglespeed = diff * factor;
 			if (anglespeed > maxchange) anglespeed = maxchange;
 			bs->viewangles[i] = BotChangeViewAngle(bs->viewangles[i],
@@ -904,7 +894,7 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	//set the view independent movement
 	f = DotProduct(forward, bi->dir);
 	r = DotProduct(right, bi->dir);
-	u = fabs(forward[2]) * bi->dir[2];
+	u = abs(forward[2]) * bi->dir[2];
 	m = fabs(f);
 
 	if (fabs(r) > m) {
@@ -1016,10 +1006,7 @@ int BotAI(int client, float thinktime) {
 	}
 
 	//retrieve the current client state
-	if (!BotAI_GetClientState(client, &bs->cur_ps)) {
-		BotAI_Print(PRT_FATAL, "BotAI: failed to get player state for player %d\n", client);
-		return qfalse;
-	}
+	BotAI_GetClientState( client, &bs->cur_ps );
 
 	//retrieve any waiting server commands
 	while( trap_BotGetServerCommand(client, buf, sizeof(buf)) ) {
@@ -1031,42 +1018,42 @@ int BotAI(int client, float thinktime) {
 		//remove color espace sequences from the arguments
 		RemoveColorEscapeSequences( args );
 
-		if (Q_strequal(buf, "cp "))
+		if (!Q_stricmp(buf, "cp "))
 			{ /*CenterPrintf*/ }
-		else if (Q_strequal(buf, "cs"))
+		else if (!Q_stricmp(buf, "cs"))
 			{ /*ConfigStringModified*/ }
-		else if (Q_strequal(buf, "print")) {
+		else if (!Q_stricmp(buf, "print")) {
 			//remove first and last quote from the chat message
 			memmove(args, args+1, strlen(args));
 			args[strlen(args)-1] = '\0';
 			trap_BotQueueConsoleMessage(bs->cs, CMS_NORMAL, args);
 		}
-		else if (Q_strequal(buf, "chat")) {
+		else if (!Q_stricmp(buf, "chat")) {
 			//remove first and last quote from the chat message
 			memmove(args, args+1, strlen(args));
 			args[strlen(args)-1] = '\0';
 			trap_BotQueueConsoleMessage(bs->cs, CMS_CHAT, args);
 		}
-		else if (Q_strequal(buf, "tchat")) {
+		else if (!Q_stricmp(buf, "tchat")) {
 			//remove first and last quote from the chat message
 			memmove(args, args+1, strlen(args));
 			args[strlen(args)-1] = '\0';
 			trap_BotQueueConsoleMessage(bs->cs, CMS_CHAT, args);
 		}
 #ifdef MISSIONPACK
-		else if (Q_strequal(buf, "vchat")) {
+		else if (!Q_stricmp(buf, "vchat")) {
 			BotVoiceChatCommand(bs, SAY_ALL, args);
 		}
-		else if (Q_strequal(buf, "vtchat")) {
+		else if (!Q_stricmp(buf, "vtchat")) {
 			BotVoiceChatCommand(bs, SAY_TEAM, args);
 		}
-		else if (Q_strequal(buf, "vtell")) {
+		else if (!Q_stricmp(buf, "vtell")) {
 			BotVoiceChatCommand(bs, SAY_TELL, args);
 		}
 #endif
-		else if (Q_strequal(buf, "scores"))
+		else if (!Q_stricmp(buf, "scores"))
 			{ /*FIXME: parse scores?*/ }
-		else if (Q_strequal(buf, "clientLevelShot"))
+		else if (!Q_stricmp(buf, "clientLevelShot"))
 			{ /*ignore*/ }
 	}
 	//add the delta angles to the bot's current view angles
@@ -1129,8 +1116,7 @@ void BotWriteSessionData(bot_state_t *bs) {
 			"%i %i %i %i %i %i %i %i"
 			" %f %f %f"
 			" %f %f %f"
-			" %f %f %f"
-			" %f",
+			" %f %f %f",
 		bs->lastgoal_decisionmaker,
 		bs->lastgoal_ltgtype,
 		bs->lastgoal_teammate,
@@ -1147,8 +1133,7 @@ void BotWriteSessionData(bot_state_t *bs) {
 		bs->lastgoal_teamgoal.mins[2],
 		bs->lastgoal_teamgoal.maxs[0],
 		bs->lastgoal_teamgoal.maxs[1],
-		bs->lastgoal_teamgoal.maxs[2],
-		bs->formation_dist
+		bs->lastgoal_teamgoal.maxs[2]
 		);
 
 	var = va( "botsession%i", bs->client );
@@ -1172,8 +1157,7 @@ void BotReadSessionData(bot_state_t *bs) {
 			"%i %i %i %i %i %i %i %i"
 			" %f %f %f"
 			" %f %f %f"
-			" %f %f %f"
-			" %f",
+			" %f %f %f",
 		&bs->lastgoal_decisionmaker,
 		&bs->lastgoal_ltgtype,
 		&bs->lastgoal_teammate,
@@ -1190,8 +1174,7 @@ void BotReadSessionData(bot_state_t *bs) {
 		&bs->lastgoal_teamgoal.mins[2],
 		&bs->lastgoal_teamgoal.maxs[0],
 		&bs->lastgoal_teamgoal.maxs[1],
-		&bs->lastgoal_teamgoal.maxs[2],
-		&bs->formation_dist
+		&bs->lastgoal_teamgoal.maxs[2]
 		);
 }
 
@@ -1204,19 +1187,19 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 	char filename[MAX_PATH], name[MAX_PATH], gender[MAX_PATH];
 	bot_state_t *bs;
 	int errnum;
-	//KK-OAX Changed to Tremulous's BG_Alloc
+    //KK-OAX Changed to Tremulous's BG_Alloc
 	if (!botstates[client]) {
-		if(!BG_CanAlloc(sizeof(bot_state_t))) {
-			//We cannot run BG_Alloc, fail nicely
-			BotAI_Print(PRT_FATAL, "BotAISetupClient: Not enough heap memory\n");
-			return qfalse;
-		}
-		botstates[client] = BG_Alloc(sizeof(bot_state_t));
-		//BG_Allow will succed or terminate
-	}
+            if(!BG_CanAlloc(sizeof(bot_state_t))) {
+                //We cannot run BG_Alloc, fail nicely
+                BotAI_Print(PRT_FATAL, "BotAISetupClient: Not enough heap memory\n", client);
+		return qfalse;
+            }
+            botstates[client] = BG_Alloc(sizeof(bot_state_t));
+            //BG_Allow will succed or terminate
+        }
 	bs = botstates[client];
 
-	if (bs->inuse) {
+	if (bs && bs->inuse) {
 		BotAI_Print(PRT_FATAL, "BotAISetupClient: client %d already setup\n", client);
 		return qfalse;
 	}
@@ -1322,7 +1305,7 @@ int BotAIShutdownClient(int client, qboolean restart) {
 	}
 
 	trap_BotFreeMoveState(bs->ms);
-	//free the goal state
+	//free the goal state`			
 	trap_BotFreeGoalState(bs->gs);
 	//free the chat file
 	trap_BotFreeChatState(bs->cs);
@@ -1526,8 +1509,8 @@ int BotAIStartFrame(int time) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
-			if ( !(G_IsARoundBasedGametype(g_gametype.integer) ||g_instantgib.integer || g_rockets.integer || g_elimination_allgametypes.integer)
-				   && ent->r.svFlags & SVF_NOCLIENT) {
+                        if ( !(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS ||g_instantgib.integer || g_rockets.integer || g_elimination_allgametypes.integer || g_gametype.integer==GT_CTF_ELIMINATION)
+                        && ent->r.svFlags & SVF_NOCLIENT) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
@@ -1549,7 +1532,7 @@ int BotAIStartFrame(int time) {
 					continue;
 				}
 			}
-
+                        
 			//
 			memset(&state, 0, sizeof(bot_entitystate_t));
 			//
@@ -1630,7 +1613,8 @@ int BotInitLibrary(void) {
 	char buf[144];
 
 	//set the maxclients and maxentities library variables before calling BotSetupLibrary
-	Com_sprintf(buf, sizeof(buf), "%d", level.maxclients);
+	trap_Cvar_VariableStringBuffer("sv_maxclients", buf, sizeof(buf));
+	if (!strlen(buf)) strcpy(buf, "8");
 	trap_BotLibVarSet("maxclients", buf);
 	Com_sprintf(buf, sizeof(buf), "%d", MAX_GENTITIES);
 	trap_BotLibVarSet("maxentities", buf);

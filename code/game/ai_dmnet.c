@@ -659,10 +659,11 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			bs->teammessage_time = 0;
 		}
 		//
-		if (bs->killedenemy_time > bs->teamgoal_time - TEAM_KILL_SOMEONE && bs->lastkilledplayer == bs->teamgoal.entitynum) {
+		if (bs->lastkilledplayer == bs->teamgoal.entitynum) {
 			EasyClientName(bs->teamgoal.entitynum, buf, sizeof(buf));
 			BotAI_BotInitialChat(bs, "kill_done", buf, NULL);
 			trap_BotEnterChat(bs->cs, bs->decisionmaker, CHAT_TELL);
+			bs->lastkilledplayer = -1;
 			bs->ltgtype = 0;
 		}
 		//
@@ -837,7 +838,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		return qtrue;
 	}
 #ifdef CTF
-	if (G_UsesTeamFlags(gametype) && !G_UsesTheWhiteFlag(gametype)) {
+	if (gametype == GT_CTF || gametype == GT_CTF_ELIMINATION) {
 		//if going for enemy flag
 		if (bs->ltgtype == LTG_GETFLAG) {
 			//check for bot typing status message
@@ -1962,13 +1963,13 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		else range = 150;
 		//
 #ifdef CTF
-		if (G_UsesTeamFlags(gametype) && !G_UsesTheWhiteFlag(gametype)) {
+		if (gametype == GT_CTF || gametype == GT_CTF_ELIMINATION) {
 			//if carrying a flag the bot shouldn't be distracted too much
 			if (BotCTFCarryingFlag(bs))
 				range = 50;
 		}
 #endif //CTF
-		else if (G_UsesTheWhiteFlag(gametype)) {
+		else if (gametype == GT_1FCTF) {
 			if (Bot1FCTFCarryingFlag(bs))
 				range = 50;
 		}
@@ -2482,13 +2483,13 @@ int AINode_Battle_Retreat(bot_state_t *bs) {
 		bs->check_time = FloatTime() + 1;
 		range = 150;
 #ifdef CTF
-		if (G_UsesTeamFlags(gametype) && !G_UsesTheWhiteFlag(gametype)) {
+		if (gametype == GT_CTF || gametype == GT_CTF_ELIMINATION) {
 			//if carrying a flag the bot shouldn't be distracted too much
 			if (BotCTFCarryingFlag(bs))
 				range = 50;
 		}
 #endif //CTF
-		else if (G_UsesTheWhiteFlag(gametype)) {
+		else if (gametype == GT_1FCTF) {
 			if (Bot1FCTFCarryingFlag(bs))
 				range = 50;
 		}
