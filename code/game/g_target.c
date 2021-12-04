@@ -132,6 +132,104 @@ void SP_target_score( gentity_t *ent ) {
 	ent->use = Use_Target_Score;
 }
 
+//==========================================================
+
+/*QUAKED target_cmd (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+void Use_Target_Cmd (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+	trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", ent->target ) );
+}
+
+void SP_target_cmd( gentity_t *ent ) {
+	if ( !ent->target ) {
+		ent->target = "say No Cmd!";
+	}
+	ent->use = Use_Target_Cmd;
+}
+
+
+/*QUAKED target_cmd (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+void Use_Target_Music (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+trap_SendServerCommand(activator-g_entities, va( "cmusic %s", ent->target));
+}
+
+void SP_target_music( gentity_t *ent ) {
+	if ( !ent->target ) {
+		ent->target = "say No Cmd!";
+	}
+	ent->use = Use_Target_Music;
+}
+
+/*QUAKED target_cmd (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+void Use_Target_Sound (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+trap_SendServerCommand(activator-g_entities, va( "csound %s", ent->target));
+}
+
+void SP_target_sound( gentity_t *ent ) {
+	if ( !ent->target ) {
+		ent->target = "say No Cmd!";
+	}
+	ent->use = Use_Target_Sound;
+}
+
+/*QUAKED target_cmd (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+void Use_Target_Model (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+trap_SendServerCommand(activator-g_entities, va( "cmodel %s", ent->target));
+}
+
+void SP_target_model( gentity_t *ent ) {
+	if ( !ent->target ) {
+		ent->target = "say No Cmd!";
+	}
+	ent->use = Use_Target_Model;
+}
+
+/*QUAKED target_cmd (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+void Use_Target_Head (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+trap_SendServerCommand(activator-g_entities, va( "chead %s", ent->target));
+}
+
+void SP_target_head( gentity_t *ent ) {
+	if ( !ent->target ) {
+		ent->target = "say No Cmd!";
+	}
+	ent->use = Use_Target_Head;
+}
+
+/*QUAKED target_cmd (1 0 0) (-8 -8 -8) (8 8 8)
+"count" number of points to add, default 1
+
+The activator is given this many points.
+*/
+void Use_Target_Legs (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+trap_SendServerCommand(activator-g_entities, va( "clegs %s", ent->target));
+}
+
+void SP_target_legs( gentity_t *ent ) {
+	if ( !ent->target ) {
+		ent->target = "say No Cmd!";
+	}
+	ent->use = Use_Target_Legs;
+}
 
 //==========================================================
 

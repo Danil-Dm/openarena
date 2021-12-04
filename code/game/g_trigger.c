@@ -24,10 +24,70 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 void InitTrigger( gentity_t *self ) {
+	char		*string;
+	int			modelid;
+	
 	if (!VectorCompare (self->s.angles, vec3_origin))
 		G_SetMovedir (self->s.angles, self->movedir);
-
+	
+	string = self->model;
+	modelid = atof( string );
+	if(modelid == 1){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
+	} else 
+	if(modelid == 2){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass.md3" );
+	} else
+	if(modelid == 4){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
+	} else 
+	if(modelid == 5){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
+	} else 
+	if(modelid == 6){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
+	} else 
+	if(modelid == 7){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
+	} else 
+	if(modelid == 8){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
+	} else 
+	if(modelid == 9){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
+	} else 	
+	if(modelid == 10){
+	VectorSet( self->r.mins, -25, -25, -25);
+	VectorSet( self->r.maxs, 25, 25, 25 );
+	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
+	} else {
 	trap_SetBrushModel( self, self->model );
+	}
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
 	self->r.svFlags = SVF_NOCLIENT;
 }

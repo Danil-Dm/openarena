@@ -37,6 +37,12 @@ typedef struct {
 
 gentity_t		g_entities[MAX_GENTITIES];
 gclient_t		g_clients[MAX_CLIENTS];
+//122 setting
+vmCvar_t	g_portalgrabitems;
+vmCvar_t	g_portallight;
+vmCvar_t	g_building;
+vmCvar_t	g_buildingtime;
+vmCvar_t	g_minigame;
 //gh set
 vmCvar_t	g_ghspeed;
 vmCvar_t	g_ghtimeout;
@@ -44,6 +50,7 @@ vmCvar_t	g_ghtimeout;
 vmCvar_t	g_gdelay;
 vmCvar_t	g_gdamage;
 vmCvar_t	g_grange;
+vmCvar_t	g_gknockback;
 //mg set
 vmCvar_t	g_mgdelay;
 vmCvar_t	g_mgdamage;
@@ -53,6 +60,7 @@ vmCvar_t	g_mgsdamage;
 vmCvar_t	g_mgsradius;
 vmCvar_t	g_mgvampire;
 vmCvar_t	g_mginf;
+vmCvar_t	g_mgknockback;
 //sg set
 vmCvar_t	g_sgdelay;
 vmCvar_t	g_sgdamage;
@@ -63,6 +71,7 @@ vmCvar_t	g_sgsradius;
 vmCvar_t	g_sgcount;
 vmCvar_t	g_sgvampire;
 vmCvar_t	g_sginf;
+vmCvar_t	g_sgknockback;
 //gl set
 vmCvar_t	g_gldelay;
 vmCvar_t	g_glspeed;
@@ -75,6 +84,7 @@ vmCvar_t	g_glgravity;
 vmCvar_t	g_glvampire;
 vmCvar_t	g_glinf;
 vmCvar_t	g_glbouncemodifier;
+vmCvar_t	g_glknockback;
 //rl set
 vmCvar_t	g_rldelay;
 vmCvar_t	g_rlspeed;
@@ -87,6 +97,7 @@ vmCvar_t	g_rlgravity;
 vmCvar_t	g_rlvampire;
 vmCvar_t	g_rlinf;
 vmCvar_t	g_rlbouncemodifier;
+vmCvar_t	g_rlknockback;
 //lg set
 vmCvar_t	g_lgdamage;
 vmCvar_t	g_lgdelay;
@@ -96,11 +107,13 @@ vmCvar_t	g_lgsdamage;
 vmCvar_t	g_lgsradius;
 vmCvar_t	g_lgvampire;
 vmCvar_t	g_lginf;
+vmCvar_t	g_lgknockback;
 //rg set
 vmCvar_t	g_rgdelay;
 vmCvar_t	g_rgdamage;
 vmCvar_t	g_rgvampire;
 vmCvar_t	g_rginf;
+vmCvar_t	g_rgknockback;
 //pg set
 vmCvar_t	g_pgdelay;
 vmCvar_t	g_pgsradius;
@@ -113,6 +126,7 @@ vmCvar_t	g_pggravity;
 vmCvar_t	g_pgvampire;
 vmCvar_t	g_pginf;
 vmCvar_t	g_pgbouncemodifier;
+vmCvar_t	g_pgknockback;
 //bfg set
 vmCvar_t	g_bfgdelay;
 vmCvar_t	g_bfgspeed;
@@ -125,6 +139,7 @@ vmCvar_t	g_bfggravity;
 vmCvar_t	g_bfgvampire;
 vmCvar_t	g_bfginf;
 vmCvar_t	g_bfgbouncemodifier;
+vmCvar_t	g_bfgknockback;
 //ng set
 vmCvar_t	g_ngdelay;
 vmCvar_t	g_ngspeed;
@@ -138,6 +153,7 @@ vmCvar_t	g_ngrandom;
 vmCvar_t	g_ngvampire;
 vmCvar_t	g_nginf;
 vmCvar_t	g_ngbouncemodifier;
+vmCvar_t	g_ngknockback;
 //pl set
 vmCvar_t	g_pldelay;
 vmCvar_t	g_plspeed;
@@ -148,12 +164,14 @@ vmCvar_t	g_plgravity;
 vmCvar_t	g_pldamage;
 vmCvar_t	g_plvampire;
 vmCvar_t	g_plinf;
+vmCvar_t	g_plknockback;
 //cg set
 vmCvar_t	g_cgdelay;
 vmCvar_t	g_cgdamage;
 vmCvar_t	g_cgspread;
 vmCvar_t	g_cgvampire;
 vmCvar_t	g_cginf;
+vmCvar_t	g_cgknockback;
 //ft set
 vmCvar_t	g_ftdelay;
 vmCvar_t	g_ftsradius;
@@ -166,6 +184,7 @@ vmCvar_t	g_ftgravity;
 vmCvar_t	g_ftvampire;
 vmCvar_t	g_ftinf;
 vmCvar_t	g_ftbouncemodifier;
+vmCvar_t	g_ftknockback;
 //am set
 vmCvar_t	g_amdelay;
 vmCvar_t	g_amsradius;
@@ -178,6 +197,22 @@ vmCvar_t	g_amgravity;
 vmCvar_t	g_amvampire;
 vmCvar_t	g_aminf;
 vmCvar_t	g_ambouncemodifier;
+vmCvar_t	g_amknockback;
+//guided and homing
+vmCvar_t	g_glhoming;
+vmCvar_t	g_glguided;
+vmCvar_t	g_rlhoming;
+vmCvar_t	g_rlguided;
+vmCvar_t	g_pghoming;
+vmCvar_t	g_pgguided;
+vmCvar_t	g_bfghoming;
+vmCvar_t	g_bfgguided;
+vmCvar_t	g_nghoming;
+vmCvar_t	g_ngguided;
+vmCvar_t	g_fthoming;
+vmCvar_t	g_ftguided;
+vmCvar_t	g_amhoming;
+vmCvar_t	g_amguided;
 //rune s set
 vmCvar_t	g_scoutspeedfactor;
 vmCvar_t	g_scoutfirespeed;
@@ -218,6 +253,7 @@ vmCvar_t	g_bfgammocount;
 vmCvar_t	g_ngammocount;
 vmCvar_t	g_plammocount;
 vmCvar_t	g_cgammocount;
+vmCvar_t	g_ftammocount;
 //weaponcount,s
 vmCvar_t	g_mgweaponcount;
 vmCvar_t	g_sgweaponcount;
@@ -238,14 +274,50 @@ vmCvar_t	g_teamblue_gravityModifier;
 vmCvar_t	g_teamblue_firespeed;
 vmCvar_t	g_teamblue_damage;
 vmCvar_t	g_teamblue_infammo;
+vmCvar_t	g_teamblue_respawnwait;
+vmCvar_t	g_teamblue_pickupitems;
 //redteam set
 vmCvar_t	g_teamred_speed;
 vmCvar_t	g_teamred_gravityModifier;
 vmCvar_t	g_teamred_firespeed;
 vmCvar_t	g_teamred_damage;
 vmCvar_t	g_teamred_infammo;
+vmCvar_t	g_teamred_respawnwait;
+vmCvar_t	g_teamred_pickupitems;
+//NextArenaSandBox Set
+vmCvar_t	oasb_angle0;
+vmCvar_t	oasb_angle1;
+vmCvar_t	oasb_angle2;
+vmCvar_t	oasb_text;
+vmCvar_t	oasb_clientid;
+vmCvar_t	oasb_itemid;
+vmCvar_t	oasb_z;
+vmCvar_t	oasb_y;
+vmCvar_t	oasb_x;
+vmCvar_t	oasb_id;
+vmCvar_t	oasb_hp;
+vmCvar_t	oasb_noclip;
+vmCvar_t	oasb_phys;
+vmCvar_t	oasb_physbounce;
 //cvars
-vmCvar_t	cm_running;
+vmCvar_t	g_zombiemode;
+vmCvar_t	tex_name;
+vmCvar_t	tex_newname;
+vmCvar_t	g_regenarmor;
+vmCvar_t	g_spectatorspeed;
+vmCvar_t	eliminationrespawn;
+vmCvar_t	eliminationredrespawn;
+vmCvar_t	onandroid;
+vmCvar_t	g_overlay;
+vmCvar_t	g_lavatexture;
+vmCvar_t	g_jumpmode;
+vmCvar_t	g_accelerate;
+vmCvar_t	g_randomItems;
+vmCvar_t	info_zombie;
+vmCvar_t	g_locationdamage;
+vmCvar_t    g_mapcycle;
+vmCvar_t    g_useMapcycle;
+vmCvar_t    g_mapcycleposition;
 vmCvar_t	g_kill;
 vmCvar_t	g_kamikazeinf;
 vmCvar_t	g_invulinf;
@@ -369,6 +441,7 @@ vmCvar_t	g_elimination_roundtime;
 vmCvar_t	g_elimination_warmup;
 vmCvar_t	g_elimination_activewarmup;
 vmCvar_t        g_elimination_allgametypes;
+vmCvar_t	g_elimination_gauntlet;
 vmCvar_t	g_elimination_machinegun;
 vmCvar_t	g_elimination_shotgun;
 vmCvar_t	g_elimination_grenade;
@@ -388,6 +461,33 @@ vmCvar_t	g_elimination_invis;
 vmCvar_t	g_elimination_regen;
 vmCvar_t	g_elimination_flight;
 vmCvar_t 	g_elimination_items;
+vmCvar_t 	g_elimination_holdable;
+
+//Following for elimination:
+vmCvar_t	g_eliminationred_startHealth;
+vmCvar_t	g_eliminationred_startArmor;
+vmCvar_t	g_eliminationred_bfg;
+vmCvar_t	g_eliminationred_grapple;
+vmCvar_t	g_eliminationred_gauntlet;
+vmCvar_t	g_eliminationred_machinegun;
+vmCvar_t	g_eliminationred_shotgun;
+vmCvar_t	g_eliminationred_grenade;
+vmCvar_t	g_eliminationred_rocket;
+vmCvar_t	g_eliminationred_railgun;
+vmCvar_t	g_eliminationred_lightning;
+vmCvar_t	g_eliminationred_plasmagun;
+vmCvar_t	g_eliminationred_chain;
+vmCvar_t	g_eliminationred_mine;
+vmCvar_t	g_eliminationred_nail;
+vmCvar_t	g_eliminationred_flame;
+vmCvar_t	g_eliminationred_antimatter;
+vmCvar_t	g_eliminationred_quad;
+vmCvar_t	g_eliminationred_haste;
+vmCvar_t	g_eliminationred_bsuit;
+vmCvar_t	g_eliminationred_invis;
+vmCvar_t	g_eliminationred_regen;
+vmCvar_t	g_eliminationred_flight;
+vmCvar_t 	g_eliminationred_holdable;
 
 vmCvar_t        g_elimination_lockspectator;
 
@@ -459,7 +559,8 @@ vmCvar_t        g_maxNameChanges;
 
 vmCvar_t        g_timestamp_startgame;
 
-
+int CustomModRun;
+char cmapname[64];
 int mod_jumpheight;
 int mod_ammolimit;
 int	mod_ghtimeout;
@@ -506,6 +607,26 @@ int	mod_teleporterinf;
 int	mod_portalinf;
 int mod_kamikazeinf;
 int mod_invulinf;
+int mod_oasb_x;
+int mod_oasb_y;
+int mod_oasb_z;
+int sl_px;
+int sl_py;
+int sl_pz;
+int mod_teamblue_damage;
+int mod_teamred_damage;
+int	zombiedamageone;
+int	zombiedamagetwo;
+int	mod_accelerate;
+int	mod_jumpmode;
+int	mod_overlay;
+int	mod_zombiemode;
+int	mod_zround;
+int	zombieround;
+int	zombiemulti;
+int	zombiedamage;
+int	zombiespeed;
+int	zombiehealth;
 
 
 // bk001129 - made static to avoid aliasing
@@ -524,6 +645,12 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
+	//122 setting
+	{ &g_portalgrabitems, "g_portalgrabitems", "0", 0, 0, qtrue  },
+	{ &g_portallight, "g_portallight", "0", 0, 0, qtrue  },
+	{ &g_building, "g_building", "0", 0, 0, qtrue  },
+	{ &g_buildingtime, "g_buildingtime", "1000", 0, 0, qtrue  },
+	{ &g_minigame, "g_minigame", "0", 0, 0, qtrue  },
 	//gh set
 	{ &g_ghspeed, "g_ghspeed", "800", 0, 0, qtrue  },
 	{ &g_ghtimeout, "g_ghtimeout", "10000", 0, 0, qtrue  },
@@ -531,6 +658,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_gdelay, "g_gdelay", "400", 0, 0, qtrue  },
 	{ &g_gdamage, "g_gdamage", "50", 0, 0, qtrue  },
 	{ &g_grange, "g_grange", "32", 0, 0, qtrue  },
+	{ &g_gknockback, "g_gknockback", "1", 0, 0, qtrue  },
 	//mg set
 	{ &g_mgdelay, "g_mgdelay", "100", 0, 0, qtrue  },
 	{ &g_mgdamage, "g_mgdamage", "7", 0, 0, qtrue  },
@@ -540,6 +668,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_mgsdamage, "g_mgsdamage", "50", 0, 0, qtrue  },
 	{ &g_mgvampire, "g_mgvampire", "0", 0, 0, qtrue  },
 	{ &g_mginf, "g_mginf", "0", 0, 0, qtrue  },
+	{ &g_mgknockback, "g_mgknockback", "1", 0, 0, qtrue  },
 	//sg set
 	{ &g_sgdelay, "g_sgdelay", "1000", 0, 0, qtrue  },
 	{ &g_sgdamage, "g_sgdamage", "10", 0, 0, qtrue  },
@@ -550,6 +679,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_sgcount, "g_sgcount", "11", 0, 0, qtrue  },
 	{ &g_sgvampire, "g_sgvampire", "0", 0, 0, qtrue  },
 	{ &g_sginf, "g_sginf", "0", 0, 0, qtrue  },
+	{ &g_sgknockback, "g_sgknockback", "1", 0, 0, qtrue  },
 	//gl set
 	{ &g_gldelay, "g_gldelay", "800", 0, 0, qtrue  },
 	{ &g_glspeed, "g_glspeed", "700", 0, 0, qtrue  },
@@ -562,6 +692,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_glvampire, "g_glvampire", "0", 0, 0, qtrue  },
 	{ &g_glinf, "g_glinf", "0", 0, 0, qtrue  },
 	{ &g_glbouncemodifier, "g_glbouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_glknockback, "g_glknockback", "1", 0, 0, qtrue  },
 	//rl set
 	{ &g_rldelay, "g_rldelay", "800", 0, 0, qtrue  },
 	{ &g_rlspeed, "g_rlspeed", "900", 0, 0, qtrue  },
@@ -574,6 +705,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_rlvampire, "g_rlvampire", "0", 0, 0, qtrue  },
 	{ &g_rlinf, "g_rlinf", "0", 0, 0, qtrue  },
 	{ &g_rlbouncemodifier, "g_rlbouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_rlknockback, "g_rlknockback", "1", 0, 0, qtrue  },
 	//lg set
 	{ &g_lgdelay, "g_lgdelay", "50", 0, 0, qtrue  },
 	{ &g_lgdamage, "g_lgdamage", "8", 0, 0, qtrue  },
@@ -583,11 +715,13 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_lgsdamage, "g_lgsdamage", "70", 0, 0, qtrue  },
 	{ &g_lgvampire, "g_lgvampire", "0", 0, 0, qtrue  },
 	{ &g_lginf, "g_lginf", "0", 0, 0, qtrue  },
+	{ &g_lgknockback, "g_lgknockback", "1", 0, 0, qtrue  },
 	//rg set
 	{ &g_rgdelay, "g_rgdelay", "1500", 0, 0, qtrue  },
 	{ &g_rgdamage, "g_rgdamage", "100", 0, 0, qtrue  },
 	{ &g_rgvampire, "g_rgvampire", "0", 0, 0, qtrue  },
 	{ &g_rginf, "g_rginf", "0", 0, 0, qtrue  },
+	{ &g_rgknockback, "g_rgknockback", "1", 0, 0, qtrue  },
 	//pg set
 	{ &g_pgsradius, "g_pgsradius", "20", 0, 0, qtrue  },
 	{ &g_pgspeed, "g_pgspeed", "2000", 0, 0, qtrue  },
@@ -600,6 +734,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_pgvampire, "g_pgvampire", "0", 0, 0, qtrue  },
 	{ &g_pginf, "g_pginf", "0", 0, 0, qtrue  },
 	{ &g_pgbouncemodifier, "g_pgbouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_pgknockback, "g_pgknockback", "1", 0, 0, qtrue  },
 	//bfg set
 	{ &g_bfgsradius, "g_bfgsradius", "120", 0, 0, qtrue  },
 	{ &g_bfgspeed, "g_bfgspeed", "2000", 0, 0, qtrue  },
@@ -612,6 +747,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_bfgvampire, "g_bfgvampire", "0", 0, 0, qtrue  },
 	{ &g_bfginf, "g_bfginf", "0", 0, 0, qtrue  },
 	{ &g_bfgbouncemodifier, "g_bfgbouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_bfgknockback, "g_bfgknockback", "1", 0, 0, qtrue  },
 	//ng set
 	{ &g_ngdelay, "g_ngdelay", "1000", 0, 0, qtrue  },
 	{ &g_ngspeed, "g_ngspeed", "555", 0, 0, qtrue  },
@@ -625,6 +761,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ngvampire, "g_ngvampire", "0", 0, 0, qtrue  },
 	{ &g_nginf, "g_nginf", "0", 0, 0, qtrue  },
 	{ &g_ngbouncemodifier, "g_ngbouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_ngknockback, "g_ngknockback", "1", 0, 0, qtrue  },
 	//pl set
 	{ &g_pldelay, "g_pldelay", "800", 0, 0, qtrue  },
 	{ &g_plspeed, "g_plspeed", "700", 0, 0, qtrue  },
@@ -635,12 +772,14 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_pldamage, "g_pldamage", "0", 0, 0, qtrue  },
 	{ &g_plvampire, "g_plvampire", "0", 0, 0, qtrue  },
 	{ &g_plinf, "g_plinf", "0", 0, 0, qtrue  },
+	{ &g_plknockback, "g_plknockback", "1", 0, 0, qtrue  },
 	//cg set
 	{ &g_cgdelay, "g_cgdelay", "30", 0, 0, qtrue  },
 	{ &g_cgdamage, "g_cgdamage", "7", 0, 0, qtrue  },
 	{ &g_cgspread, "g_cgspread", "600", 0, 0, qtrue  },
 	{ &g_cgvampire, "g_cgvampire", "0", 0, 0, qtrue  },
 	{ &g_cginf, "g_cginf", "0", 0, 0, qtrue  },
+	{ &g_cgknockback, "g_cgknockback", "1", 0, 0, qtrue  },
 	//ft set
 	{ &g_ftsradius, "g_ftsradius", "20", 0, 0, qtrue  },
 	{ &g_ftspeed, "g_ftspeed", "300", 0, 0, qtrue  },
@@ -653,6 +792,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_ftvampire, "g_ftvampire", "0", 0, 0, qtrue  },
 	{ &g_ftinf, "g_ftinf", "0", 0, 0, qtrue  },
 	{ &g_ftbouncemodifier, "g_ftbouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_ftknockback, "g_ftknockback", "1", 0, 0, qtrue  },
 	//am set
 	{ &g_amsradius, "g_amsradius", "0", 0, 0, qtrue  },
 	{ &g_amspeed, "g_amspeed", "600", 0, 0, qtrue  },
@@ -665,6 +805,22 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_amvampire, "g_amvampire", "0", 0, 0, qtrue  },
 	{ &g_aminf, "g_aminf", "0", 0, 0, qtrue  },
 	{ &g_ambouncemodifier, "g_ambouncemodifier", "0.65", 0, 0, qtrue  },
+	{ &g_amknockback, "g_amknockback", "1", 0, 0, qtrue  },
+	//guided and homing
+	{ &g_glhoming, "g_glhoming", "0", 0, 0, qtrue  },
+	{ &g_glguided, "g_glguided", "0", 0, 0, qtrue  },
+	{ &g_rlhoming, "g_rlhoming", "0", 0, 0, qtrue  },
+	{ &g_rlguided, "g_rlguided", "0", 0, 0, qtrue  },
+	{ &g_pghoming, "g_pghoming", "0", 0, 0, qtrue  },
+	{ &g_pgguided, "g_pgguided", "0", 0, 0, qtrue  },
+	{ &g_bfghoming, "g_bfghoming", "0", 0, 0, qtrue  },
+	{ &g_bfgguided, "g_bfgguided", "0", 0, 0, qtrue  },
+	{ &g_nghoming, "g_nghoming", "0", 0, 0, qtrue  },
+	{ &g_ngguided, "g_ngguided", "0", 0, 0, qtrue  },
+	{ &g_fthoming, "g_fthoming", "0", 0, 0, qtrue  },
+	{ &g_ftguided, "g_ftguided", "0", 0, 0, qtrue  },
+	{ &g_amhoming, "g_amhoming", "0", 0, 0, qtrue  },
+	{ &g_amguided, "g_amguided", "0", 0, 0, qtrue  },
 	//rune s set
 	{ &g_scoutspeedfactor, "g_scoutspeedfactor", "1.5", 0, 0, qtrue  },
 	{ &g_scoutfirespeed, "g_scoutfirespeed", "1.5", 0, 0, qtrue  },
@@ -689,50 +845,86 @@ static cvarTable_t		gameCvarTable[] = {
 	//rune a set
 	{ &g_ammoregenfirespeed, "g_ammoregenfirespeed", "1.3", 0, 0, qtrue  },
 	{ &g_ammoregen_infammo, "g_ammoregen_infammo", "0", 0, 0, qtrue  },
-	{ &g_ammoregendamagefactor, "g_ammoregendamagefactor", "1", 0, 0, qtrue  },	
+	{ &g_ammoregendamagefactor, "g_ammoregendamagefactor", "1", 0, 0, qtrue  },
 	{ &g_ammoregenspeedfactor, "g_ammoregenspeedfactor", "1", 0, 0, qtrue  },
 	{ &g_ammoregengravitymodifier, "g_ammoregengravitymodifier", "1", 0, 0, qtrue  },
 	{ &g_ammoregenhealthmodifier, "g_ammoregenhealthmodifier", "-1", 0, 0, qtrue  },
 	//ammocount,s
-	{ &g_mgammocount, "g_mgammocount", "50", 0, 0, qtrue  },
-	{ &g_sgammocount, "g_sgammocount", "10", 0, 0, qtrue  },
-	{ &g_glammocount, "g_glammocount", "5", 0, 0, qtrue  },
-	{ &g_pgammocount, "g_pgammocount", "30", 0, 0, qtrue  },
-	{ &g_lgammocount, "g_lgammocount", "60", 0, 0, qtrue  },
-	{ &g_rlammocount, "g_rlammocount", "5", 0, 0, qtrue  },
-	{ &g_rgammocount, "g_rgammocount", "10", 0, 0, qtrue  },
-	{ &g_bfgammocount, "g_bfgammocount", "15", 0, 0, qtrue  },
-	{ &g_ngammocount, "g_ngammocount", "20", 0, 0, qtrue  },
-	{ &g_plammocount, "g_plammocount", "10", 0, 0, qtrue  },
-	{ &g_cgammocount, "g_cgammocount", "100", 0, 0, qtrue  },
+	{ &g_mgammocount, "g_mgammocount", "-1", 0, 0, qtrue  },
+	{ &g_sgammocount, "g_sgammocount", "-1", 0, 0, qtrue  },
+	{ &g_glammocount, "g_glammocount", "-1", 0, 0, qtrue  },
+	{ &g_pgammocount, "g_pgammocount", "-1", 0, 0, qtrue  },
+	{ &g_lgammocount, "g_lgammocount", "-1", 0, 0, qtrue  },
+	{ &g_rlammocount, "g_rlammocount", "-1", 0, 0, qtrue  },
+	{ &g_rgammocount, "g_rgammocount", "-1", 0, 0, qtrue  },
+	{ &g_bfgammocount, "g_bfgammocount", "-1", 0, 0, qtrue  },
+	{ &g_ngammocount, "g_ngammocount", "-1", 0, 0, qtrue  },
+	{ &g_plammocount, "g_plammocount", "-1", 0, 0, qtrue  },
+	{ &g_cgammocount, "g_cgammocount", "-1", 0, 0, qtrue  },
+	{ &g_ftammocount, "g_ftammocount", "-1", 0, 0, qtrue  },
 	//weaponcount,s
-	{ &g_mgweaponcount, "g_mgweaponcount", "50", 0, 0, qtrue  },
-	{ &g_sgweaponcount, "g_sgweaponcount", "10", 0, 0, qtrue  },
-	{ &g_glweaponcount, "g_glweaponcount", "10", 0, 0, qtrue  },
-	{ &g_pgweaponcount, "g_pgweaponcount", "50", 0, 0, qtrue  },
-	{ &g_lgweaponcount, "g_lgweaponcount", "100", 0, 0, qtrue  },
-	{ &g_rlweaponcount, "g_rlweaponcount", "10", 0, 0, qtrue  },
-	{ &g_rgweaponcount, "g_rgweaponcount", "10", 0, 0, qtrue  },
-	{ &g_bfgweaponcount, "g_bfgweaponcount", "20", 0, 0, qtrue  },
-	{ &g_ngweaponcount, "g_ngweaponcount", "10", 0, 0, qtrue  },
-	{ &g_plweaponcount, "g_plweaponcount", "5", 0, 0, qtrue  },
-	{ &g_cgweaponcount, "g_cgweaponcount", "100", 0, 0, qtrue  },
-	{ &g_ftweaponcount, "g_ftweaponcount", "100", 0, 0, qtrue  },
-	{ &g_amweaponcount, "g_amweaponcount", "50", 0, 0, qtrue  },
+	{ &g_mgweaponcount, "g_mgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_sgweaponcount, "g_sgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_glweaponcount, "g_glweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_pgweaponcount, "g_pgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_lgweaponcount, "g_lgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_rlweaponcount, "g_rlweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_rgweaponcount, "g_rgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_bfgweaponcount, "g_bfgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_ngweaponcount, "g_ngweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_plweaponcount, "g_plweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_cgweaponcount, "g_cgweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_ftweaponcount, "g_ftweaponcount", "-1", 0, 0, qtrue  },
+	{ &g_amweaponcount, "g_amweaponcount", "-1", 0, 0, qtrue  },
 	//redteam set
 	{ &g_teamred_speed, "g_teamred_speed", "320", 0, 0, qtrue  },
 	{ &g_teamred_gravityModifier, "g_teamred_gravityModifier", "1", 0, 0, qtrue  },
 	{ &g_teamred_firespeed, "g_teamred_firespeed", "1", 0, 0, qtrue  },
 	{ &g_teamred_damage, "g_teamred_damage", "1", 0, 0, qtrue  },
 	{ &g_teamred_infammo, "g_teamred_infammo", "0", 0, 0, qtrue  },
+	{ &g_teamred_respawnwait, "g_teamred_respawnwait", "1700", 0, 0, qtrue  },
+	{ &g_teamred_pickupitems, "g_teamred_pickupitems", "1", 0, 0, qtrue  },
 	//blueteam set
 	{ &g_teamblue_speed, "g_teamblue_speed", "320", 0, 0, qtrue  },
 	{ &g_teamblue_gravityModifier, "g_teamblue_gravityModifier", "1", 0, 0, qtrue  },
 	{ &g_teamblue_firespeed, "g_teamblue_firespeed", "1", 0, 0, qtrue  },
 	{ &g_teamblue_damage, "g_teamblue_damage", "1", 0, 0, qtrue  },
 	{ &g_teamblue_infammo, "g_teamblue_infammo", "0", 0, 0, qtrue  },
+	{ &g_teamblue_respawnwait, "g_teamblue_respawnwait", "1700", 0, 0, qtrue  },
+	{ &g_teamblue_pickupitems, "g_teamblue_pickupitems", "1", 0, 0, qtrue  },
+	//NextArenaSandBox Set
+	{ &oasb_angle0, "oasb_angle0", "0", 0, 0, qtrue  },
+	{ &oasb_angle1, "oasb_angle1", "0", 0, 0, qtrue  },
+	{ &oasb_angle2, "oasb_angle2", "0", 0, 0, qtrue  },
+	{ &oasb_clientid, "oasb_clientid", "0", 0, 0, qtrue  },
+	{ &oasb_text, "oasb_text", "say ok", 0, 0, qtrue  },
+	{ &oasb_itemid, "oasb_itemid", "railgun", 0, 0, qtrue  },
+	{ &oasb_z, "oasb_z", "0", 0, 0, qtrue  },
+	{ &oasb_y, "oasb_y", "0", 0, 0, qtrue  },
+	{ &oasb_x, "oasb_x", "0", 0, 0, qtrue  },
+	{ &oasb_id, "oasb_id", "1", 0, 0, qtrue  },
+	{ &oasb_hp, "oasb_hp", "1500", 0, 0, qtrue  },
+	{ &oasb_noclip, "oasb_noclip", "0", 0, 0, qtrue  },
+	{ &oasb_phys, "oasb_phys", "0", 0, 0, qtrue  },
+	{ &oasb_physbounce, "oasb_physbounce", "0", 0, 0, qtrue  },
 	// change anytime vars
-	{ &cm_running, "cm_running", "0", 0, 0, qtrue  },
+	{ &g_zombiemode, "g_zombiemode", "0", 0, 0, qtrue},
+	{ &tex_name, "tex_name", "0", 0, 0, qtrue  },
+	{ &tex_newname, "tex_newname", "0", 0, 0, qtrue  },
+	{ &g_spectatorspeed, "g_spectatorspeed", "700", 0, 0, qtrue  },
+	{ &eliminationredrespawn, "eliminationredrespawn", "0", 0, 0, qtrue  },
+	{ &eliminationrespawn, "eliminationrespawn", "0", 0, 0, qtrue  },
+	{ &onandroid, "onandroid", "0", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_lavatexture, "g_lavatexture", "0", 0, 0, qtrue  },
+	{ &g_overlay, "g_overlay", "0", 0, 0, qtrue  },
+	{ &g_jumpmode, "g_jumpmode", "1", 0, 0, qtrue  },
+	{ &g_accelerate, "g_accelerate", "1", 0, 0, qtrue  },
+	{ &g_randomItems, "g_randomItems", "0", 0, 0, qtrue  },
+	{ &info_zombie, "info_zombie", "0", 0, 0, qtrue  },
+	{ &g_locationdamage, "g_locationdamage", "0", 0, 0, qtrue  },
+	{ &g_mapcycle, "g_mapcycle", "mapcycle.cfg", CVAR_ARCHIVE, 0, qtrue},
+	{ &g_useMapcycle, "g_useMapcycle", "0", CVAR_ARCHIVE | CVAR_LATCH, 0, qtrue},
+	{ &g_mapcycleposition, "g_mapcycleposition", "0", CVAR_ARCHIVE, 0, qtrue},
 	{ &g_kill, "g_kill", "1", 0, 0, qtrue  },
 	{ &g_invulinf, "g_invulinf", "0", 0, 0, qtrue  },
 	{ &g_kamikazeinf, "g_kamikazeinf", "0", 0, 0, qtrue  },
@@ -840,7 +1032,7 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_voteMinFraglimit, "g_voteMinFraglimit", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
         { &g_votemaps, "g_votemapsfile", "votemaps.cfg", 0, 0, qfalse },
         { &g_votecustom, "g_votecustomfile", "votecustom.cfg", 0, 0, qfalse },
-        
+
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
 	{ &g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, qfalse },
@@ -887,6 +1079,7 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_elimination_activewarmup, "elimination_activewarmup", "0", CVAR_NORESTART , 0, qtrue },
         { &g_elimination_allgametypes, "g_elimination", "0", CVAR_NORESTART, 0, qfalse },
 
+	{ &g_elimination_gauntlet, "elimination_gauntlet", "1", CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_machinegun, "elimination_machinegun", "500", CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_shotgun, "elimination_shotgun", "500", CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_grenade, "elimination_grenade", "100", CVAR_NORESTART, 0, qtrue },
@@ -906,12 +1099,40 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &g_elimination_regen, "elimination_regen", "0", CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_flight, "elimination_flight", "0", CVAR_NORESTART, 0, qtrue },
 	{ &g_elimination_items, "elimination_items", "0", CVAR_LATCH, 0, qtrue },
+	{ &g_elimination_holdable, "elimination_holdable", "0", CVAR_LATCH, 0, qtrue },
+
+
+	//Now for elimination stuff:
+	{ &g_eliminationred_startHealth, "eliminationred_startHealth", "200", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_startArmor, "eliminationred_startArmor", "150", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_bfg, "eliminationred_bfg", "0", CVAR_NORESTART, 0, qtrue },
+    { &g_eliminationred_grapple, "eliminationred_grapple", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_gauntlet, "eliminationred_gauntlet", "1", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_machinegun, "eliminationred_machinegun", "500", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_shotgun, "eliminationred_shotgun", "500", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_grenade, "eliminationred_grenade", "100", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_rocket, "eliminationred_rocket", "50", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_railgun, "eliminationred_railgun", "20", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_lightning, "eliminationred_lightning", "300",  CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_plasmagun, "eliminationred_plasmagun", "200", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_chain, "eliminationred_chain", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_mine, "eliminationred_mine", "0",  CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_nail, "eliminationred_nail", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_flame, "eliminationred_flame", "0",  CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_antimatter, "eliminationred_antimatter", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_quad, "eliminationred_quad", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_haste, "eliminationred_haste", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_bsuit, "eliminationred_bsuit", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_invis, "eliminationred_invis", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_regen, "eliminationred_regen", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_flight, "eliminationred_flight", "0", CVAR_NORESTART, 0, qtrue },
+	{ &g_eliminationred_holdable, "eliminationred_holdable", "0", CVAR_LATCH, 0, qtrue },
 
 
 	{ &g_elimination_ctf_oneway, "elimination_ctf_oneway", "0", CVAR_NORESTART, 0, qtrue },
 
         { &g_elimination_lockspectator, "elimination_lockspectator", "0", CVAR_NORESTART, 0, qtrue },
-        
+
         { &g_awardpushing, "g_awardpushing", "1", CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
         //g_persistantpowerups
@@ -942,16 +1163,16 @@ static cvarTable_t		gameCvarTable[] = {
 //used for voIP
         { &g_redTeamClientNumbers, "g_redTeamClientNumbers", "0",CVAR_ROM, 0, qfalse },
         { &g_blueTeamClientNumbers, "g_blueTeamClientNumbers", "0",CVAR_ROM, 0, qfalse },
-        
+
         //KK-OAX
         { &g_sprees, "g_sprees", "sprees.dat", 0, 0, qfalse },
-        { &g_altExcellent, "g_altExcellent", "0", CVAR_SERVERINFO, 0, qtrue}, 
+        { &g_altExcellent, "g_altExcellent", "0", CVAR_SERVERINFO, 0, qtrue},
         { &g_spreeDiv, "g_spreeDiv", "5", 0, 0, qfalse},
-        
+
         //Used for command/chat flooding
         { &g_floodMaxDemerits, "g_floodMaxDemerits", "5000", CVAR_ARCHIVE, 0, qfalse  },
         { &g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse  },
-        
+
         //Admin
         { &g_admin, "g_admin", "admin.dat", CVAR_ARCHIVE, 0, qfalse  },
         { &g_adminLog, "g_adminLog", "admin.log", CVAR_ARCHIVE, 0, qfalse  },
@@ -959,18 +1180,18 @@ static cvarTable_t		gameCvarTable[] = {
         { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
         { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
         { &g_adminMaxBan, "g_adminMaxBan", "2w", CVAR_ARCHIVE, 0, qfalse  },
-        
+
         { &g_specChat, "g_specChat", "1", CVAR_ARCHIVE, 0, qfalse  },
         { &g_publicAdminMessages, "g_publicAdminMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
-        
+
         { &g_maxWarnings, "g_maxWarnings", "3", CVAR_ARCHIVE, 0, qfalse },
 	    { &g_warningExpire, "g_warningExpire", "3600", CVAR_ARCHIVE, 0, qfalse },
-	    
+
 	    { &g_minNameChangePeriod, "g_minNameChangePeriod", "10", 0, 0, qfalse},
         { &g_maxNameChanges, "g_maxNameChanges", "50", 0, 0, qfalse},
 
         { &g_timestamp_startgame, "g_timestamp", "0001-01-01 00:00:00", CVAR_SERVERINFO, 0, qfalse}
-        
+
 };
 
 // bk001129 - made static to avoid aliasing
@@ -1107,17 +1328,17 @@ void G_FindTeams( void ) {
 }
 
 void G_RemapTeamShaders( void ) {
-#ifdef MISSIONPACK
+//#ifdef MISSIONPACK
 	char string[1024];
 	float f = level.time * 0.001;
 	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
-	AddRemap("textures/ctf2/redteam01", string, f); 
-	AddRemap("textures/ctf2/redteam02", string, f); 
+	AddRemap("textures/ctf2/redteam01", string, f);
+	AddRemap("textures/ctf2/redteam02", string, f);
 	Com_sprintf( string, sizeof(string), "team_icon/%s_blue", g_blueteam.string );
-	AddRemap("textures/ctf2/blueteam01", string, f); 
-	AddRemap("textures/ctf2/blueteam02", string, f); 
+	AddRemap("textures/ctf2/blueteam01", string, f);
+	AddRemap("textures/ctf2/blueteam02", string, f);
 	trap_SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
-#endif
+//#endif
 }
 
 
@@ -1180,7 +1401,7 @@ void G_UpdateCvars( void ) {
 				cv->modificationCount = cv->vmCvar->modificationCount;
 
 				if ( cv->trackChange ) {
-					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"", 
+					trap_SendServerCommand( -1, va("print \"Server: %s changed to %s\n\"",
 						cv->cvarName, cv->vmCvar->string ) );
 				}
 
@@ -1191,7 +1412,7 @@ void G_UpdateCvars( void ) {
                                 if (cv->vmCvar == &g_instantgib || cv->vmCvar == &g_rockets  ||  cv->vmCvar == &g_elimination_allgametypes) {
                                     trap_Cvar_Set("sv_dorestart","1");
                                 }
-                                
+
                                 if ( cv->vmCvar == &g_voteNames ) {
                                     //Set vote flags
                                     int voteflags=0;
@@ -1212,7 +1433,7 @@ void G_UpdateCvars( void ) {
 
                                     if( allowedVote("g_gametype") )
                                         voteflags|=VF_g_gametype;
-                                    
+
                                     if( allowedVote("g_doWarmup") )
                                         voteflags|=VF_g_doWarmup;
 
@@ -1227,7 +1448,7 @@ void G_UpdateCvars( void ) {
 
                                     trap_Cvar_Set("voteflags",va("%i",voteflags));
                                 }
-      
+
 				if (cv->teamShader) {
 					remapped = qtrue;
 				}
@@ -1263,17 +1484,18 @@ G_InitGame
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
 
-        
+
         G_Printf ("------- Game Initialization -------\n");
         G_Printf ("gamename: %s\n", GAMEVERSION);
         G_Printf ("gamedate: %s\n", __DATE__);
+
 
 	srand( randomSeed );
 
 	G_RegisterCvars();
 
         G_UpdateTimestamp();
-        
+
         //disable unwanted cvars
         if( g_gametype.integer == GT_SINGLE_PLAYER )
         {
@@ -1283,13 +1505,13 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
         }
 
 	G_ProcessIPBans();
-    
+
     //KK-OAX Changed to Tremulous's BG_InitMemory
 	BG_InitMemory();
 
 	// set some level globals
 	memset( &level, 0, sizeof( level ) );
-	
+
 	level.time = levelTime;
 	level.startTime = levelTime;
 
@@ -1320,7 +1542,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
         VoteParseCustomVotes();
 
 	G_InitWorldSession();
-    
+
     //KK-OAX Get Admin Configuration
     G_admin_readconfig( NULL, 0 );
 	//Let's Load up any killing sprees/multikills
@@ -1348,9 +1570,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
         for ( i=0 ; i<MAX_CLIENTS ; i++ ) {
                 g_entities[i].classname = "clientslot";
         }
-        
+
 	// let the server system know where the entites are
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	// reserve some spots for dead player bodies
@@ -1370,7 +1592,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	SaveRegisteredItems();
-        
+
         G_Printf ("-----------------------------------\n");
 
 	if( g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue( "com_buildScript" ) ) {
@@ -1405,12 +1627,19 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			level.pointStatusDom[i] = TEAM_NONE;
 		level.domination_points_count = 0; //make sure its not too big
 	}
-		
-        PlayerStoreInit();
 
+        PlayerStoreInit();
+//		g_teamred_damage.integer = 1;
+//		g_teamblue_damage.integer = 1;
         //Set vote flags
         {
             int voteflags=0;
+			int zombiedamage = 0;
+			int zombiespeed = 0;
+			int zombiehealth = 0;
+			int zombieround = 1;
+			int zombiemulti = 1;
+			int mod_zround = 0;
             if( allowedVote("map_restart") )
                 voteflags|=VF_map_restart;
 
@@ -1464,7 +1693,7 @@ void G_ShutdownGame( int restart ) {
 
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
-	
+
 	//KK-OAX Admin Cleanup
     G_admin_cleanup( );
     G_admin_namelog_cleanup( );
@@ -1541,7 +1770,7 @@ void AddTournamentPlayer( void ) {
 			continue;
 		}
 		// never select the dedicated follow or scoreboard clients
-		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD || 
+		if ( client->sess.spectatorState == SPECTATOR_SCOREBOARD ||
 			client->sess.spectatorClient < 0  ) {
 			continue;
 		}
@@ -1564,7 +1793,7 @@ void AddTournamentPlayer( void ) {
 /*
 =======================
 AddTournamentQueue
-	  	 
+
 Add client to end of tournament queue
 =======================
 */
@@ -1777,7 +2006,7 @@ void CalculateRanks( void ) {
 		}
 	}
 
-	qsort( level.sortedClients, level.numConnectedClients, 
+	qsort( level.sortedClients, level.numConnectedClients,
 		sizeof(level.sortedClients[0]), SortRanks );
 
 	// set the rank value for all clients that are connected and not spectators
@@ -1793,7 +2022,7 @@ void CalculateRanks( void ) {
 				cl->ps.persistant[PERS_RANK] = 1;
 			}
 		}
-	} else {	
+	} else {
 		rank = -1;
 		score = 0;
 		for ( i = 0;  i < level.numPlayingClients; i++ ) {
@@ -1839,7 +2068,7 @@ void CalculateRanks( void ) {
 	if ( level.intermissiontime ) {
 		SendScoreboardMessageToAllClients();
 	}
-        
+
         if(g_humanplayers.integer != humanplayers) //Presume all spectators are humans!
             trap_Cvar_Set( "g_humanplayers", va("%i", humanplayers) );
 }
@@ -2050,18 +2279,18 @@ void BeginIntermission( void ) {
 		}
 		MoveClientToIntermission( client );
 	}
-#ifdef MISSIONPACK
-	if (g_singlePlayer.integer) {
-		trap_Cvar_Set("ui_singlePlayerActive", "0");
-		UpdateTournamentInfo();
-	}
-#else
+//#ifdef MISSIONPACK
+//	if (g_singlePlayer.integer) {
+//		trap_Cvar_Set("ui_singlePlayerActive", "0");
+//		UpdateTournamentInfo();
+//	}
+//#else
 	// if single player game
 	if ( g_gametype.integer == GT_SINGLE_PLAYER ) {
 		UpdateTournamentInfo();
 		SpawnModelsOnVictoryPads();
 	}
-#endif
+//#endif
 	// send the current scoring to all clients
 	SendScoreboardMessageToAllClients();
 
@@ -2073,7 +2302,7 @@ void BeginIntermission( void ) {
 ExitLevel
 
 When the intermission has been exited, the server is either killed
-or moved to a new level based on the "nextmap" cvar 
+or moved to a new level based on the "nextmap" cvar
 
 =============
 */
@@ -2086,6 +2315,8 @@ void ExitLevel (void) {
 
 	//bot interbreeding
 	BotInterbreedEndMatch();
+	CustomModRun = 0;
+
 
 	// if we are running a tournement map, kick the loser to spectator status,
 	// which will automatically grab the next spectator and restart
@@ -2097,12 +2328,12 @@ void ExitLevel (void) {
 			level.changemap = NULL;
 			level.intermissiontime = 0;
 		}
-		return;	
+		return;
 	}
 
 	trap_Cvar_VariableStringBuffer( "nextmap", nextmap, sizeof(nextmap) );
 	trap_Cvar_VariableStringBuffer( "d1", d1, sizeof(d1) );
-        
+
         trap_GetServerinfo( serverinfo, sizeof( serverinfo ) );
 
         //Here the game finds the nextmap if g_autonextmap is set
@@ -2395,15 +2626,13 @@ qboolean ScoreIsTied( void ) {
 	if ( level.numPlayingClients < 2 ) {
 		return qfalse;
 	}
-        
+
         //Sago: In Elimination and Oneway Flag Capture teams must win by two points.
-        if ( g_gametype.integer == GT_ELIMINATION || 
+        if ( g_gametype.integer == GT_ELIMINATION ||
                 (g_gametype.integer == GT_CTF_ELIMINATION && g_elimination_ctf_oneway.integer)) {
-            return (level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE] || 
-                    level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]+1 ||
-                    level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]-1);
+            return (level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE]);
         }
-	
+
 	if ( g_gametype.integer >= GT_TEAM && g_ffa_gt!=1) {
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
 	}
@@ -2478,13 +2707,17 @@ void CheckExitRules( void ) {
 
 	if ( (g_gametype.integer < GT_CTF || g_ffa_gt>0 ) && g_fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= g_fraglimit.integer ) {
+			if(info_zombie.integer == 0){
 			trap_SendServerCommand( -1, "print \"Red hit the fraglimit.\n\"" );
+			}
 			LogExit( "Fraglimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_fraglimit.integer ) {
+			if(info_zombie.integer == 0){
 			trap_SendServerCommand( -1, "print \"Blue hit the fraglimit.\n\"" );
+			}
 			LogExit( "Fraglimit hit." );
 			return;
 		}
@@ -2510,13 +2743,17 @@ void CheckExitRules( void ) {
 	if ( (g_gametype.integer >= GT_CTF && g_ffa_gt<1) && g_capturelimit.integer ) {
 
 		if ( level.teamScores[TEAM_RED] >= g_capturelimit.integer ) {
+			if(info_zombie.integer == 0){
 			trap_SendServerCommand( -1, "print \"Red hit the capturelimit.\n\"" );
+			}
 			LogExit( "Capturelimit hit." );
 			return;
 		}
 
 		if ( level.teamScores[TEAM_BLUE] >= g_capturelimit.integer ) {
+			if(info_zombie.integer == 0){
 			trap_SendServerCommand( -1, "print \"Blue hit the capturelimit.\n\"" );
+			}
 			LogExit( "Capturelimit hit." );
 			return;
 		}
@@ -2538,9 +2775,15 @@ void StartLMSRound(void) {
 	level.roundNumberStarted = level.roundNumber; //Set numbers
 
         G_LogPrintf( "LMS: %i %i %i: Round %i has started!\n", level.roundNumber, -1, 0, level.roundNumber );
-        
+
 	SendEliminationMessageToAllClients();
 	EnableWeapons();
+}
+
+void G_LevelLoadComplete(void) {
+  if (g_minigame.integer) {
+    G_beginMinigame();
+  }
 }
 
 //the elimination start function
@@ -2560,7 +2803,7 @@ void StartEliminationRound(void) {
 		level.roundStartTime = level.time+1000*g_elimination_warmup.integer;
 		return;
 	}
-	
+
 	//If we are enough to start a round:
 	level.roundNumberStarted = level.roundNumber; //Set numbers
 	level.roundRedPlayers = countsLiving[TEAM_RED];
@@ -2697,7 +2940,7 @@ void CheckLMS(void) {
 		return;
 	}
 
-	
+
 
 	//We don't want to do anything in intermission
 	if(level.intermissiontime) {
@@ -2764,7 +3007,7 @@ void CheckLMS(void) {
 
 		if((level.roundNumber>level.roundNumberStarted)&&(level.time>=level.roundStartTime))
 			StartLMSRound();
-	
+
 		if(level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime && level.numPlayingClients < 2)
 		{
 			RespawnDead(); //Allow player to run around anyway
@@ -2794,7 +3037,7 @@ void CheckElimination(void) {
 			( level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime ))
 			RestartEliminationRound(); //For spectators
 		return;
-	}	
+	}
 
 	//We don't want to do anything in itnermission
 	if(level.intermissiontime) {
@@ -2802,7 +3045,7 @@ void CheckElimination(void) {
 			RestartEliminationRound();
 		level.roundStartTime = level.time+1000*g_elimination_warmup.integer;
 		return;
-	}	
+	}
 
 	if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION)
 	{
@@ -2823,6 +3066,7 @@ void CheckElimination(void) {
 			{
 				//Blue team has been eliminated!
 				trap_SendServerCommand( -1, "print \"Blue Team eliminated!\n\"");
+				trap_SendServerCommand( -1, va("print \"Round survived: %i!\n\"",mod_zround));
 				AddTeamScore(level.intermission_origin,TEAM_RED,1);
                                 if(g_gametype.integer == GT_ELIMINATION) {
                                     G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i by eleminating the enemy team!\n", level.roundNumber, TEAM_RED, 1, TeamName(TEAM_RED), level.roundNumber );
@@ -2836,6 +3080,7 @@ void CheckElimination(void) {
 			{
 				//Red team eliminated!
 				trap_SendServerCommand( -1, "print \"Red Team eliminated!\n\"");
+				trap_SendServerCommand( -1, va("print \"Round survived: %i!\n\"",mod_zround));
 				AddTeamScore(level.intermission_origin,TEAM_BLUE,1);
                                 if(g_gametype.integer == GT_ELIMINATION) {
                                     G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i by eleminating the enemy team!\n", level.roundNumber, TEAM_BLUE, 1, TeamName(TEAM_BLUE), level.roundNumber );
@@ -2881,7 +3126,7 @@ void CheckElimination(void) {
 				{
 					//Blue team has higher procentage survivors
 					trap_SendServerCommand( -1, "print \"Blue team has most survivers!\n\"");
-					AddTeamScore(level.intermission_origin,TEAM_BLUE,1);	
+					AddTeamScore(level.intermission_origin,TEAM_BLUE,1);
                                         if(g_gametype.integer == GT_ELIMINATION) {
                                             G_LogPrintf( "ELIMINATION: %i %i %i: %s wins round %i due to more survivors!\n", level.roundNumber, TEAM_BLUE, 2, TeamName(TEAM_BLUE), level.roundNumber );
                                         } else {
@@ -2938,11 +3183,11 @@ void CheckElimination(void) {
 		{
 			RespawnDead();
 		}
-			
+
 
 		if((level.roundNumber>level.roundNumberStarted)&&(level.time>=level.roundStartTime))
 			StartEliminationRound();
-	
+
 		if(level.time+1000*g_elimination_warmup.integer-500>level.roundStartTime)
 		if(counts[TEAM_BLUE]<1 || counts[TEAM_RED]<1)
 		{
@@ -2976,7 +3221,7 @@ void CheckDomination(void) {
 
 	//Do nothing if warmup
 	if(level.warmupTime != 0)
-		return; 
+		return;
 
 	//Don't score if we are in intermission. Just plain stupid
 	if(level.intermissiontime)
@@ -3279,7 +3524,7 @@ void G_RunThink (gentity_t *ent) {
 	if (thinktime > level.time) {
 		return;
 	}
-	
+
 	ent->nextthink = 0;
 	if (!ent->think) {
 		G_Error ( "NULL ent->think");
@@ -3466,7 +3711,7 @@ end = trap_Milliseconds();
 
 	// for tracking changes
 	CheckCvars();
-	
+
 	Newmodcommands ();
 
 	if (g_listEntity.integer) {
@@ -3484,7 +3729,8 @@ end = trap_Milliseconds();
 //unlagged - backward reconciliation #4
 }
 void Newmodcommands( void ){
-mod_jumpheight = g_jumpheight.integer;	
+trap_Cvar_VariableStringBuffer("mapname", cmapname, sizeof(cmapname));
+mod_jumpheight = g_jumpheight.integer;
 mod_ammolimit = g_ammolimit.integer;
 mod_gdelay = g_gdelay.integer;
 mod_mgdelay = g_mgdelay.integer;
@@ -3519,7 +3765,6 @@ mod_invistime = g_invistime.integer;
 mod_regentime = g_regentime.integer;
 mod_flighttime = g_flighttime.integer;
 mod_noplayerclip = g_noplayerclip.integer;
-mod_ammolimit = g_ammolimit.integer;
 mod_invulmove = g_invulmove.integer;
 mod_teamblue_firespeed = g_teamblue_firespeed.integer;
 mod_teamred_firespeed = g_teamred_firespeed.integer;
@@ -3529,4 +3774,13 @@ mod_teleporterinf = g_teleporterinf.integer;
 mod_portalinf = g_portalinf.integer;
 mod_kamikazeinf = g_kamikazeinf.integer;
 mod_invulinf = g_invulinf.integer;
+mod_oasb_x = oasb_x.integer;
+mod_oasb_y = oasb_y.integer;
+mod_oasb_z = oasb_z.integer;
+mod_teamblue_damage = g_teamblue_damage.value;
+mod_teamred_damage = g_teamred_damage.value;
+mod_accelerate = g_accelerate.value;
+mod_jumpmode = g_jumpmode.value;
+mod_overlay = g_overlay.value;
+mod_zombiemode = g_zombiemode.value;
 }

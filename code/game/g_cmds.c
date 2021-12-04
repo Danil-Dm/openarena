@@ -109,8 +109,8 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 
 void G_SendWeaponProperties(gentity_t *ent) {
 	char string[2048];
-	Com_sprintf(string, sizeof(string), "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
-	            mod_sgspread, mod_sgcount, mod_lgrange, mod_mgspread, mod_cgspread, mod_jumpheight, mod_gdelay, mod_mgdelay ,mod_sgdelay, mod_gldelay, mod_rldelay, mod_lgdelay, mod_pgdelay, mod_rgdelay, mod_bfgdelay, mod_ngdelay, mod_pldelay, mod_cgdelay, mod_ftdelay, mod_scoutfirespeed, mod_ammoregenfirespeed, mod_doublerfirespeed, mod_guardfirespeed, mod_hastefirespeed, mod_noplayerclip, mod_ammolimit, mod_invulmove, mod_amdelay, mod_teamred_firespeed, mod_teamblue_firespeed, mod_medkitlimit, mod_medkitinf, mod_teleporterinf, mod_portalinf, mod_kamikazeinf, mod_invulinf);
+	Com_sprintf(string, sizeof(string), "%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
+	            mod_sgspread, mod_sgcount, mod_lgrange, mod_mgspread, mod_cgspread, mod_jumpheight, mod_gdelay, mod_mgdelay ,mod_sgdelay, mod_gldelay, mod_rldelay, mod_lgdelay, mod_pgdelay, mod_rgdelay, mod_bfgdelay, mod_ngdelay, mod_pldelay, mod_cgdelay, mod_ftdelay, mod_scoutfirespeed, mod_ammoregenfirespeed, mod_doublerfirespeed, mod_guardfirespeed, mod_hastefirespeed, mod_noplayerclip, mod_ammolimit, mod_invulmove, mod_amdelay, mod_teamred_firespeed, mod_teamblue_firespeed, mod_medkitlimit, mod_medkitinf, mod_teleporterinf, mod_portalinf, mod_kamikazeinf, mod_invulinf, mod_accelerate, mod_jumpmode, mod_overlay, mod_zombiemode, mod_zround);
 	trap_SendServerCommand(ent-g_entities, va( "weaponProperties %s", string));
 }
 
@@ -685,6 +685,37 @@ void Cmd_Kill_f( gentity_t *ent ) {
 
 /*
 =================
+Cmd_Block_f
+=================
+*/
+void Cmd_Block_f( gentity_t *ent ) {
+	if (ent->health <= 0) {
+		return;
+	}
+	if (ent->client->ps.stats[STAT_NO_PICKUP] == 1){
+		return;
+	}
+	if (g_building.integer == 0) {
+		return;
+	}
+	if (g_building.integer == 2) {
+	if ( ent->client->sess.sessionTeam == TEAM_BLUE ) {
+		return;
+	}
+	}
+	if (g_building.integer == 3) {
+	if ( ent->client->sess.sessionTeam == TEAM_RED ) {
+		return;
+	}
+	}
+/*ent->wait_to_pickup = level.time + 1000;
+ent->client->ps.stats[STAT_NO_PICKUP] = 1;*/
+G_BuildProp( ent );
+
+}
+
+/*
+=================
 BroadCastTeamChange
 
 Let everyone know about a team change
@@ -706,6 +737,666 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 		client->pers.netname));
 	}
 }
+
+// oatmeal begin
+
+void ThrowArmor( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_armor.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if(client->ps.stats[STAT_ARMOR]>50){
+		client->ps.stats[STAT_ARMOR] -= 50;
+		xr_item = BG_FindItem( "Armor" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = 50;
+	} else if(client->ps.stats[STAT_ARMOR]>5){
+		client->ps.stats[STAT_ARMOR] -= 5;
+		xr_item = BG_FindItem( "Armor Shard" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = 5;
+	}
+}
+
+void Cmd_DropArmor_f( gentity_t *ent ) {
+	ThrowArmor( ent );
+}
+
+void ThrowHealth( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_health.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if(ent->health>5){
+		ent->health -= 5;
+		xr_item = BG_FindItem( "5 Health" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = 5;
+	}
+}
+
+void Cmd_DropHealth_f( gentity_t *ent ) {
+	ThrowHealth( ent );
+}
+
+void ThrowFlag( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_health.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if ( ent->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
+		Throw_Item( ent, BG_FindItemForPowerup( PW_NEUTRALFLAG ), 0 );
+		ent->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+	}
+	else if ( ent->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
+		Throw_Item( ent, BG_FindItemForPowerup( PW_REDFLAG ), 0 );
+		ent->client->ps.powerups[PW_REDFLAG] = 0;
+	}
+	else if ( ent->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
+		Throw_Item( ent, BG_FindItemForPowerup( PW_BLUEFLAG ), 0 );
+		ent->client->ps.powerups[PW_BLUEFLAG] = 0;
+	}
+}
+
+void Cmd_DropFlag_f( gentity_t *ent ) {
+	ThrowFlag( ent );
+}
+
+void ThrowRune( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_health.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if ( ent->client->ps.stats[STAT_PERSISTANT_POWERUP] == PW_GUARD ) {		// only happens in One Flag CTF
+		Throw_Item( ent, BG_FindItem( "Guard" ), 0 );
+		ent->client->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
+	}
+	else if ( ent->client->ps.stats[STAT_PERSISTANT_POWERUP] == PW_DOUBLER ) {		// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Doubler" ), 0 );
+		ent->client->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
+	}
+	else if ( ent->client->ps.stats[STAT_PERSISTANT_POWERUP] == PW_AMMOREGEN ) {	// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Ammo Regen" ), 0 );
+		ent->client->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
+	}
+	else if ( ent->client->ps.stats[STAT_PERSISTANT_POWERUP] == PW_SCOUT ) {	// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Scout" ), 0 );
+		ent->client->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
+	}
+}
+
+void Cmd_DropRune_f( gentity_t *ent ) {
+	ThrowRune( ent );
+}
+
+void ThrowHoldable( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_health.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if ( client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Personal Teleporter" ) - bg_itemlist ) {		// only happens in One Flag CTF
+		Throw_Item( ent, BG_FindItem( "Personal Teleporter" ), 0 );
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+	}
+	else if ( client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Medkit" ) - bg_itemlist ) {		// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Medkit" ), 0 );
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+	}
+	else if ( client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Kamikaze" ) - bg_itemlist ) {	// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Kamikaze" ), 0 );
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+	}
+	else if ( client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Invulnerability" ) - bg_itemlist ) {	// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Invulnerability" ), 0 );
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+	}
+	else if ( client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Portal" ) - bg_itemlist ) {	// only happens in standard CTF
+		Throw_Item( ent, BG_FindItem( "Portal" ), 0 );
+		ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+	}
+}
+
+void Cmd_DropHoldable_f( gentity_t *ent ) {
+	ThrowHoldable( ent );
+}
+
+void ThrowAmmo( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_ammo.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if(client->ps.weapon==WP_CHAINGUN){
+		if(g_cginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_CHAINGUN];
+		if(amount<50){
+			amount = client->ps.ammo[WP_CHAINGUN];
+			client->ps.ammo[WP_CHAINGUN] = 0;
+		} else {
+			amount = 50;
+			client->ps.ammo[WP_CHAINGUN] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Chaingun Belt" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_PROX_LAUNCHER){
+		if(g_plinf.integer==1){ return; }
+		amount = client->ps.ammo[WP_PROX_LAUNCHER];
+		if(amount<10){
+			amount = client->ps.ammo[WP_PROX_LAUNCHER];
+			client->ps.ammo[WP_PROX_LAUNCHER] = 0;
+		} else {
+			amount = 10;
+			client->ps.ammo[WP_PROX_LAUNCHER] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Proximity Mines" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_ROCKET_LAUNCHER){
+		if(g_rlinf.integer==1){ return; }
+		amount = client->ps.ammo[WP_ROCKET_LAUNCHER];
+		if(amount<10){
+			amount = client->ps.ammo[WP_ROCKET_LAUNCHER];
+			client->ps.ammo[WP_ROCKET_LAUNCHER] = 0;
+		} else {
+			amount = 10;
+			client->ps.ammo[WP_ROCKET_LAUNCHER] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Rockets" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_GRENADE_LAUNCHER){
+		if(g_glinf.integer==1){ return; }
+		amount = client->ps.ammo[WP_GRENADE_LAUNCHER];
+		if(amount<10){
+			amount = client->ps.ammo[WP_GRENADE_LAUNCHER];
+			client->ps.ammo[WP_GRENADE_LAUNCHER] = 0;
+		} else {
+			amount = 10;
+			client->ps.ammo[WP_GRENADE_LAUNCHER] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Grenades" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_BFG){
+		if(g_bfginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_BFG];
+		if(amount<25){
+			amount = client->ps.ammo[WP_BFG];
+			client->ps.ammo[WP_BFG] = 0;
+		} else {
+			amount = 25;
+			client->ps.ammo[WP_BFG] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Bfg Ammo" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_PLASMAGUN){
+		if(g_pginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_PLASMAGUN];
+		if(amount<25){
+			amount = client->ps.ammo[WP_PLASMAGUN];
+			client->ps.ammo[WP_PLASMAGUN] = 0;
+		} else {
+			amount = 25;
+			client->ps.ammo[WP_PLASMAGUN] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Cells" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_MACHINEGUN){
+		if(g_mginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_MACHINEGUN];
+		if(amount<25){
+			amount = client->ps.ammo[WP_MACHINEGUN];
+			client->ps.ammo[WP_MACHINEGUN] = 0;
+		} else {
+			amount = 25;
+			client->ps.ammo[WP_MACHINEGUN] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Bullets" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_SHOTGUN){
+		if(g_sginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_SHOTGUN];
+		if(amount<10){
+			amount = client->ps.ammo[WP_SHOTGUN];
+			client->ps.ammo[WP_SHOTGUN] = 0;
+		} else {
+			amount = 10;
+			client->ps.ammo[WP_SHOTGUN] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Shells" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_LIGHTNING){
+		if(g_lginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_LIGHTNING];
+		if(amount<25){
+			amount = client->ps.ammo[WP_LIGHTNING];
+			client->ps.ammo[WP_LIGHTNING] = 0;
+		} else {
+			amount = 25;
+			client->ps.ammo[WP_LIGHTNING] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Lightning" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_RAILGUN){
+		if(g_rginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_RAILGUN];
+		if(amount<10){
+			amount = client->ps.ammo[WP_RAILGUN];
+			client->ps.ammo[WP_RAILGUN] = 0;
+		} else {
+			amount = 10;
+			client->ps.ammo[WP_RAILGUN] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Slugs" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_NAILGUN){
+		if(g_nginf.integer==1){ return; }
+		amount = client->ps.ammo[WP_NAILGUN];
+		if(amount<10){
+			amount = client->ps.ammo[WP_NAILGUN];
+			client->ps.ammo[WP_NAILGUN] = 0;
+		} else {
+			amount = 10;
+			client->ps.ammo[WP_NAILGUN] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Nails" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_FLAMETHROWER){
+		if(g_ftinf.integer==1){ return; }
+		amount = client->ps.ammo[WP_FLAMETHROWER];
+		if(amount<50){
+			amount = client->ps.ammo[WP_FLAMETHROWER];
+			client->ps.ammo[WP_FLAMETHROWER] = 0;
+		} else {
+			amount = 50;
+			client->ps.ammo[WP_FLAMETHROWER] -= amount;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Flame" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+	
+	if(client->ps.weapon==WP_ANTIMATTER){
+		return;
+	}
+}
+
+void Cmd_DropAmmo_f( gentity_t *ent ) {
+	ThrowAmmo( ent );
+}
+
+void ThrowWeapon( gentity_t *ent ) {
+	gclient_t	*client;
+	usercmd_t	*ucmd;
+	gitem_t		*xr_item;
+	gentity_t	*xr_drop;
+	byte i;
+	int amount;
+
+//	if(om_drop_ammo.integer==0){ return; }
+
+	client = ent->client;
+	ucmd = &ent->client->pers.cmd;
+
+	if(client->ps.weapon==WP_CHAINGUN){
+		amount = client->ps.ammo[WP_CHAINGUN];
+		if(amount<1){
+			amount = client->ps.ammo[WP_CHAINGUN];
+			client->ps.ammo[WP_CHAINGUN] = 0;
+		} else {
+			amount = client->ps.ammo[WP_CHAINGUN];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_CHAINGUN );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_CHAINGUN] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Chaingun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_PROX_LAUNCHER){
+		amount = client->ps.ammo[WP_PROX_LAUNCHER];
+		if(amount<1){
+			amount = client->ps.ammo[WP_PROX_LAUNCHER];
+			client->ps.ammo[WP_PROX_LAUNCHER] = 0;
+		} else {
+			amount = client->ps.ammo[WP_PROX_LAUNCHER];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_PROX_LAUNCHER );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_PROX_LAUNCHER] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Prox Launcher" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_ROCKET_LAUNCHER){
+		amount = client->ps.ammo[WP_ROCKET_LAUNCHER];
+		if(amount<1){
+			amount = client->ps.ammo[WP_ROCKET_LAUNCHER];
+			client->ps.ammo[WP_ROCKET_LAUNCHER] = 0;
+		} else {
+			amount = client->ps.ammo[WP_ROCKET_LAUNCHER];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_ROCKET_LAUNCHER );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_ROCKET_LAUNCHER] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Rocket Launcher" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_GRENADE_LAUNCHER){
+		amount = client->ps.ammo[WP_GRENADE_LAUNCHER];
+		if(amount<1){
+			amount = client->ps.ammo[WP_GRENADE_LAUNCHER];
+			client->ps.ammo[WP_GRENADE_LAUNCHER] = 0;
+		} else {
+			amount = client->ps.ammo[WP_GRENADE_LAUNCHER];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_GRENADE_LAUNCHER );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_GRENADE_LAUNCHER] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Grenade Launcher" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_SHOTGUN){
+		amount = client->ps.ammo[WP_SHOTGUN];
+		if(amount<1){
+			amount = client->ps.ammo[WP_SHOTGUN];
+			client->ps.ammo[WP_SHOTGUN] = 0;
+		} else {
+			amount = client->ps.ammo[WP_SHOTGUN];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_SHOTGUN );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_SHOTGUN] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Shotgun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_MACHINEGUN){
+		amount = client->ps.ammo[WP_MACHINEGUN];
+		if(amount<1){
+			amount = client->ps.ammo[WP_MACHINEGUN];
+			client->ps.ammo[WP_MACHINEGUN] = 0;
+		} else {
+			amount = client->ps.ammo[WP_MACHINEGUN];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_MACHINEGUN );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_MACHINEGUN] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Machinegun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_LIGHTNING){
+		amount = client->ps.ammo[WP_LIGHTNING];
+		if(amount<1){
+			amount = client->ps.ammo[WP_LIGHTNING];
+			client->ps.ammo[WP_LIGHTNING] = 0;
+		} else {
+			amount = client->ps.ammo[WP_LIGHTNING];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_LIGHTNING );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_LIGHTNING] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Lightning Gun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_RAILGUN){
+		amount = client->ps.ammo[WP_RAILGUN];
+		if(amount<1){
+			amount = client->ps.ammo[WP_RAILGUN];
+			client->ps.ammo[WP_RAILGUN] = 0;
+		} else {
+			amount = client->ps.ammo[WP_RAILGUN];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_RAILGUN );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_RAILGUN] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Railgun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_PLASMAGUN){
+		amount = client->ps.ammo[WP_PLASMAGUN];
+		if(amount<1){
+			amount = client->ps.ammo[WP_PLASMAGUN];
+			client->ps.ammo[WP_PLASMAGUN] = 0;
+		} else {
+			amount = client->ps.ammo[WP_PLASMAGUN];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_PLASMAGUN );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_PLASMAGUN] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Plasma Gun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_BFG){
+		amount = client->ps.ammo[WP_BFG];
+		if(amount<1){
+			amount = client->ps.ammo[WP_BFG];
+			client->ps.ammo[WP_BFG] = 0;
+		} else {
+			amount = client->ps.ammo[WP_BFG];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_BFG );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_BFG] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "BFG10K" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_NAILGUN){
+		amount = client->ps.ammo[WP_NAILGUN];
+		if(amount<1){
+			amount = client->ps.ammo[WP_NAILGUN];
+			client->ps.ammo[WP_NAILGUN] = 0;
+		} else {
+			amount = client->ps.ammo[WP_NAILGUN];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_NAILGUN );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_NAILGUN] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Nailgun" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+
+	if(client->ps.weapon==WP_GRAPPLING_HOOK){
+		amount = client->ps.ammo[WP_GRAPPLING_HOOK];
+		if(amount<1){
+			amount = client->ps.ammo[WP_GRAPPLING_HOOK];
+			client->ps.ammo[WP_GRAPPLING_HOOK] = 0;
+		} else {
+			amount = client->ps.ammo[WP_GRAPPLING_HOOK];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_GRAPPLING_HOOK );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_GRAPPLING_HOOK] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Grappling Hook" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+	
+	if(client->ps.weapon==WP_FLAMETHROWER){
+		amount = client->ps.ammo[WP_FLAMETHROWER];
+		if(amount<1){
+			amount = client->ps.ammo[WP_FLAMETHROWER];
+			client->ps.ammo[WP_FLAMETHROWER] = 0;
+		} else {
+			amount = client->ps.ammo[WP_FLAMETHROWER];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_FLAMETHROWER );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_FLAMETHROWER] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Flamethrower" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+	
+	if(client->ps.weapon==WP_ANTIMATTER){
+		amount = client->ps.ammo[WP_ANTIMATTER];
+		if(amount<1){
+			amount = client->ps.ammo[WP_ANTIMATTER];
+			client->ps.ammo[WP_ANTIMATTER] = 0;
+		} else {
+			amount = client->ps.ammo[WP_ANTIMATTER];
+			client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_ANTIMATTER );
+			client->ps.weapon = WP_GAUNTLET;
+			client->ps.ammo[WP_ANTIMATTER] = 0;
+		}
+		if(amount==0){ return; }
+		xr_item = BG_FindItem( "Dark Flare" );
+		xr_drop = Throw_Item( ent, xr_item, 0 );
+		xr_drop->count = amount;
+		return;
+	}
+}
+
+void Cmd_DropWeapon_f( gentity_t *ent ) {
+	ThrowWeapon( ent );
+}
+
+// oatmeal end
 
 /*
 =================
@@ -1541,7 +2232,9 @@ Cmd_Where_f
 ==================
 */
 void Cmd_Where_f( gentity_t *ent ) {
+
 	trap_SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos(ent->r.currentOrigin) ) );
+	
 }
 
 static const char *gameNames[] = {
@@ -2211,6 +2904,14 @@ commands_t cmds[ ] =
   { "noclip", CMD_CHEAT, Cmd_Noclip_f },
 
   { "kill", CMD_TEAM|CMD_LIVING, Cmd_Kill_f },
+  { "block", CMD_LIVING, Cmd_Block_f },
+  { "ammo", CMD_TEAM|CMD_LIVING, Cmd_DropAmmo_f },
+  { "health", CMD_TEAM|CMD_LIVING, Cmd_DropHealth_f },
+  { "armor", CMD_TEAM|CMD_LIVING, Cmd_DropArmor_f },
+  { "dropweapon", CMD_TEAM|CMD_LIVING, Cmd_DropWeapon_f },
+  { "dropflag", CMD_TEAM|CMD_LIVING, Cmd_DropFlag_f },
+  { "droprune", CMD_TEAM|CMD_LIVING, Cmd_DropRune_f },
+  { "dropholdable", CMD_TEAM|CMD_LIVING, Cmd_DropHoldable_f },
   { "where", 0, Cmd_Where_f },
 
   // game commands

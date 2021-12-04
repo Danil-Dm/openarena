@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ==============================================================================
 
 PACKET FILTERING
- 
+
 
 You can add or remove addresses from the filter list with:
 
@@ -81,13 +81,13 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 	int		i, j;
 	byte	b[4];
 	byte	m[4];
-	
+
 	for (i=0 ; i<4 ; i++)
 	{
 		b[i] = 0;
 		m[i] = 0;
 	}
-	
+
 	for (i=0 ; i<4 ; i++)
 	{
 		if (*s < '0' || *s > '9')
@@ -104,7 +104,7 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
                         G_Printf( "Bad filter address: %s\n", s );
 			return qfalse;
 		}
-		
+
 		j = 0;
 		while (*s >= '0' && *s <= '9')
 		{
@@ -118,10 +118,10 @@ static qboolean StringToFilter (char *s, ipFilter_t *f)
 			break;
 		s++;
 	}
-	
+
 	f->mask = *(unsigned *)m;
 	f->compare = *(unsigned *)b;
-	
+
 	return qtrue;
 }
 
@@ -154,7 +154,7 @@ static void UpdateIPBans (void)
 			else
 				Q_strcat(ip, sizeof(ip), va("%i", b[j]));
 			Q_strcat(ip, sizeof(ip), (j<3) ? "." : " ");
-		}		
+		}
 		if (strlen(iplist_final)+strlen(ip) < MAX_CVAR_VALUE_STRING)
 		{
 			Q_strcat( iplist_final, sizeof(iplist_final), ip);
@@ -193,7 +193,7 @@ qboolean G_FilterPacket (char *from)
 			break;
 		i++, p++;
 	}
-	
+
 	in = *(unsigned *)m;
 
 	for (i=0 ; i<numIPFilters ; i++)
@@ -224,7 +224,7 @@ static void AddIP( char *str )
 		}
 		numIPFilters++;
 	}
-	
+
 	if (!StringToFilter (str, &ipFilters[i]))
 		ipFilters[i].compare = 0xffffffffu;
 
@@ -236,7 +236,7 @@ static void AddIP( char *str )
 G_ProcessIPBans
 =================
 */
-void G_ProcessIPBans(void) 
+void G_ProcessIPBans(void)
 {
 	char *s, *t;
 	char		str[MAX_CVAR_VALUE_STRING];
@@ -458,8 +458,26 @@ void	ClientKick_f( void ) {
         //FIXME: This should not depend on the engine's clientkick at all
         trap_DropClient( idnum, "was kicked" );
         //trap_SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", level.clients[idnum].ps.clientNum) );
-        
+
 }
+
+void	NextRound_f( void ) {
+	mod_zround += 1;
+if(info_zombie.integer == 1){
+
+zombiedamage += 2;
+
+zombiespeed += 8;
+
+zombiehealth += 6;
+
+if(zombiemulti < 18){
+trap_SendConsoleCommand( EXEC_APPEND, "addbot Zombie 5 Red \n");
+}
+trap_SendServerCommand( -1, "csound sound/ZombieRound.wav");
+}
+}
+
 
 void EndGame_f ( void ) {
     ExitLevel();
@@ -485,13 +503,13 @@ struct
   { "forceTeam", qfalse, Svcmd_ForceTeam_f },
   { "game_memory", qfalse, Svcmd_GameMem_f },
   { "addbot", qfalse, Svcmd_AddBot_f },
-  { "botlist", qfalse, Svcmd_BotList_f }, 
+  { "botlist", qfalse, Svcmd_BotList_f },
   { "abort_podium", qfalse, Svcmd_AbortPodium_f },
   { "addip", qfalse, Svcmd_AddIP_f },
   { "removeip", qfalse, Svcmd_RemoveIP_f },
-  
+
   //KK-OAX Uses wrapper in g_svccmds_ext.c
-  { "listip", qfalse, Svcmd_ListIP_f }, 
+  { "listip", qfalse, Svcmd_ListIP_f },
   //KK-OAX New
   { "status", qfalse, Svcmd_Status_f },
   { "eject", qfalse, Svcmd_EjectClient_f },
@@ -509,6 +527,23 @@ struct
   //Kicks a player by number in the game logic rather than the server number
   { "clientkick_game", qfalse, ClientKick_f },
   { "endgamenow", qfalse, EndGame_f },
+  { "addprop", qfalse, Svcmd_AddProp_f },
+  { "sendcmd", qfalse, Svcmd_SendClientCmd_f },
+  { "sendmusic", qfalse, Svcmd_SendClientMusic_f },
+  { "sendsound", qfalse, Svcmd_SendClientSound_f },
+  { "sendmodel", qfalse, Svcmd_SendClientModel_f },
+  { "sendtorso", qfalse, Svcmd_SendClientTorso_f },
+  { "sendtorsoskin", qfalse, Svcmd_SendClientTorsoSkin_f },
+  { "sendlegs", qfalse, Svcmd_SendClientLegs_f },
+  { "sendhead", qfalse, Svcmd_SendClientHead_f },
+  { "sendheadskin", qfalse, Svcmd_SendClientHeadSkin_f },
+  { "replacetex", qfalse, Svcmd_ReplaceTexture },
+  { "additem", qfalse, Svcmd_AddItem_f },
+  { "savemap", qfalse, G_WriteMapfile_f },
+  { "loadmap", qfalse, G_LoadMapfile_f },
+  { "loadmapc", qfalse, G_LoadMapfilec_f },
+  { "zombieroundend", qfalse, NextRound_f },
+  { "RCM", qfalse, Svcmd_RCM }
 };
 
 /*
@@ -534,7 +569,7 @@ qboolean  ConsoleCommand( void )
       return qtrue;
     }
   }
-  // KK-OAX Will be enabled when admin is added. 
+  // KK-OAX Will be enabled when admin is added.
   // see if this is an admin command
   if( G_admin_cmd_check( NULL, qfalse ) )
     return qtrue;
@@ -544,4 +579,3 @@ qboolean  ConsoleCommand( void )
 
   return qfalse;
 }
-

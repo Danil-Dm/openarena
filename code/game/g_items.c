@@ -51,10 +51,21 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	int			i;
 	gclient_t	*client;
 
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+
 	if ( !other->client->ps.powerups[ent->item->giTag] ) {
 		// round timing to seconds to make multiple powerup timers
 		// count in sync
-		other->client->ps.powerups[ent->item->giTag] = 
+		other->client->ps.powerups[ent->item->giTag] =
 			level.time - ( level.time % 1000 );
 	}
 
@@ -89,7 +100,7 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 		if ( !ent->count )
 	quantity = mod_flighttime;
 	}
-	
+
 	other->client->ps.powerups[ent->item->giTag] += quantity * 1000;
 
 	// give any nearby players a "denied" anti-reward
@@ -149,6 +160,18 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 	float	handicap;
 	int		max;
 
+
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+
 	other->client->ps.stats[STAT_PERSISTANT_POWERUP] = ent->item - bg_itemlist;
 	other->client->persistantPowerup = ent;
 
@@ -158,10 +181,20 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
+if (!(other->r.svFlags & SVF_BOT)){
 		if( handicap<=0.0f || handicap>100.0f) {
 			handicap = 100.0f;
 		}
-		max = (int)(2 *  handicap);
+}
+	if(other->client->pers.playerclass == PCLASS_MALE){
+		max = (int)(2 *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_NEUTER){
+		max = (int)(2 *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_FEMALE){
+		max = (int)(2 *  handicap * 0.8);
+	}
 
 		other->health = max;
 		other->client->ps.stats[STAT_HEALTH] = max;
@@ -169,15 +202,26 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.stats[STAT_ARMOR] = max;
 		other->client->pers.maxHealth = max;
 		}
-		
+
 		if (g_guardhealthmodifier.value > 0){
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
-		max = (int)(g_guardhealthmodifier.value *  handicap);
+
+	if(other->client->pers.playerclass == PCLASS_MALE){
+		max = (int)(g_guardhealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_NEUTER){
+		max = (int)(g_guardhealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_FEMALE){
+		max = (int)(g_guardhealthmodifier.value *  handicap * 0.8);
+	}
 
 		other->health = max;
 		other->client->ps.stats[STAT_HEALTH] = max;
@@ -193,21 +237,34 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
 		other->client->pers.maxHealth = handicap;
 		other->client->ps.stats[STAT_ARMOR] = 0;
 		}
-		
+
 		if (g_scouthealthmodifier.value > 0){
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
-		max = (int)(g_scouthealthmodifier.value *  handicap);
+
+	if(other->client->pers.playerclass == PCLASS_MALE){
+		max = (int)(g_scouthealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_NEUTER){
+		max = (int)(g_scouthealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_FEMALE){
+		max = (int)(g_scouthealthmodifier.value *  handicap * 0.8);
+	}
 
 		other->health = max;
 		other->client->ps.stats[STAT_HEALTH] = max;
@@ -223,20 +280,33 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
 		other->client->pers.maxHealth = handicap;
 		}
-		
+
 		if(g_doublerhealthmodifier.value > 0){
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
-		max = (int)(g_doublerhealthmodifier.value *  handicap);
+
+	if(other->client->pers.playerclass == PCLASS_MALE){
+		max = (int)(g_doublerhealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_NEUTER){
+		max = (int)(g_doublerhealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_FEMALE){
+		max = (int)(g_doublerhealthmodifier.value *  handicap * 0.8);
+	}
 
 		other->health = max;
 		other->client->ps.stats[STAT_HEALTH] = max;
@@ -244,16 +314,18 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.stats[STAT_ARMOR] = max;
 		other->client->pers.maxHealth = max;
 		}
-	
+
 		break;
-		
+
 	case PW_AMMOREGEN:
 		if(g_ammoregenhealthmodifier.value < 0){
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
 		other->client->pers.maxHealth = handicap;
 		memset(other->client->ammoTimes, 0, sizeof(other->client->ammoTimes));
@@ -264,10 +336,21 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
-		max = (int)(g_ammoregenhealthmodifier.value *  handicap);
+
+	if(other->client->pers.playerclass == PCLASS_MALE){
+		max = (int)(g_ammoregenhealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_NEUTER){
+		max = (int)(g_ammoregenhealthmodifier.value *  handicap * 1.25);
+	}
+	if(other->client->pers.playerclass == PCLASS_FEMALE){
+		max = (int)(g_ammoregenhealthmodifier.value *  handicap * 0.8);
+	}
 
 		other->health = max;
 		other->client->ps.stats[STAT_HEALTH] = max;
@@ -275,13 +358,15 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 		other->client->ps.stats[STAT_ARMOR] = max;
 		other->client->pers.maxHealth = max;
 		}
-		
+
 	default:
 		clientNum = other->client->ps.clientNum;
 		trap_GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 		handicap = atof( Info_ValueForKey( userinfo, "handicap" ) );
-		if( handicap<=0.0f || handicap>100.0f) {
-			handicap = 100.0f;
+		if (!(other->r.svFlags & SVF_BOT)){
+				if( handicap<=0.0f || handicap>100.0f) {
+					handicap = 100.0f;
+				}
 		}
 		other->client->pers.maxHealth = handicap;
 		break;
@@ -293,6 +378,17 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 //======================================================================
 
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
+
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
 
@@ -318,50 +414,88 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 {
 	int		quantity;
 
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+
 	if ( ent->count ) {
 		quantity = ent->count;
 	} else {
 		quantity = ent->item->quantity;
-	}
-	
+
 		//freaky - custom ammo box pickups
     switch(ent->item->giTag)
-	{	
+	{
 			case WP_MACHINEGUN:
+					if(g_mgammocount.integer != -1){
 				 	quantity = g_mgammocount.integer;
+					}
 				break;
 			case WP_SHOTGUN:
+					if(g_sgammocount.integer != -1){
 					quantity = g_sgammocount.integer;
+					}
 				break;
 			case WP_GRENADE_LAUNCHER:
+					if(g_glammocount.integer != -1){
 					quantity = g_glammocount.integer;
+					}
 				break;
 			case WP_ROCKET_LAUNCHER:
+					if(g_rlammocount.integer != -1){
 					quantity = g_rlammocount.integer;
+					}
 				break;
 			case WP_PLASMAGUN:
+					if(g_pgammocount.integer != -1){
 					quantity = g_pgammocount.integer;
+					}
 				break;
 			case WP_RAILGUN:
+					if(g_rgammocount.integer != -1){
 					quantity = g_rgammocount.integer;
+					}
 				break;
 			case WP_LIGHTNING:
+					if(g_lgammocount.integer != -1){
 					quantity = g_lgammocount.integer;
+					}
 				break;
 			case WP_BFG:
+					if(g_bfgammocount.integer != -1){
 					quantity = g_bfgammocount.integer;
+					}
 				break;
 			case WP_NAILGUN:
+					if(g_ngammocount.integer != -1){
 					quantity = g_ngammocount.integer;
+					}
 				break;
 			case WP_PROX_LAUNCHER:
+					if(g_plammocount.integer != -1){
 					quantity = g_plammocount.integer;
+					}
 				break;
 			case WP_CHAINGUN:
+					if(g_cgammocount.integer != -1){
 					quantity = g_cgammocount.integer;
+					}
+				break;
+			case WP_FLAMETHROWER:
+					if(g_ftammocount.integer != -1){
+					quantity = g_ftammocount.integer;
+					}
 				break;
 	}
     //end
+	}
 
 	Add_Ammo (other, ent->item->giTag, quantity);
 
@@ -374,6 +508,17 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	int		quantity;
 
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+
 	if ( ent->count < 0 ) {
 		quantity = 0; // None for you, sir!
 	} else {
@@ -381,52 +526,79 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			quantity = ent->count;
 		} else {
 			quantity = ent->item->quantity;
-		}
-		
+
+
 				//freaky - custom ammo box pickups
     switch(ent->item->giTag)
-	{	
+	{
 			case WP_MACHINEGUN:
+					if(g_mgweaponcount.integer != -1){
 				 	quantity = g_mgweaponcount.integer;
+					}
 				break;
 			case WP_SHOTGUN:
+					if(g_sgweaponcount.integer != -1){
 					quantity = g_sgweaponcount.integer;
+					}
 				break;
 			case WP_GRENADE_LAUNCHER:
+					if(g_glweaponcount.integer != -1){
 					quantity = g_glweaponcount.integer;
+					}
 				break;
 			case WP_ROCKET_LAUNCHER:
+					if(g_rlweaponcount.integer != -1){
 					quantity = g_rlweaponcount.integer;
+					}
 				break;
 			case WP_PLASMAGUN:
+					if(g_pgweaponcount.integer != -1){
 					quantity = g_pgweaponcount.integer;
+					}
 				break;
 			case WP_RAILGUN:
+					if(g_rgweaponcount.integer != -1){
 					quantity = g_rgweaponcount.integer;
+					}
 				break;
 			case WP_LIGHTNING:
+					if(g_lgweaponcount.integer != -1){
 					quantity = g_lgweaponcount.integer;
+					}
 				break;
 			case WP_BFG:
+					if(g_bfgweaponcount.integer != -1){
 					quantity = g_bfgweaponcount.integer;
+					}
 				break;
 			case WP_NAILGUN:
+					if(g_ngweaponcount.integer != -1){
 					quantity = g_ngweaponcount.integer;
+					}
 				break;
 			case WP_PROX_LAUNCHER:
+					if(g_plweaponcount.integer != -1){
 					quantity = g_plweaponcount.integer;
+					}
 				break;
 			case WP_CHAINGUN:
+					if(g_cgweaponcount.integer != -1){
 					quantity = g_cgweaponcount.integer;
+					}
 				break;
 			case WP_FLAMETHROWER:
+					if(g_ftweaponcount.integer != -1){
 					quantity = g_ftweaponcount.integer;
+					}
 				break;
 			case WP_ANTIMATTER:
+					if(g_amweaponcount.integer != -1){
 					quantity = g_amweaponcount.integer;
+					}
 				break;
 	}
     //end
+		}
 
 		// dropped items and teamplay weapons always have full ammo
 		if ( ! (ent->flags & FL_DROPPED_ITEM) && g_gametype.integer != GT_TEAM ) {
@@ -435,7 +607,12 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 			if ( other->client->ps.ammo[ ent->item->giTag ] < quantity ) {
 				quantity = quantity - other->client->ps.ammo[ ent->item->giTag ];
 			} else {
-				quantity = g_maxweaponpickup.integer;		// only add a single shot
+				if(g_maxweaponpickup.integer == 1){
+				quantity /= 2;
+				}
+				if(g_maxweaponpickup.integer != 1){
+					quantity = g_maxweaponpickup.integer;		// only add a single shot
+				}
 			}
 		}
 	}
@@ -463,9 +640,20 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			max;
 	int			quantity;
 
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1 ;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+
         if( !other->client)
             return RESPAWN_HEALTH;
-        
+
 	// small and mega healths will go over the max
 	if( other->client && bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 		max = other->client->ps.stats[STAT_MAX_HEALTH];
@@ -502,6 +690,17 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	int		upperBound;
 
+	if(other->client->sess.sessionTeam == TEAM_BLUE){
+	if(g_teamblue_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+	if(other->client->sess.sessionTeam == TEAM_RED){
+	if(g_teamred_pickupitems.integer == 0){
+	return 1;
+	}
+	}
+
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
 
 	if( other->client && bg_itemlist[other->client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
@@ -526,9 +725,38 @@ RespawnItem
 ===============
 */
 void RespawnItem( gentity_t *ent ) {
+	int		spawn_item; //freaky, randomise var.
         //Don't spawn quad if quadfactor are 1.0 or less
         if(ent->item->giType == IT_POWERUP && ent->item->giTag == PW_QUAD && g_quadfactor.value <= 1.0)
             return;
+
+    //freaky - randomise items
+    if(g_randomItems.integer) {
+		spawn_item = rq3_random(1, 54);
+
+		if(spawn_item == 34){
+		spawn_item = 10;
+		}
+		if(spawn_item == 35){
+		spawn_item = 10;
+		}
+		if(spawn_item == 46){
+		spawn_item = 10;
+		}
+		if(spawn_item == 47){
+		spawn_item = 10;
+		}
+		if(spawn_item == 48){
+		spawn_item = 10;
+		}
+		if(spawn_item == 8){
+		spawn_item = 10;
+		}
+		ent->item = &bg_itemlist[spawn_item];
+		ent->item->classname = bg_itemlist[spawn_item].classname;
+		ent->s.modelindex = spawn_item;
+	}
+	//end
 
 	// randomly select from teamed entities
 	if (ent->team) {
@@ -750,8 +978,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	ent->r.contents = 0;
 
 	// ZOID
-	// A negative respawn times means to never respawn this item (but don't 
-	// delete it).  This is used by items that are respawned by third party 
+	// A negative respawn times means to never respawn this item (but don't
+	// delete it).  This is used by items that are respawned by third party
 	// events such as ctf flags
 	if ( respawn <= 0 ) {
 		ent->nextthink = 0;
@@ -830,10 +1058,31 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	AngleVectors( angles, velocity, NULL, NULL );
 	VectorScale( velocity, 150, velocity );
 	velocity[2] += 200 + crandom() * 50;
-	
+
 	return LaunchItem( item, ent->s.pos.trBase, velocity );
 }
 
+// oatmeal begin
+
+gentity_t *Throw_Item( gentity_t *ent, gitem_t *item, float angle ) {
+	vec3_t	velocity;
+	vec3_t	angles;
+
+	VectorCopy( ent->s.apos.trBase, angles );
+	angles[YAW] += angle;
+	angles[PITCH] = 0;	// always forward
+
+	AngleVectors( angles, velocity, NULL, NULL );
+	VectorScale( velocity, 300, velocity );
+	velocity[2] += 300 + crandom() * 50;
+
+	ent->wait_to_pickup = level.time + 1000;
+	ent->client->ps.stats[STAT_NO_PICKUP] = 1;
+
+	return LaunchItem( item, ent->s.pos.trBase, velocity );
+}
+
+// oatmeal end
 
 /*
 ================
@@ -898,9 +1147,9 @@ void FinishSpawningItem( gentity_t *ent ) {
 		return;
 	}
 
-	
+
 	// powerups don't spawn in for a while (but not in elimination)
-	if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS 
+	if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS
                 && !g_instantgib.integer && !g_elimination_allgametypes.integer && !g_rockets.integer )
 	if ( ent->item->giType == IT_POWERUP ) {
 		float	respawn;
@@ -1027,7 +1276,7 @@ void ClearRegisteredItems( void ) {
 		// players always start with the base weapon
 		RegisterItem( BG_FindItemForWeapon( WP_MACHINEGUN ) );
 		RegisterItem( BG_FindItemForWeapon( WP_GAUNTLET ) );
-		if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION 
+		if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION
                         || g_gametype.integer == GT_LMS || g_elimination_allgametypes.integer)
 		{
 			RegisterItem( BG_FindItemForWeapon( WP_SHOTGUN ) );
@@ -1048,7 +1297,7 @@ void ClearRegisteredItems( void ) {
 		RegisterItem( BG_FindItem( "Red Cube" ) );
 		RegisterItem( BG_FindItem( "Blue Cube" ) );
 	}
-        
+
 	if(g_gametype.integer == GT_DOUBLE_D ) {
 		RegisterItem( BG_FindItem( "Point A (Blue)" ) );
 		RegisterItem( BG_FindItem( "Point A (Red)" ) );
@@ -1063,7 +1312,7 @@ void ClearRegisteredItems( void ) {
 		RegisterItem( BG_FindItem( "Red domination point" ) );
 		RegisterItem( BG_FindItem( "Blue domination point" ) );
 	}
-	
+
 }
 
 /*
@@ -1156,13 +1405,13 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 
 	ent->physicsBounce = 0.50;		// items are bouncy
 	if (g_elimination_items.integer == 0) {
-	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS || 
+	if (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_LMS ||
 			( item->giType != IT_TEAM && (g_instantgib.integer || g_rockets.integer || g_elimination_allgametypes.integer || g_gametype.integer==GT_CTF_ELIMINATION) ) ) {
 		ent->s.eFlags |= EF_NODRAW; //Invisible in elimination
                 ent->r.svFlags |= SVF_NOCLIENT;  //Don't broadcast
         }
 	}
-	
+
 
 	if(g_gametype.integer == GT_DOUBLE_D && (strcmp(ent->classname, "team_CTF_redflag")==0 || strcmp(ent->classname, "team_CTF_blueflag")==0 || strcmp(ent->classname, "team_CTF_neutralflag") == 0 || item->giType == IT_PERSISTANT_POWERUP  ))
 		ent->s.eFlags |= EF_NODRAW; //Don't draw the flag models/persistant powerups
@@ -1253,7 +1502,7 @@ void G_RunItem( gentity_t *ent ) {
 	} else {
 		mask = MASK_PLAYERSOLID & ~CONTENTS_BODY;//MASK_SOLID;
 	}
-	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, 
+	trap_Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin,
 		ent->r.ownerNum, mask );
 
 	VectorCopy( tr.endpos, ent->r.currentOrigin );
@@ -1284,4 +1533,3 @@ void G_RunItem( gentity_t *ent ) {
 
 	G_BounceItem( ent, &tr );
 }
-

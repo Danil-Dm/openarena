@@ -143,6 +143,7 @@ void SP_info_podium(gentity_t *ent);
 
 void SP_func_plat (gentity_t *ent);
 void SP_func_static (gentity_t *ent);
+void SP_func_prop (gentity_t *ent);
 void SP_func_rotating (gentity_t *ent);
 void SP_func_bobbing (gentity_t *ent);
 void SP_func_pendulum( gentity_t *ent );
@@ -165,6 +166,12 @@ void SP_target_print (gentity_t *ent);
 void SP_target_laser (gentity_t *self);
 void SP_target_character (gentity_t *ent);
 void SP_target_score( gentity_t *ent );
+void SP_target_cmd( gentity_t *ent );
+void SP_target_music( gentity_t *ent );
+void SP_target_sound( gentity_t *ent );
+void SP_target_model( gentity_t *ent );
+void SP_target_legs( gentity_t *ent );
+void SP_target_head( gentity_t *ent );
 void SP_target_teleporter( gentity_t *ent );
 void SP_target_relay (gentity_t *ent);
 void SP_target_kill (gentity_t *ent);
@@ -221,6 +228,7 @@ spawn_t	spawns[] = {
 	{"func_button", SP_func_button},
 	{"func_door", SP_func_door},
 	{"func_static", SP_func_static},
+	{"func_prop", SP_func_prop},
 	{"func_rotating", SP_func_rotating},
 	{"func_bobbing", SP_func_bobbing},
 	{"func_pendulum", SP_func_pendulum},
@@ -248,6 +256,12 @@ spawn_t	spawns[] = {
 	{"target_print", SP_target_print},
 	{"target_laser", SP_target_laser},
 	{"target_score", SP_target_score},
+	{"target_cmd", SP_target_cmd},
+	{"target_music", SP_target_music},
+	{"target_sound", SP_target_sound},
+	{"target_model", SP_target_model},
+	{"target_legs", SP_target_legs},
+	{"target_head", SP_target_head},
 	{"target_teleporter", SP_target_teleporter},
 	{"target_relay", SP_target_relay},
 	{"target_kill", SP_target_kill},
@@ -283,6 +297,30 @@ spawn_t	spawns[] = {
 };
 
 /*
+*****************
+G_WLF_GetLeft
+freaky - randomise items
+*****************
+*/
+void G_WLK_GetLeft(const char *pszSource, char *pszDest,  int iLen)
+{
+	int iSize; //size of string we need to copy
+
+	//see how much space we need
+	iSize = strlen(pszSource);
+	
+	//is len less that size?
+	if(iLen < iSize)
+		iSize = iLen;
+
+	//make a copy of the string
+	strcpy(pszDest, pszSource);
+
+	//end the string at iSize
+	pszDest[iSize] = '\0';
+}
+
+/*
 ===============
 G_CallSpawn
 
@@ -311,6 +349,12 @@ qboolean G_CallSpawn( gentity_t *ent ) {
                 G_Printf ("G_CallSpawn: NULL classname\n");
 		return qfalse;
 	}
+
+	//freaky - randomise items	
+    if(g_randomItems.integer) {
+		randomiseitem(ent);
+	}
+	//end
 
 	// check item spawn functions
 	for ( item=bg_itemlist+1 ; item->classname ; item++ ) {
@@ -600,7 +644,7 @@ qboolean G_ParseSpawnVars( void ) {
 /*QUAKED worldspawn (0 0 0) ?
 
 Every map should have exactly one worldspawn.
-"music"		music wav file
+"music"		music wav or ogg file
 "gravity"	800 is default gravity
 "message"	Text to print during connection process
 */
@@ -631,6 +675,11 @@ void SP_worldspawn( void ) {
 
 	G_SpawnString( "gravity", "800", &s );
 	trap_Cvar_Set( "g_gravity", s );
+	
+    //freaky - Atmosphere effects
+    G_SpawnString( "atmosphere", "", &s );
+  	trap_SetConfigstring( CS_ATMOSEFFECT, s );  
+    //end
 
 	G_SpawnString( "enableDust", "0", &s );
 	trap_Cvar_Set( "g_enableDust", s );
@@ -684,6 +733,8 @@ void G_SpawnEntitiesFromString( void ) {
 	while( G_ParseSpawnVars() ) {
 		G_SpawnGEntityFromSpawnVars();
 	}	
+
+  G_LevelLoadComplete();
 
 	level.spawning = qfalse;			// any future calls to G_Spawn*() will be errors
 }

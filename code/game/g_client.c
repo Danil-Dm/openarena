@@ -24,8 +24,78 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_client.c -- client functions that don't happen every frame
 
+
 static vec3_t	playerMins = {-15, -15, -24};
 static vec3_t	playerMaxs = {15, 15, 32};
+
+
+static vec3_t	playerMins15 = {-15 * 5, -15 * 5, -24 * 5};
+static vec3_t	playerMaxs15 = {15 * 5, 15 * 5, 32 * 5};
+
+
+
+static vec3_t	playerMins14 = {-15 * 4, -15 * 4, -24 * 4};
+static vec3_t	playerMaxs14 = {15 * 4, 15 * 4, 32 * 4};
+
+
+
+static vec3_t	playerMins13 = {-15 * 3, -15 * 3, -24 * 3};
+static vec3_t	playerMaxs13 = {15 * 3, 15 * 3, 32 * 3};
+
+
+
+static vec3_t	playerMins12 = {-15 * 2, -15 * 2, -24 * 2};
+static vec3_t	playerMaxs12 = {15 * 2, 15 * 2, 32 * 2};
+
+
+
+static vec3_t	playerMins11 = {-15 * 1.5, -15 * 1.5, -24 * 1.5};
+static vec3_t	playerMaxs11 = {15 * 1.5, 15 * 1.5, 32 * 1.5};
+
+
+
+static vec3_t	playerMins9 = {-15 * 0.9, -15 * 0.9, -24 * 0.9};
+static vec3_t	playerMaxs9 = {15 * 0.9, 15 * 0.9, 32 * 0.9};
+
+
+
+static vec3_t	playerMins8 = {-15 * 0.8, -15 * 0.8, -24 * 0.8};
+static vec3_t	playerMaxs8 = {15 * 0.8, 15 * 0.8, 32 * 0.8};
+
+
+
+static vec3_t	playerMins7 = {-15 * 0.7, -15 * 0.7, -24 * 0.7};
+static vec3_t	playerMaxs7 = {15 * 0.7, 15 * 0.7, 32 * 0.7};
+
+
+
+static vec3_t	playerMins6 = {-15 * 0.6, -15 * 0.6, -24 * 0.6};
+static vec3_t	playerMaxs6 = {15 * 0.6, 15 * 0.6, 32 * 0.6};
+
+
+
+static vec3_t	playerMins5 = {-15 * 0.5, -15 * 0.5, -24 * 0.5};
+static vec3_t	playerMaxs5 = {15 * 0.5, 15 * 0.5, 32 * 0.5};
+
+
+
+static vec3_t	playerMins4 = {-15 * 0.4, -15 * 0.4, -24 * 0.4};
+static vec3_t	playerMaxs4 = {15 * 0.4, 15 * 0.4, 32 * 0.4};
+
+
+
+static vec3_t	playerMins3 = {-15 * 0.3, -15 * 0.3, -24 * 0.3};
+static vec3_t	playerMaxs3 = {15 * 0.3, 15 * 0.3, 32 * 0.3};
+
+
+
+static vec3_t	playerMins2 = {-15 * 0.2, -15 * 0.2, -24 * 0.2};
+static vec3_t	playerMaxs2 = {15 * 0.2, 15 * 0.2, 32 * 0.2};
+
+
+
+static vec3_t	playerMins1 = {-15 * 0.1, -15 * 0.1, -24 * 0.1};
+static vec3_t	playerMaxs1 = {15 * 0.1, 15 * 0.1, 32 * 0.1};
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
@@ -253,7 +323,7 @@ Chooses a player start, deathmatch start, etc
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) {
 	//return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles );
 
-	
+
 	gentity_t	*spot;
 	gentity_t	*nearestSpot;
 
@@ -266,7 +336,7 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles ) 
 		if ( spot == nearestSpot ) {
 			// last try
 			spot = SelectRandomDeathmatchSpawnPoint ( );
-		}		
+		}
 	}
 
 	// find a single player start spot
@@ -371,16 +441,17 @@ After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
 void BodySink( gentity_t *ent ) {
-	if ( level.time - ent->timestamp > 6500 ) {
+/*	if ( level.time - ent->timestamp > 6500 ) {
 
 
 		// the body ques are never actually freed, they are just unlinked
 		trap_UnlinkEntity( ent );
 		ent->physicsObject = qfalse;
-		return;	
+		return;
 	}
 	ent->nextthink = level.time + 100;
-	ent->s.pos.trBase[2] -= 1;
+	ent->s.pos.trBase[2] -= 1;*/
+	GibEntity( ent, 0 );
 }
 
 /*
@@ -545,7 +616,7 @@ void ClientRespawn( gentity_t *ent ) {
 			if( ent->client->isEliminated!=qtrue) {
 				ent->client->isEliminated = qtrue;
 				if((g_lms_mode.integer == 2 || g_lms_mode.integer == 3) && level.roundNumber == level.roundNumberStarted)
-					LMSpoint();	
+					LMSpoint();
                                 //Sago: This is really bad
                                 //TODO: Try not to make people spectators here
 				ent->client->sess.spectatorState = PM_SPECTATOR;
@@ -556,14 +627,14 @@ void ClientRespawn( gentity_t *ent ) {
 		}
 	}
 
-	if((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS) 
+	if((g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS)
 			&& ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0)
 		return;
 		ClientSpawn(ent);
 
 		// add a teleportation effect
 		if(g_gametype.integer!=GT_ELIMINATION && g_gametype.integer!=GT_CTF_ELIMINATION && g_gametype.integer!=GT_LMS)
-		{	
+		{
 			tent = G_TempEntity( ent->client->ps.origin, EV_PLAYER_TELEPORT_IN );
 			tent->s.clientNum = ent->s.clientNum;
 		}
@@ -582,7 +653,7 @@ void respawnRound( gentity_t *ent ) {
 	//	ent->client->isEliminated  = qtrue;
 		//CopyToBodyQue (ent);
 	//}
-        
+
 
 	//if(g_gametype.integer==GT_ELIMINATION && ent->client->ps.pm_type == PM_SPECTATOR && ent->client->ps.stats[STAT_HEALTH] > 0)
 	//	return;
@@ -807,7 +878,7 @@ void RespawnDead(void)
 	gentity_t	*client;
 	for(i=0;i<level.maxclients;i++)
 	{
-		
+
 		if ( level.clients[i].pers.connected == CON_DISCONNECTED ) {
 			continue;
 		}
@@ -822,9 +893,9 @@ void RespawnDead(void)
 		if ( level.clients[i].sess.sessionTeam == TEAM_SPECTATOR ) {
 			continue;
 		}
-		
+
 		client->client->pers.livesLeft = g_lms_lives.integer;
-                
+
 		respawnRound(client);
 	}
 	return;
@@ -918,7 +989,7 @@ void LMSpoint(void)
 		if ( level.clients[i].isEliminated ){
 			continue;
 		}
-		
+
 		client = g_entities + i;
 		/*
 		Not good in mode 2 & 3
@@ -926,12 +997,12 @@ void LMSpoint(void)
 			continue;
 		}
 		*/
-	
+
 		client->client->ps.persistant[PERS_SCORE] += 1;
                         G_LogPrintf("PlayerScore: %i %i: %s now has %d points\n",
 		i, client->client->ps.persistant[PERS_SCORE], client->client->pers.netname, client->client->ps.persistant[PERS_SCORE] );
 	}
-	
+
 	CalculateRanks();
 	return;
 }
@@ -971,12 +1042,12 @@ team_t PickTeam( int ignoreClientNum ) {
 
 	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
 	counts[TEAM_RED] = TeamCount( ignoreClientNum, TEAM_RED );
-    
+
     //KK-OAX Both Teams locked...forget about it, print an error message, keep as spec
     if ( level.RedTeamLocked && level.BlueTeamLocked ) {
         G_Printf( "Both teams have been locked by the Admin! \n" );
         return TEAM_NONE;
-    }	
+    }
 	if ( ( counts[TEAM_BLUE] > counts[TEAM_RED] ) && ( !level.RedTeamLocked ) ) {
 		return TEAM_RED;
 	}
@@ -987,7 +1058,7 @@ team_t PickTeam( int ignoreClientNum ) {
 	if ( ( level.teamScores[TEAM_BLUE] > level.teamScores[TEAM_RED] ) && ( !level.RedTeamLocked ) ) {
 		return TEAM_RED;
 	}
-	if ( ( level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ) && ( !level.BlueTeamLocked ) ) {  
+	if ( ( level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE] ) && ( !level.BlueTeamLocked ) ) {
 	    return TEAM_BLUE;
     }
     //KK-OAX Force Team Blue?
@@ -1100,17 +1171,35 @@ if desired.
 void ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent;
 	int		teamTask, teamLeader, team, health;
+	int		oasbidi;
+	int		oasbheight;
+	int		botskill;
 	char	*s;
 	char	model[MAX_QPATH];
+	char	modelname[MAX_QPATH];
+	char	gender[MAX_QPATH];
 	char	headModel[MAX_QPATH];
 	char	oldname[MAX_STRING_CHARS];
 	//KK-OAX
 	char        err[MAX_STRING_CHARS];
 	qboolean    revertName = qfalse;
-	
+
 	gclient_t	*client;
 	char	c1[MAX_INFO_STRING];
 	char	c2[MAX_INFO_STRING];
+	char	heligred[MAX_INFO_STRING];
+	char	heliggreen[MAX_INFO_STRING];
+	char	heligblue[MAX_INFO_STRING];
+	char	toligred[MAX_INFO_STRING];
+	char	toliggreen[MAX_INFO_STRING];
+	char	toligblue[MAX_INFO_STRING];
+	char	pligred[MAX_INFO_STRING];
+	char	pliggreen[MAX_INFO_STRING];
+	char	pligblue[MAX_INFO_STRING];
+	char	ptex[MAX_INFO_STRING];
+	char	totex[MAX_INFO_STRING];
+	char	hetex[MAX_INFO_STRING];
+	char	pligradius[MAX_INFO_STRING];
 	char	redTeam[MAX_INFO_STRING];
 	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
@@ -1231,6 +1320,31 @@ void ClientUserinfoChanged( int clientNum ) {
             }
         }
     }
+
+strcpy(modelname, Info_ValueForKey( userinfo, "ui_msmodel" ));
+Q_strncpyz( gender, Info_ValueForKey (userinfo, "gender"), sizeof( gender ) );
+oasbidi = atoi( Info_ValueForKey( userinfo, "oasb_idi" ) );
+ent->oasbid = oasbidi;
+oasbheight = atoi( Info_ValueForKey( userinfo, "oasb_height" ) );
+ent->oasbheight = oasbheight;
+if ( ent->r.svFlags & SVF_BOT ) {
+botskill = atoi( Info_ValueForKey( userinfo, "skill" ) );
+ent->botskill = botskill;
+}
+
+if (!Q_stricmp (gender, "NEUTER"))
+   client->pers.newplayerclass = PCLASS_NEUTER;
+else if (!Q_stricmp (gender, "MALE"))
+   client->pers.newplayerclass = PCLASS_MALE;
+else if (!Q_stricmp (gender, "FEMALE"))
+   client->pers.newplayerclass = PCLASS_FEMALE;
+else {
+   client->pers.newplayerclass = PCLASS_MALE;
+   Q_strncpyz( gender, "MALE", sizeof( gender ) );
+}
+
+client->pers.playerclass = client->pers.newplayerclass;
+
 	// N_G: this condition makes no sense to me and I'm not going to
 	// try finding out what it means, I've added parentheses according to
 	// evaluation rules of the original code so grab a
@@ -1248,25 +1362,47 @@ void ClientUserinfoChanged( int clientNum ) {
 
 	if ( client->pers.connected == CON_CONNECTED ) {
 		if ( strcmp( oldname, client->pers.netname ) ) {
-			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname, 
+			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
 				client->pers.netname) );
 		}
 	}
 
 	// set max health
 	if (client->ps.powerups[PW_GUARD]) {
-		client->pers.maxHealth = 200;
-	} else {
+	if(client->pers.playerclass == PCLASS_MALE){
+	client->pers.maxHealth = 250;
+	}
+	if(client->pers.playerclass == PCLASS_NEUTER){
+	client->pers.maxHealth = 250;
+	}
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->pers.maxHealth = 160;
+	}
+	} else
 		health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
 		client->pers.maxHealth = health;
+if (!(ent->r.svFlags & SVF_BOT)){
 		if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
 			client->pers.maxHealth = 100;
+}
 		}
+	if(health == 100){
+	if(client->pers.playerclass == PCLASS_MALE){
+	client->pers.maxHealth = 125;
+	}
+	if(client->pers.playerclass == PCLASS_NEUTER){
+	client->pers.maxHealth = 125;
+	}
+	}
+	if(health > 80){
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->pers.maxHealth = 80;
+	}
 	}
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
 	// set model
-	if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0) {
+	if( g_gametype.integer >= GT_TEAM && g_ffa_gt==0 && 1 == 0) {
 		Q_strncpyz( model, Info_ValueForKey (userinfo, "team_model"), sizeof( model ) );
 		Q_strncpyz( headModel, Info_ValueForKey (userinfo, "team_headmodel"), sizeof( headModel ) );
 	} else {
@@ -1293,7 +1429,7 @@ void ClientUserinfoChanged( int clientNum ) {
 
 /*	NOTE: all client side now
 Sago: I am not happy with this exception
- 
+
 	// team
 	switch( team ) {
 	case TEAM_RED:
@@ -1361,19 +1497,32 @@ Sago: I am not happy with this exception
             strcpy(c2, Info_ValueForKey( userinfo, "color2" ));
         }
 
-	strcpy(redTeam, Info_ValueForKey( userinfo, "g_redteam" ));
+	strcpy(redTeam, Info_ValueForKey( userinfo, "ui_mslegsskin" ));
+	strcpy(pligred, Info_ValueForKey( userinfo, "cg_plightred" ));
+	strcpy(pliggreen, Info_ValueForKey( userinfo, "cg_plightgreen" ));
+	strcpy(pligblue, Info_ValueForKey( userinfo, "cg_plightblue" ));
+	strcpy(toligred, Info_ValueForKey( userinfo, "cg_tolightred" ));
+	strcpy(toliggreen, Info_ValueForKey( userinfo, "cg_tolightgreen" ));
+	strcpy(toligblue, Info_ValueForKey( userinfo, "cg_tolightblue" ));
+	strcpy(heligred, Info_ValueForKey( userinfo, "cg_helightred" ));
+	strcpy(heliggreen, Info_ValueForKey( userinfo, "cg_helightgreen" ));
+	strcpy(heligblue, Info_ValueForKey( userinfo, "cg_helightblue" ));
+	strcpy(ptex, Info_ValueForKey( userinfo, "cg_ptex" ));
+	strcpy(totex, Info_ValueForKey( userinfo, "cg_totex" ));
+	strcpy(hetex, Info_ValueForKey( userinfo, "cg_hetex" ));
+	strcpy(pligradius, Info_ValueForKey( userinfo, "cg_plightradius" ));
 	strcpy(blueTeam, Info_ValueForKey( userinfo, "g_blueteam" ));
 
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if ( ent->r.svFlags & SVF_BOT ) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-			client->pers.netname, team, model, headModel, c1, c2, 
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, model, headModel, redTeam, blueTeam, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
 			Info_ValueForKey( userinfo, "skill" ), teamTask, teamLeader );
 	} else {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2, 
+		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\helightred\\%s\\helightgreen\\%s\\helightblue\\%s\\tolightred\\%s\\tolightgreen\\%s\\tolightblue\\%s\\plightred\\%s\\plightgreen\\%s\\plightblue\\%s\\ptex\\%s\\totex\\%s\\hetex\\%s\\plightradius\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, heligred, heliggreen, heligblue, toligred, toliggreen, toligblue, pligred, pliggreen, pligblue, ptex, totex, hetex, pligradius, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
@@ -1412,8 +1561,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	gentity_t	*ent;
 	char        reason[ MAX_STRING_CHARS ] = {""};
 	int         i;
-    
-    //KK-OAX I moved these up so userinfo could be assigned/used. 
+
+    //KK-OAX I moved these up so userinfo could be assigned/used.
 	ent = &g_entities[ clientNum ];
 	client = &level.clients[ clientNum ];
 	ent->client = client;
@@ -1423,24 +1572,24 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
  	value = Info_ValueForKey( userinfo, "cl_guid" );
  	Q_strncpyz( client->pers.guid, value, sizeof( client->pers.guid ) );
- 	
 
- 	// IP filtering //KK-OAX Has this been obsoleted? 
+
+ 	// IP filtering //KK-OAX Has this been obsoleted?
  	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
  	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
  	// check to see if they are on the banned IP list
 	value = Info_ValueForKey (userinfo, "ip");
 	Q_strncpyz( client->pers.ip, value, sizeof( client->pers.ip ) );
-	
+
 	if ( G_FilterPacket( value ) && !Q_stricmp(value,"localhost") ) {
             G_Printf("Player with IP: %s is banned\n",value);
 		return "You are banned from this server.";
 	}
-	
-    if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) ) {    
+
+    if( G_admin_ban_check( userinfo, reason, sizeof( reason ) ) ) {
  	    return va( "%s", reason );
  	}
- 	 
+
   //KK-OAX
   // we don't check GUID or password for bots and local client
   // NOTE: local client <-> "ip" "localhost"
@@ -1456,12 +1605,12 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		    isxdigit( client->pers.guid[ i ] ); i++ );
 		if( i < sizeof( client->pers.guid ) - 1 )
 		    return "Invalid GUID";
-		    
+
 		for( i = 0; i < level.maxclients; i++ ) {
-		
+
 		    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
 		        continue;
-		        
+
 		    if( !Q_stricmp( client->pers.guid, level.clients[ i ].pers.guid ) ) {
 		        if( !G_ClientIsLagging( level.clients + i ) ) {
 		            trap_SendServerCommand( i, "cp \"Your GUID is not secure\"" );
@@ -1470,7 +1619,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 		        trap_DropClient( i, "Ghost" );
 		    }
 		}
-		    
+
 	}
 
     //Check for local client
@@ -1498,7 +1647,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// get and distribute relevent paramters
 	ClientUserinfoChanged( clientNum );
 	G_LogPrintf( "ClientConnect: %i\n", clientNum );
-	
+
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
@@ -1523,9 +1672,11 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	// announce it
 	if ( g_delagHitscan.integer ) {
 		trap_SendServerCommand( clientNum, "print \"Full lag compensation is ON!\n\"" );
+		trap_SendServerCommand( clientNum, "print \"^5Next^4Arena ^5By ^4Danil ^4Dm!\n\"" );
 	}
 	else {
 		trap_SendServerCommand( clientNum, "print \"Full lag compensation is OFF!\n\"" );
+		trap_SendServerCommand( clientNum, "print \"^5Next^4Arena ^5By ^4Danil ^4Dm!\n\"" );
 	}
 
 //unlagged - backward reconciliation #5
@@ -1575,7 +1726,8 @@ void ClientBegin( int clientNum ) {
 	gentity_t       *tent;
 	int			flags;
 	int		countRed, countBlue, countFree;
-        char		userinfo[MAX_INFO_STRING];
+    char		userinfo[MAX_INFO_STRING];
+	char	lmapfile[256];
 
         trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -1649,7 +1801,7 @@ void ClientBegin( int clientNum ) {
 
 	if( ( client->sess.sessionTeam != TEAM_SPECTATOR ) &&
 		( ( !( client->isEliminated ) /*&&
-		( ( !client->ps.pm_type ) == PM_SPECTATOR ) */ ) || //Sago: Yes, it made no sense 
+		( ( !client->ps.pm_type ) == PM_SPECTATOR ) */ ) || //Sago: Yes, it made no sense
 		( ( g_gametype.integer != GT_ELIMINATION || level.intermissiontime) &&
 		( g_gametype.integer != GT_CTF_ELIMINATION || level.intermissiontime) &&
 		( g_gametype.integer != GT_LMS || level.intermissiontime ) ) ) ) {
@@ -1661,9 +1813,9 @@ void ClientBegin( int clientNum ) {
 			trap_SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname) );
 		}
 	}
-        
+
         motd ( ent );
-        
+
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
 	//Send domination point names:
@@ -1681,11 +1833,18 @@ void ClientBegin( int clientNum ) {
         if(strlen(custom_vote_info))
             SendCustomVoteCommands(clientNum);
 			G_SendWeaponProperties( ent );
-			if (trap_Cvar_VariableValue( "sv_running" )){
-				if (cm_running.integer == 0){
-				cm_running.integer = 1;
-				trap_SendConsoleCommand( EXEC_APPEND, "exec gameautoexec" );
-				}
+			if(CustomModRun == 0){
+			Com_sprintf(lmapfile, sizeof(lmapfile), "loadmap zbetamapfiles/%s.cfg \n", cmapname);
+			trap_SendConsoleCommand( EXEC_APPEND, lmapfile);
+			Com_sprintf(lmapfile, sizeof(lmapfile), "loadmap maps/%s.add \n", cmapname);
+			trap_SendConsoleCommand( EXEC_APPEND, lmapfile);
+			Com_sprintf(lmapfile, sizeof(lmapfile), "loadmapc maps/%s.ent \n", cmapname);
+			trap_SendConsoleCommand( EXEC_APPEND, lmapfile);
+			Com_sprintf(lmapfile, sizeof(lmapfile), "exec maps/%s.cfg \n", cmapname);
+			trap_SendConsoleCommand( EXEC_APPEND, lmapfile);
+			Com_sprintf(lmapfile, sizeof(lmapfile), "exec CustomMod2.cfg \n", cmapname);
+			trap_SendConsoleCommand( EXEC_APPEND, lmapfile);
+			CustomModRun = 1;
 			}
 }
 /*
@@ -1708,6 +1867,7 @@ void ClientSpawn(gentity_t *ent) {
 	gentity_t	*spawnPoint;
 	//gentity_t *tent;
 	int		flags;
+	int		health;
 	int		savedPing;
 //	char	*savedAreaBits;
 	int		accuracy_hits, accuracy_shots,vote;
@@ -1721,14 +1881,14 @@ void ClientSpawn(gentity_t *ent) {
 	//In Elimination the player should not spawn if he have already spawned in the round (but not for spectators)
 	// N_G: You've obviously wanted something ELSE
 	//Sago: Yes, the !level.intermissiontime is currently redundant but it might still be the bast place to make the test, CheckElimination in g_main makes sure the next if will fail and the rest of the things this block does might not affect if in Intermission (I'll just test that)
-	if( 
-	( 
-		( 
+	if(
+	(
+		(
 			g_gametype.integer == GT_ELIMINATION ||
 			g_gametype.integer == GT_CTF_ELIMINATION || (g_gametype.integer == GT_LMS && client->isEliminated)) &&
 			(!level.intermissiontime || level.warmupTime != 0)
 		) &&
-		( client->sess.sessionTeam != TEAM_SPECTATOR ) 
+		( client->sess.sessionTeam != TEAM_SPECTATOR )
 	)
 	{
 		// N_G: Another condition that makes no sense to me, see for
@@ -1738,57 +1898,33 @@ void ClientSpawn(gentity_t *ent) {
 			( (level.time < level.roundStartTime - g_elimination_activewarmup.integer*1000 ) &&
 			TeamCount( -1, TEAM_BLUE ) &&
 			TeamCount( -1, TEAM_RED )  ) )
-		{	
+		{
+		if	(client->sess.sessionTeam == TEAM_BLUE) {
+			if(eliminationrespawn.integer == 0){
 			client->sess.spectatorState = SPECTATOR_FREE;
 			client->isEliminated = qtrue;
                         if(g_gametype.integer == GT_LMS)
                                 G_LogPrintf( "LMS: %i %i %i: Player \"%s^7\" eliminated!\n", level.roundNumber, index, 1, client->pers.netname );
 			client->ps.pm_type = PM_SPECTATOR;
-                        CalculateRanks();
-			return;
-		}
-		else
-		{
-			client->pers.roundReached = level.roundNumber+1;
-			client->sess.spectatorState = SPECTATOR_NOT;
-			client->ps.pm_type = PM_NORMAL;
-			client->isEliminated = qfalse;
-                        CalculateRanks();
-		}
-	} else {
-            //Force false.
-            if(client->isEliminated) {
-                client->isEliminated = qfalse;
-                CalculateRanks();
-            }
-        }
-
-	if(g_gametype.integer == GT_LMS && client->sess.sessionTeam != TEAM_SPECTATOR && (!level.intermissiontime || level.warmupTime != 0))
-	{
-		if(level.roundNumber==level.roundNumberStarted /*|| level.time<level.roundStartTime-g_elimination_activewarmup.integer*1000*/ && 1>client->pers.livesLeft)
-		{	
-			client->sess.spectatorState = SPECTATOR_FREE;
-			if( ent->client->isEliminated!=qtrue) {
-				client->isEliminated = qtrue;
-				if((g_lms_mode.integer == 2 || g_lms_mode.integer == 3) && level.roundNumber == level.roundNumberStarted)
-					LMSpoint();
-                                G_LogPrintf( "LMS: %i %i %i: Player \"%s^7\" eliminated!\n", level.roundNumber, index, 1, client->pers.netname );
 			}
-			client->ps.pm_type = PM_SPECTATOR;
-			return;
 		}
-		
-		client->sess.spectatorState = SPECTATOR_NOT;
-		client->ps.pm_type = PM_NORMAL;
-		client->isEliminated = qfalse;
-		if(client->pers.livesLeft>0)
-			client->pers.livesLeft--;
-	}
+		if	(client->sess.sessionTeam == TEAM_RED) {
+			if(eliminationredrespawn.integer == 0){
+			client->sess.spectatorState = SPECTATOR_FREE;
+			client->isEliminated = qtrue;
+                        if(g_gametype.integer == GT_LMS)
+                                G_LogPrintf( "LMS: %i %i %i: Player \"%s^7\" eliminated!\n", level.roundNumber, index, 1, client->pers.netname );
+			client->ps.pm_type = PM_SPECTATOR;
+			}
+		}
 
-	// find a spawn point
+
+			if	(client->sess.sessionTeam == TEAM_BLUE) {
+			if(eliminationrespawn.integer == 1){
+				// find a spawn point
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
-	if ((client->sess.sessionTeam == TEAM_SPECTATOR) 
+	if ((client->sess.sessionTeam == TEAM_SPECTATOR)
 			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) ) ) {
 		spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
 	} else if (g_gametype.integer == GT_DOUBLE_D) {
@@ -1796,9 +1932,9 @@ void ClientSpawn(gentity_t *ent) {
 		spawnPoint = SelectDoubleDominationSpawnPoint (client->sess.sessionTeam, spawn_origin, spawn_angles);
 	} else if (g_gametype.integer >= GT_CTF && g_ffa_gt==0 && g_gametype.integer!= GT_DOMINATION) {
 		// all base oriented team games use the CTF spawn points
-		spawnPoint = SelectCTFSpawnPoint ( 
-						client->sess.sessionTeam, 
-						client->pers.teamState.state, 
+		spawnPoint = SelectCTFSpawnPoint (
+						client->sess.sessionTeam,
+						client->pers.teamState.state,
 						spawn_origin, spawn_angles);
 	} else {
 		do {
@@ -1808,8 +1944,8 @@ void ClientSpawn(gentity_t *ent) {
 				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
 			} else {
 				// don't spawn near existing origin if possible
-				spawnPoint = SelectSpawnPoint ( 
-					client->ps.origin, 
+				spawnPoint = SelectSpawnPoint (
+					client->ps.origin,
 					spawn_origin, spawn_angles);
 			}
 
@@ -1894,10 +2030,27 @@ void ClientSpawn(gentity_t *ent) {
 
 	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
 	// set max health
-	client->pers.maxHealth = atoi( Info_ValueForKey( userinfo, "handicap" ) );
-	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
-		client->pers.maxHealth = 100;
+	health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
+	client->pers.maxHealth = health;
+	if (!(ent->r.svFlags & SVF_BOT)){
+			if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
+				client->pers.maxHealth = 100;
 	}
+			}
+	if(health == 100){
+	if(client->pers.playerclass == PCLASS_MALE){
+	client->pers.maxHealth = 125;
+	}
+	if(client->pers.playerclass == PCLASS_NEUTER){
+	client->pers.maxHealth = 125;
+	}
+	}
+	if(health > 80){
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->pers.maxHealth = 80;
+	}
+	}
+
 	// clear entity values
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 	client->ps.eFlags = flags;
@@ -1913,12 +2066,74 @@ void ClientSpawn(gentity_t *ent) {
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags = 0;
-        
+
+client->pers.playerclass = client->pers.newplayerclass;
+
         //Sago: No one has hit the client yet!
         client->lastSentFlying = -1;
-	
+//if(mod_zombiemode == 10){
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
+//}
+/*if(mod_zombiemode == 15){
+	VectorCopy (playerMins15, ent->r.mins);
+	VectorCopy (playerMaxs15, ent->r.maxs);
+}
+if(mod_zombiemode == 14){
+	VectorCopy (playerMins14, ent->r.mins);
+	VectorCopy (playerMaxs14, ent->r.maxs);
+}
+if(mod_zombiemode == 13){
+	VectorCopy (playerMins13, ent->r.mins);
+	VectorCopy (playerMaxs13, ent->r.maxs);
+}
+if(mod_zombiemode == 12){
+	VectorCopy (playerMins12, ent->r.mins);
+	VectorCopy (playerMaxs12, ent->r.maxs);
+}
+if(mod_zombiemode == 11){
+	VectorCopy (playerMins11, ent->r.mins);
+	VectorCopy (playerMaxs11, ent->r.maxs);
+}
+if(mod_zombiemode == 9){
+	VectorCopy (playerMins9, ent->r.mins);
+	VectorCopy (playerMaxs9, ent->r.maxs);
+}
+if(mod_zombiemode == 8){
+	VectorCopy (playerMins8, ent->r.mins);
+	VectorCopy (playerMaxs8, ent->r.maxs);
+}
+if(mod_zombiemode == 7){
+	VectorCopy (playerMins7, ent->r.mins);
+	VectorCopy (playerMaxs7, ent->r.maxs);
+}
+if(mod_zombiemode == 6){
+	VectorCopy (playerMins6, ent->r.mins);
+	VectorCopy (playerMaxs6, ent->r.maxs);
+}
+if(mod_zombiemode == 5){
+	VectorCopy (playerMins5, ent->r.mins);
+	VectorCopy (playerMaxs5, ent->r.maxs);
+}
+if(mod_zombiemode == 4){
+	VectorCopy (playerMins4, ent->r.mins);
+	VectorCopy (playerMaxs4, ent->r.maxs);
+}
+if(mod_zombiemode == 3){
+	VectorCopy (playerMins3, ent->r.mins);
+	VectorCopy (playerMaxs3, ent->r.maxs);
+}
+if(mod_zombiemode == 2){
+	VectorCopy (playerMins2, ent->r.mins);
+	VectorCopy (playerMaxs2, ent->r.maxs);
+}
+if(mod_zombiemode == 1){
+	VectorCopy (playerMins1, ent->r.mins);
+	VectorCopy (playerMaxs1, ent->r.maxs);
+}*/
+
+
+
 
 	client->ps.clientNum = index;
 
@@ -1931,6 +2146,23 @@ if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINAT
 		client->ps.ammo[WP_MACHINEGUN] = 100;
 	}
 
+//assign weapons according to class
+/*switch (client->pers.playerclass){
+   case PCLASS_BFG:
+      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+      client->ps.ammo[WP_BFG] = 20;
+      break;
+   case PCLASS_LIGHTNING:
+      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+      client->ps.ammo[WP_LIGHTNING] = 60;
+      break;
+   case PCLASS_RAILGUN:
+   default:
+      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+      client->ps.ammo[WP_RAILGUN] = 20;
+      break;
+}*/
+
 	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
 	client->ps.ammo[WP_GAUNTLET] = -1;
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
@@ -1940,9 +2172,13 @@ if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINAT
 }
 else
 {
-	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
 	client->ps.ammo[WP_GAUNTLET] = -1;
 	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+
+if	(client->sess.sessionTeam == TEAM_FREE) {
+	if (g_elimination_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
 	if (g_elimination_machinegun.integer > 0) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
 		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
@@ -1951,7 +2187,7 @@ else
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
 		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
 	}
-	if (g_elimination_grenade.integer > 0) {	
+	if (g_elimination_grenade.integer > 0) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
 		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
 	}
@@ -1975,7 +2211,7 @@ else
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
 		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
 	}
-        if (g_elimination_grapple.integer) {
+    if (g_elimination_grapple.integer) {
 		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
 	}
 	if (g_elimination_nail.integer > 0) {
@@ -2022,12 +2258,235 @@ else
        client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
        client->ps.powerups[PW_FLIGHT] +=  g_elimination_flight.integer * 1000;
 	}
-	
-	
-	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
-	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;	
+	if(g_elimination_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
 
-	
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+if	(client->sess.sessionTeam == TEAM_BLUE) {
+	if (g_elimination_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_elimination_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
+	}
+	if (g_elimination_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
+	}
+	if (g_elimination_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
+	}
+	if (g_elimination_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_elimination_rocket.integer;
+	}
+	if (g_elimination_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_elimination_lightning.integer;
+	}
+	if (g_elimination_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_elimination_railgun.integer;
+	}
+	if (g_elimination_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_elimination_plasmagun.integer;
+	}
+	if (g_elimination_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
+	}
+    if (g_elimination_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_elimination_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
+	}
+	if (g_elimination_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_elimination_mine.integer;
+	}
+	if (g_elimination_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_elimination_chain.integer;
+	}
+	if (g_elimination_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_elimination_flame.integer;
+	}
+	if (g_elimination_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_elimination_antimatter.integer;
+	}
+	if(g_elimination_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_elimination_quad.integer * 1000;
+	}
+    if(g_elimination_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_elimination_regen.integer * 1000;
+	}
+	if(g_elimination_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_elimination_haste.integer * 1000;
+	}
+	if(g_elimination_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_elimination_bsuit.integer * 1000;
+	}
+	if(g_elimination_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_elimination_invis.integer * 1000;
+	}
+	if(g_elimination_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_elimination_flight.integer * 1000;
+	}
+	if(g_elimination_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+if	(client->sess.sessionTeam == TEAM_RED ) {
+	if (g_eliminationred_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_eliminationred_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_eliminationred_machinegun.integer;
+	}
+	if (g_eliminationred_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_eliminationred_shotgun.integer;
+	}
+	if (g_eliminationred_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_eliminationred_grenade.integer;
+	}
+	if (g_eliminationred_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_eliminationred_rocket.integer;
+	}
+	if (g_eliminationred_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_eliminationred_lightning.integer;
+	}
+	if (g_eliminationred_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_eliminationred_railgun.integer;
+	}
+	if (g_eliminationred_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_eliminationred_plasmagun.integer;
+	}
+	if (g_eliminationred_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_eliminationred_bfg.integer;
+	}
+    if (g_eliminationred_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_eliminationred_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_eliminationred_nail.integer;
+	}
+	if (g_eliminationred_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_eliminationred_mine.integer;
+	}
+	if (g_eliminationred_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_eliminationred_chain.integer;
+	}
+	if (g_eliminationred_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_eliminationred_flame.integer;
+	}
+	if (g_eliminationred_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_eliminationred_antimatter.integer;
+	}
+	if(g_eliminationred_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_eliminationred_quad.integer * 1000;
+	}
+    if(g_eliminationred_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_eliminationred_regen.integer * 1000;
+	}
+	if(g_eliminationred_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_eliminationred_haste.integer * 1000;
+	}
+	if(g_eliminationred_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_eliminationred_bsuit.integer * 1000;
+	}
+	if(g_eliminationred_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_eliminationred_invis.integer * 1000;
+	}
+	if(g_eliminationred_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_eliminationred_flight.integer * 1000;
+	}
+	if(g_eliminationred_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_eliminationred_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_eliminationred_startHealth.integer + zombiehealth; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
 	//	ent->health = client->ps.stats[STAT_HEALTH] = 0;
 }
 	//Instantgib mode, replace weapons with rail (and maybe gauntlet)
@@ -2043,7 +2502,7 @@ else
 	}
 
 	//nexuiz style rocket arena (rocket launcher only)
-	if(g_rockets.integer) 
+	if(g_rockets.integer)
 	{
 		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_ROCKET_LAUNCHER );
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
@@ -2054,13 +2513,1387 @@ else
 
 	// the respawned flag will be cleared after the attack and jump keys come up
 	client->ps.pm_flags |= PMF_RESPAWNED;
-	if(g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS)	
+	if(g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS)
+		client->ps.pm_flags &= ~PMF_ELIMWARMUP;
+
+	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+	SetClientViewAngle( ent, spawn_angles );
+
+
+		G_KillBox( ent );
+		trap_LinkEntity (ent);
+
+		// force the base weapon up
+		client->ps.weapon = WP_MACHINEGUN;
+		client->ps.weaponstate = WEAPON_READY;
+		ent->client->isEliminated = qfalse;
+
+
+
+	// don't allow full run speed for a bit
+	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+	client->ps.pm_time = 100;
+
+	client->respawnTime = level.time;
+	client->inactivityTime = level.time + g_inactivity.integer * 1000;
+	client->latched_buttons = 0;
+
+	// set default animations
+	client->ps.torsoAnim = TORSO_STAND;
+	client->ps.legsAnim = LEGS_IDLE;
+
+	if ( level.intermissiontime ) {
+		MoveClientToIntermission( ent );
+	} else {
+		// fire the targets of the spawn point
+		G_UseTargets( spawnPoint, ent );
+
+		// select the highest weapon number available, after any
+		// spawn given items have fired
+		client->ps.weapon = 1;
+		for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
+			if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) && i !=WP_GRAPPLING_HOOK ) {
+				client->ps.weapon = i;
+				break;
+			}
+		}
+	}
+
+	// run a client frame to drop exactly to the floor,
+	// initialize animations and other things
+	client->ps.commandTime = level.time - 100;
+	ent->client->pers.cmd.serverTime = level.time;
+	ClientThink( ent-g_entities );
+
+	// positively link the client, even if the command times are weird
+	if ( (ent->client->sess.sessionTeam != TEAM_SPECTATOR) || ( (!client->isEliminated || client->ps.pm_type != PM_SPECTATOR)&&
+		(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) {
+		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
+		trap_LinkEntity( ent );
+	}
+
+	// run the presend to set anything else
+	ClientEndFrame( ent );
+
+	// clear entity state values
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+
+        if(g_spawnprotect.integer)
+            client->spawnprotected = qtrue;
+
+        RespawnTimeMessage(ent,0);
+		client->ps.weapon = WP_MACHINEGUN;
+		client->ps.weaponstate = WEAPON_READY;
+		ent->client->isEliminated = qfalse;
+		return;
+			}
+			}
+			if	(client->sess.sessionTeam == TEAM_RED) {
+			if(eliminationredrespawn.integer == 1){
+				// find a spawn point
+	// do it before setting health back up, so farthest
+	// ranging doesn't count this client
+	if ((client->sess.sessionTeam == TEAM_SPECTATOR)
+			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) ) ) {
+		spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
+	} else if (g_gametype.integer == GT_DOUBLE_D) {
+		//Double Domination uses special spawn points:
+		spawnPoint = SelectDoubleDominationSpawnPoint (client->sess.sessionTeam, spawn_origin, spawn_angles);
+	} else if (g_gametype.integer >= GT_CTF && g_ffa_gt==0 && g_gametype.integer!= GT_DOMINATION) {
+		// all base oriented team games use the CTF spawn points
+		spawnPoint = SelectCTFSpawnPoint (
+						client->sess.sessionTeam,
+						client->pers.teamState.state,
+						spawn_origin, spawn_angles);
+	} else {
+		do {
+			// the first spawn should be at a good looking spot
+			if ( !client->pers.initialSpawn && client->pers.localClient ) {
+				client->pers.initialSpawn = qtrue;
+				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
+			} else {
+				// don't spawn near existing origin if possible
+				spawnPoint = SelectSpawnPoint (
+					client->ps.origin,
+					spawn_origin, spawn_angles);
+			}
+
+			// Tim needs to prevent bots from spawning at the initial point
+			// on q3dm0...
+			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
+                            //Sago: The game has a tendency to select the furtest spawn point
+                            //This is a problem if the fursest spawnpoint keeps being NO_BOTS and it does!
+                            //This is a hot fix that seeks a spawn point faraway from the the currently found one
+                            vec3_t old_origin;
+                            VectorCopy(spawn_origin,old_origin);
+                            spawnPoint = SelectSpawnPoint (old_origin, spawn_origin, spawn_angles);
+                            if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
+				continue;	// try again
+                            }
+			}
+			// just to be symetric, we have a nohumans option...
+			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->r.svFlags & SVF_BOT ) ) {
+				continue;	// try again
+			}
+
+			break;
+
+		} while ( 1 );
+	}
+	client->pers.teamState.state = TEAM_ACTIVE;
+
+	// always clear the kamikaze flag
+	ent->s.eFlags &= ~EF_KAMIKAZE;
+
+	// toggle the teleport bit so the client knows to not lerp
+	// and never clear the voted flag
+	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
+	flags ^= EF_TELEPORT_BIT;
+
+//unlagged - backward reconciliation #3
+	// we don't want players being backward-reconciled to the place they died
+	G_ResetHistory( ent );
+	// and this is as good a time as any to clear the saved state
+	ent->client->saved.leveltime = 0;
+//unlagged - backward reconciliation #3
+
+	// clear everything but the persistant data
+
+	saved = client->pers;
+	savedSess = client->sess;
+	savedPing = client->ps.ping;
+	vote = client->vote;
+//	savedAreaBits = client->areabits;
+	accuracy_hits = client->accuracy_hits;
+	accuracy_shots = client->accuracy_shots;
+    memcpy(accuracy,client->accuracy,sizeof(accuracy));
+
+    memcpy(persistant,client->ps.persistant,MAX_PERSISTANT*sizeof(int));
+	eventSequence = client->ps.eventSequence;
+
+	Com_Memset (client, 0, sizeof(*client));
+
+	client->pers = saved;
+	client->sess = savedSess;
+	client->ps.ping = savedPing;
+	client->vote = vote;
+//	client->areabits = savedAreaBits;
+	client->accuracy_hits = accuracy_hits;
+	client->accuracy_shots = accuracy_shots;
+        for( i = 0 ; i < WP_NUM_WEAPONS ; i++ ){
+		client->accuracy[i][0] = accuracy[i][0];
+		client->accuracy[i][1] = accuracy[i][1];
+	}
+
+	client->lastkilled_client = -1;
+
+	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
+		client->ps.persistant[i] = persistant[i];
+	}
+	client->ps.eventSequence = eventSequence;
+	// increment the spawncount so the client will detect the respawn
+	client->ps.persistant[PERS_SPAWN_COUNT]++;
+	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+
+	client->airOutTime = level.time + 12000;
+
+	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
+	// set max health
+	health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
+	client->pers.maxHealth = health;
+	if (!(ent->r.svFlags & SVF_BOT)){
+			if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
+				client->pers.maxHealth = 100;
+	}
+			}
+	if(health == 100){
+	if(client->pers.playerclass == PCLASS_MALE){
+	client->pers.maxHealth = 125;
+	}
+	if(client->pers.playerclass == PCLASS_NEUTER){
+	client->pers.maxHealth = 125;
+	}
+	}
+	if(health > 80){
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->pers.maxHealth = 80;
+	}
+	}
+	// clear entity values
+	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+	client->ps.eFlags = flags;
+
+	ent->s.groundEntityNum = ENTITYNUM_NONE;
+	ent->client = &level.clients[index];
+	ent->takedamage = qtrue;
+	ent->inuse = qtrue;
+	ent->classname = "player";
+	ent->r.contents = CONTENTS_BODY;
+	ent->clipmask = MASK_PLAYERSOLID;
+	ent->die = player_die;
+	ent->waterlevel = 0;
+	ent->watertype = 0;
+	ent->flags = 0;
+
+client->pers.playerclass = client->pers.newplayerclass;
+
+        //Sago: No one has hit the client yet!
+        client->lastSentFlying = -1;
+
+//if(mod_zombiemode == 10){
+	VectorCopy (playerMins, ent->r.mins);
+	VectorCopy (playerMaxs, ent->r.maxs);
+//}
+/*if(mod_zombiemode == 15){
+	VectorCopy (playerMins15, ent->r.mins);
+	VectorCopy (playerMaxs15, ent->r.maxs);
+}
+if(mod_zombiemode == 14){
+	VectorCopy (playerMins14, ent->r.mins);
+	VectorCopy (playerMaxs14, ent->r.maxs);
+}
+if(mod_zombiemode == 13){
+	VectorCopy (playerMins13, ent->r.mins);
+	VectorCopy (playerMaxs13, ent->r.maxs);
+}
+if(mod_zombiemode == 12){
+	VectorCopy (playerMins12, ent->r.mins);
+	VectorCopy (playerMaxs12, ent->r.maxs);
+}
+if(mod_zombiemode == 11){
+	VectorCopy (playerMins11, ent->r.mins);
+	VectorCopy (playerMaxs11, ent->r.maxs);
+}
+if(mod_zombiemode == 9){
+	VectorCopy (playerMins9, ent->r.mins);
+	VectorCopy (playerMaxs9, ent->r.maxs);
+}
+if(mod_zombiemode == 8){
+	VectorCopy (playerMins8, ent->r.mins);
+	VectorCopy (playerMaxs8, ent->r.maxs);
+}
+if(mod_zombiemode == 7){
+	VectorCopy (playerMins7, ent->r.mins);
+	VectorCopy (playerMaxs7, ent->r.maxs);
+}
+if(mod_zombiemode == 6){
+	VectorCopy (playerMins6, ent->r.mins);
+	VectorCopy (playerMaxs6, ent->r.maxs);
+}
+if(mod_zombiemode == 5){
+	VectorCopy (playerMins5, ent->r.mins);
+	VectorCopy (playerMaxs5, ent->r.maxs);
+}
+if(mod_zombiemode == 4){
+	VectorCopy (playerMins4, ent->r.mins);
+	VectorCopy (playerMaxs4, ent->r.maxs);
+}
+if(mod_zombiemode == 3){
+	VectorCopy (playerMins3, ent->r.mins);
+	VectorCopy (playerMaxs3, ent->r.maxs);
+}
+if(mod_zombiemode == 2){
+	VectorCopy (playerMins2, ent->r.mins);
+	VectorCopy (playerMaxs2, ent->r.maxs);
+}
+if(mod_zombiemode == 1){
+	VectorCopy (playerMins1, ent->r.mins);
+	VectorCopy (playerMaxs1, ent->r.maxs);
+}*/
+
+	client->ps.clientNum = index;
+
+if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS && !g_elimination_allgametypes.integer && g_spawnselect.integer != 1)
+{
+	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
+	if ( g_gametype.integer == GT_TEAM ) {
+		client->ps.ammo[WP_MACHINEGUN] = 50;
+	} else {
+		client->ps.ammo[WP_MACHINEGUN] = 100;
+	}
+
+//assign weapons according to class
+/*switch (client->pers.playerclass){
+   case PCLASS_BFG:
+      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+      client->ps.ammo[WP_BFG] = 20;
+      break;
+   case PCLASS_LIGHTNING:
+      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+      client->ps.ammo[WP_LIGHTNING] = 60;
+      break;
+   case PCLASS_RAILGUN:
+   default:
+      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+      client->ps.ammo[WP_RAILGUN] = 20;
+      break;
+}*/
+
+	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	client->ps.ammo[WP_GAUNTLET] = -1;
+	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+
+	// health will count down towards max_health
+	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
+}
+else
+{
+	client->ps.ammo[WP_GAUNTLET] = -1;
+	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+
+if	(client->sess.sessionTeam == TEAM_FREE) {
+	if (g_elimination_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_elimination_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
+	}
+	if (g_elimination_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
+	}
+	if (g_elimination_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
+	}
+	if (g_elimination_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_elimination_rocket.integer;
+	}
+	if (g_elimination_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_elimination_lightning.integer;
+	}
+	if (g_elimination_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_elimination_railgun.integer;
+	}
+	if (g_elimination_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_elimination_plasmagun.integer;
+	}
+	if (g_elimination_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
+	}
+    if (g_elimination_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_elimination_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
+	}
+	if (g_elimination_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_elimination_mine.integer;
+	}
+	if (g_elimination_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_elimination_chain.integer;
+	}
+	if (g_elimination_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_elimination_flame.integer;
+	}
+	if (g_elimination_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_elimination_antimatter.integer;
+	}
+	if(g_elimination_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_elimination_quad.integer * 1000;
+	}
+    if(g_elimination_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_elimination_regen.integer * 1000;
+	}
+	if(g_elimination_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_elimination_haste.integer * 1000;
+	}
+	if(g_elimination_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_elimination_bsuit.integer * 1000;
+	}
+	if(g_elimination_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_elimination_invis.integer * 1000;
+	}
+	if(g_elimination_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_elimination_flight.integer * 1000;
+	}
+	if(g_elimination_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+if	(client->sess.sessionTeam == TEAM_BLUE) {
+	if (g_elimination_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_elimination_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
+	}
+	if (g_elimination_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
+	}
+	if (g_elimination_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
+	}
+	if (g_elimination_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_elimination_rocket.integer;
+	}
+	if (g_elimination_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_elimination_lightning.integer;
+	}
+	if (g_elimination_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_elimination_railgun.integer;
+	}
+	if (g_elimination_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_elimination_plasmagun.integer;
+	}
+	if (g_elimination_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
+	}
+    if (g_elimination_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_elimination_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
+	}
+	if (g_elimination_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_elimination_mine.integer;
+	}
+	if (g_elimination_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_elimination_chain.integer;
+	}
+	if (g_elimination_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_elimination_flame.integer;
+	}
+	if (g_elimination_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_elimination_antimatter.integer;
+	}
+	if(g_elimination_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_elimination_quad.integer * 1000;
+	}
+    if(g_elimination_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_elimination_regen.integer * 1000;
+	}
+	if(g_elimination_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_elimination_haste.integer * 1000;
+	}
+	if(g_elimination_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_elimination_bsuit.integer * 1000;
+	}
+	if(g_elimination_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_elimination_invis.integer * 1000;
+	}
+	if(g_elimination_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_elimination_flight.integer * 1000;
+	}
+	if(g_elimination_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+if	(client->sess.sessionTeam == TEAM_RED ) {
+	if (g_eliminationred_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_eliminationred_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_eliminationred_machinegun.integer;
+	}
+	if (g_eliminationred_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_eliminationred_shotgun.integer;
+	}
+	if (g_eliminationred_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_eliminationred_grenade.integer;
+	}
+	if (g_eliminationred_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_eliminationred_rocket.integer;
+	}
+	if (g_eliminationred_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_eliminationred_lightning.integer;
+	}
+	if (g_eliminationred_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_eliminationred_railgun.integer;
+	}
+	if (g_eliminationred_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_eliminationred_plasmagun.integer;
+	}
+	if (g_eliminationred_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_eliminationred_bfg.integer;
+	}
+    if (g_eliminationred_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_eliminationred_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_eliminationred_nail.integer;
+	}
+	if (g_eliminationred_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_eliminationred_mine.integer;
+	}
+	if (g_eliminationred_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_eliminationred_chain.integer;
+	}
+	if (g_eliminationred_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_eliminationred_flame.integer;
+	}
+	if (g_eliminationred_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_eliminationred_antimatter.integer;
+	}
+	if(g_eliminationred_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_eliminationred_quad.integer * 1000;
+	}
+    if(g_eliminationred_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_eliminationred_regen.integer * 1000;
+	}
+	if(g_eliminationred_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_eliminationred_haste.integer * 1000;
+	}
+	if(g_eliminationred_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_eliminationred_bsuit.integer * 1000;
+	}
+	if(g_eliminationred_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_eliminationred_invis.integer * 1000;
+	}
+	if(g_eliminationred_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_eliminationred_flight.integer * 1000;
+	}
+	if(g_eliminationred_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_eliminationred_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_eliminationred_startHealth.integer + zombiehealth; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+	//	ent->health = client->ps.stats[STAT_HEALTH] = 0;
+}
+	//Instantgib mode, replace weapons with rail (and maybe gauntlet)
+	if(g_instantgib.integer)
+	{
+		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = 999; //Don't display any ammo
+		if(g_instantgib.integer>1)
+		{
+			 client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	              	client->ps.ammo[WP_GAUNTLET] = -1;
+		}
+	}
+
+	//nexuiz style rocket arena (rocket launcher only)
+	if(g_rockets.integer)
+	{
+		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
+	}
+
+	G_SetOrigin( ent, spawn_origin );
+	VectorCopy( spawn_origin, client->ps.origin );
+
+	// the respawned flag will be cleared after the attack and jump keys come up
+	client->ps.pm_flags |= PMF_RESPAWNED;
+	if(g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS)
+		client->ps.pm_flags &= ~PMF_ELIMWARMUP;
+
+	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
+	SetClientViewAngle( ent, spawn_angles );
+
+
+		G_KillBox( ent );
+		trap_LinkEntity (ent);
+
+		// force the base weapon up
+		client->ps.weapon = WP_MACHINEGUN;
+		client->ps.weaponstate = WEAPON_READY;
+		ent->client->isEliminated = qfalse;
+
+
+
+	// don't allow full run speed for a bit
+	client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+	client->ps.pm_time = 100;
+
+	client->respawnTime = level.time;
+	client->inactivityTime = level.time + g_inactivity.integer * 1000;
+	client->latched_buttons = 0;
+
+	// set default animations
+	client->ps.torsoAnim = TORSO_STAND;
+	client->ps.legsAnim = LEGS_IDLE;
+
+	if ( level.intermissiontime ) {
+		MoveClientToIntermission( ent );
+	} else {
+		// fire the targets of the spawn point
+		G_UseTargets( spawnPoint, ent );
+
+		// select the highest weapon number available, after any
+		// spawn given items have fired
+		client->ps.weapon = 1;
+		for ( i = WP_NUM_WEAPONS - 1 ; i > 0 ; i-- ) {
+			if ( client->ps.stats[STAT_WEAPONS] & ( 1 << i ) && i !=WP_GRAPPLING_HOOK ) {
+				client->ps.weapon = i;
+				break;
+			}
+		}
+	}
+
+	// run a client frame to drop exactly to the floor,
+	// initialize animations and other things
+	client->ps.commandTime = level.time - 100;
+	ent->client->pers.cmd.serverTime = level.time;
+	ClientThink( ent-g_entities );
+
+	// positively link the client, even if the command times are weird
+	if ( (ent->client->sess.sessionTeam != TEAM_SPECTATOR) || ( (!client->isEliminated || client->ps.pm_type != PM_SPECTATOR)&&
+		(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) {
+		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
+		trap_LinkEntity( ent );
+	}
+
+	// run the presend to set anything else
+	ClientEndFrame( ent );
+
+	// clear entity state values
+	BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
+
+        if(g_spawnprotect.integer)
+            client->spawnprotected = qtrue;
+
+        RespawnTimeMessage(ent,0);
+		client->ps.weapon = WP_MACHINEGUN;
+		client->ps.weaponstate = WEAPON_READY;
+		ent->client->isEliminated = qfalse;
+		return;
+			}
+			}
+
+                        CalculateRanks();
+			return;
+		}
+		else
+		{
+			client->pers.roundReached = level.roundNumber+1;
+			client->sess.spectatorState = SPECTATOR_NOT;
+			client->ps.pm_type = PM_NORMAL;
+			client->isEliminated = qfalse;
+                        CalculateRanks();
+		}
+	} else {
+            //Force false.
+            if(client->isEliminated) {
+                client->isEliminated = qfalse;
+                CalculateRanks();
+            }
+        }
+
+	if(g_gametype.integer == GT_LMS && client->sess.sessionTeam != TEAM_SPECTATOR && (!level.intermissiontime || level.warmupTime != 0))
+	{
+		if(level.roundNumber==level.roundNumberStarted /*|| level.time<level.roundStartTime-g_elimination_activewarmup.integer*1000*/ && 1>client->pers.livesLeft)
+		{
+			client->sess.spectatorState = SPECTATOR_FREE;
+			if( ent->client->isEliminated!=qtrue) {
+				client->isEliminated = qtrue;
+				if((g_lms_mode.integer == 2 || g_lms_mode.integer == 3) && level.roundNumber == level.roundNumberStarted)
+					LMSpoint();
+                                G_LogPrintf( "LMS: %i %i %i: Player \"%s^7\" eliminated!\n", level.roundNumber, index, 1, client->pers.netname );
+			}
+			client->ps.pm_type = PM_SPECTATOR;
+			return;
+		}
+
+		client->sess.spectatorState = SPECTATOR_NOT;
+		client->ps.pm_type = PM_NORMAL;
+		client->isEliminated = qfalse;
+		if(client->pers.livesLeft>0)
+			client->pers.livesLeft--;
+	}
+
+	// find a spawn point
+	// do it before setting health back up, so farthest
+	// ranging doesn't count this client
+	if ((client->sess.sessionTeam == TEAM_SPECTATOR)
+			|| ( (client->ps.pm_type == PM_SPECTATOR || client->isEliminated )  && (g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION) ) ) {
+		spawnPoint = SelectSpectatorSpawnPoint ( spawn_origin, spawn_angles);
+	} else if (g_gametype.integer == GT_DOUBLE_D) {
+		//Double Domination uses special spawn points:
+		spawnPoint = SelectDoubleDominationSpawnPoint (client->sess.sessionTeam, spawn_origin, spawn_angles);
+	} else if (g_gametype.integer >= GT_CTF && g_ffa_gt==0 && g_gametype.integer!= GT_DOMINATION) {
+		// all base oriented team games use the CTF spawn points
+		spawnPoint = SelectCTFSpawnPoint (
+						client->sess.sessionTeam,
+						client->pers.teamState.state,
+						spawn_origin, spawn_angles);
+	} else {
+		do {
+			// the first spawn should be at a good looking spot
+			if ( !client->pers.initialSpawn && client->pers.localClient ) {
+				client->pers.initialSpawn = qtrue;
+				spawnPoint = SelectInitialSpawnPoint( spawn_origin, spawn_angles );
+			} else {
+				// don't spawn near existing origin if possible
+				spawnPoint = SelectSpawnPoint (
+					client->ps.origin,
+					spawn_origin, spawn_angles);
+			}
+
+			// Tim needs to prevent bots from spawning at the initial point
+			// on q3dm0...
+			if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
+                            //Sago: The game has a tendency to select the furtest spawn point
+                            //This is a problem if the fursest spawnpoint keeps being NO_BOTS and it does!
+                            //This is a hot fix that seeks a spawn point faraway from the the currently found one
+                            vec3_t old_origin;
+                            VectorCopy(spawn_origin,old_origin);
+                            spawnPoint = SelectSpawnPoint (old_origin, spawn_origin, spawn_angles);
+                            if ( ( spawnPoint->flags & FL_NO_BOTS ) && ( ent->r.svFlags & SVF_BOT ) ) {
+				continue;	// try again
+                            }
+			}
+			// just to be symetric, we have a nohumans option...
+			if ( ( spawnPoint->flags & FL_NO_HUMANS ) && !( ent->r.svFlags & SVF_BOT ) ) {
+				continue;	// try again
+			}
+
+			break;
+
+		} while ( 1 );
+	}
+	client->pers.teamState.state = TEAM_ACTIVE;
+
+	// always clear the kamikaze flag
+	ent->s.eFlags &= ~EF_KAMIKAZE;
+
+	// toggle the teleport bit so the client knows to not lerp
+	// and never clear the voted flag
+	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
+	flags ^= EF_TELEPORT_BIT;
+
+//unlagged - backward reconciliation #3
+	// we don't want players being backward-reconciled to the place they died
+	G_ResetHistory( ent );
+	// and this is as good a time as any to clear the saved state
+	ent->client->saved.leveltime = 0;
+//unlagged - backward reconciliation #3
+
+	// clear everything but the persistant data
+
+	saved = client->pers;
+	savedSess = client->sess;
+	savedPing = client->ps.ping;
+	vote = client->vote;
+//	savedAreaBits = client->areabits;
+	accuracy_hits = client->accuracy_hits;
+	accuracy_shots = client->accuracy_shots;
+    memcpy(accuracy,client->accuracy,sizeof(accuracy));
+
+    memcpy(persistant,client->ps.persistant,MAX_PERSISTANT*sizeof(int));
+	eventSequence = client->ps.eventSequence;
+
+	Com_Memset (client, 0, sizeof(*client));
+
+	client->pers = saved;
+	client->sess = savedSess;
+	client->ps.ping = savedPing;
+	client->vote = vote;
+//	client->areabits = savedAreaBits;
+	client->accuracy_hits = accuracy_hits;
+	client->accuracy_shots = accuracy_shots;
+        for( i = 0 ; i < WP_NUM_WEAPONS ; i++ ){
+		client->accuracy[i][0] = accuracy[i][0];
+		client->accuracy[i][1] = accuracy[i][1];
+	}
+
+	client->lastkilled_client = -1;
+
+	for ( i = 0 ; i < MAX_PERSISTANT ; i++ ) {
+		client->ps.persistant[i] = persistant[i];
+	}
+	client->ps.eventSequence = eventSequence;
+	// increment the spawncount so the client will detect the respawn
+	client->ps.persistant[PERS_SPAWN_COUNT]++;
+	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
+
+	client->airOutTime = level.time + 12000;
+
+	trap_GetUserinfo( index, userinfo, sizeof(userinfo) );
+	// set max health
+	health = atoi( Info_ValueForKey( userinfo, "handicap" ) );
+	client->pers.maxHealth = health;
+	if (!(ent->r.svFlags & SVF_BOT)){
+			if ( client->pers.maxHealth < 1 || client->pers.maxHealth > 100 ) {
+				client->pers.maxHealth = 100;
+	}
+			}
+	if(health == 100){
+	if(client->pers.playerclass == PCLASS_MALE){
+	client->pers.maxHealth = 125;
+	}
+	if(client->pers.playerclass == PCLASS_NEUTER){
+	client->pers.maxHealth = 125;
+	}
+	}
+	if(health > 80){
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->pers.maxHealth = 80;
+	}
+	}
+	// clear entity values
+	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+	client->ps.eFlags = flags;
+
+	ent->s.groundEntityNum = ENTITYNUM_NONE;
+	ent->client = &level.clients[index];
+	ent->takedamage = qtrue;
+	ent->inuse = qtrue;
+	ent->classname = "player";
+	ent->r.contents = CONTENTS_BODY;
+	ent->clipmask = MASK_PLAYERSOLID;
+	ent->die = player_die;
+	ent->waterlevel = 0;
+	ent->watertype = 0;
+	ent->flags = 0;
+
+client->pers.playerclass = client->pers.newplayerclass;
+
+        //Sago: No one has hit the client yet!
+        client->lastSentFlying = -1;
+
+//if(mod_zombiemode == 10){
+	VectorCopy (playerMins, ent->r.mins);
+	VectorCopy (playerMaxs, ent->r.maxs);
+//}
+/*if(mod_zombiemode == 15){
+	VectorCopy (playerMins15, ent->r.mins);
+	VectorCopy (playerMaxs15, ent->r.maxs);
+}
+if(mod_zombiemode == 14){
+	VectorCopy (playerMins14, ent->r.mins);
+	VectorCopy (playerMaxs14, ent->r.maxs);
+}
+if(mod_zombiemode == 13){
+	VectorCopy (playerMins13, ent->r.mins);
+	VectorCopy (playerMaxs13, ent->r.maxs);
+}
+if(mod_zombiemode == 12){
+	VectorCopy (playerMins12, ent->r.mins);
+	VectorCopy (playerMaxs12, ent->r.maxs);
+}
+if(mod_zombiemode == 11){
+	VectorCopy (playerMins11, ent->r.mins);
+	VectorCopy (playerMaxs11, ent->r.maxs);
+}
+if(mod_zombiemode == 9){
+	VectorCopy (playerMins9, ent->r.mins);
+	VectorCopy (playerMaxs9, ent->r.maxs);
+}
+if(mod_zombiemode == 8){
+	VectorCopy (playerMins8, ent->r.mins);
+	VectorCopy (playerMaxs8, ent->r.maxs);
+}
+if(mod_zombiemode == 7){
+	VectorCopy (playerMins7, ent->r.mins);
+	VectorCopy (playerMaxs7, ent->r.maxs);
+}
+if(mod_zombiemode == 6){
+	VectorCopy (playerMins6, ent->r.mins);
+	VectorCopy (playerMaxs6, ent->r.maxs);
+}
+if(mod_zombiemode == 5){
+	VectorCopy (playerMins5, ent->r.mins);
+	VectorCopy (playerMaxs5, ent->r.maxs);
+}
+if(mod_zombiemode == 4){
+	VectorCopy (playerMins4, ent->r.mins);
+	VectorCopy (playerMaxs4, ent->r.maxs);
+}
+if(mod_zombiemode == 3){
+	VectorCopy (playerMins3, ent->r.mins);
+	VectorCopy (playerMaxs3, ent->r.maxs);
+}
+if(mod_zombiemode == 2){
+	VectorCopy (playerMins2, ent->r.mins);
+	VectorCopy (playerMaxs2, ent->r.maxs);
+}
+if(mod_zombiemode == 1){
+	VectorCopy (playerMins1, ent->r.mins);
+	VectorCopy (playerMaxs1, ent->r.maxs);
+}*/
+
+	client->ps.clientNum = index;
+
+if(g_gametype.integer != GT_ELIMINATION && g_gametype.integer != GT_CTF_ELIMINATION && g_gametype.integer != GT_LMS && !g_elimination_allgametypes.integer && g_spawnselect.integer != 1)
+{
+	client->ps.stats[STAT_WEAPONS] = ( 1 << WP_MACHINEGUN );
+	if ( g_gametype.integer == GT_TEAM ) {
+		client->ps.ammo[WP_MACHINEGUN] = 50;
+	} else {
+		client->ps.ammo[WP_MACHINEGUN] = 100;
+	}
+
+//assign weapons according to class
+//switch (client->pers.playerclass){
+//   case PCLASS_BFG:
+//      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+//      client->ps.ammo[WP_BFG] = 20;
+//      break;
+//   case PCLASS_LIGHTNING:
+//      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+//      client->ps.ammo[WP_LIGHTNING] = 60;
+//      break;
+//   case PCLASS_RAILGUN:
+//   default:
+//      client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+//      client->ps.ammo[WP_RAILGUN] = 20;
+ //     break;
+//}
+
+	client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	client->ps.ammo[WP_GAUNTLET] = -1;
+	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+
+	// health will count down towards max_health
+	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
+}
+else
+{
+	client->ps.ammo[WP_GAUNTLET] = -1;
+	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+
+if	(client->sess.sessionTeam == TEAM_FREE) {
+	if (g_elimination_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_elimination_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
+	}
+	if (g_elimination_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
+	}
+	if (g_elimination_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
+	}
+	if (g_elimination_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_elimination_rocket.integer;
+	}
+	if (g_elimination_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_elimination_lightning.integer;
+	}
+	if (g_elimination_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_elimination_railgun.integer;
+	}
+	if (g_elimination_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_elimination_plasmagun.integer;
+	}
+	if (g_elimination_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
+	}
+    if (g_elimination_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_elimination_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
+	}
+	if (g_elimination_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_elimination_mine.integer;
+	}
+	if (g_elimination_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_elimination_chain.integer;
+	}
+	if (g_elimination_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_elimination_flame.integer;
+	}
+	if (g_elimination_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_elimination_antimatter.integer;
+	}
+	if(g_elimination_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_elimination_quad.integer * 1000;
+	}
+    if(g_elimination_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_elimination_regen.integer * 1000;
+	}
+	if(g_elimination_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_elimination_haste.integer * 1000;
+	}
+	if(g_elimination_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_elimination_bsuit.integer * 1000;
+	}
+	if(g_elimination_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_elimination_invis.integer * 1000;
+	}
+	if(g_elimination_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_elimination_flight.integer * 1000;
+	}
+	if(g_elimination_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+if	(client->sess.sessionTeam == TEAM_BLUE) {
+	if (g_elimination_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_elimination_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_elimination_machinegun.integer;
+	}
+	if (g_elimination_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_elimination_shotgun.integer;
+	}
+	if (g_elimination_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_elimination_grenade.integer;
+	}
+	if (g_elimination_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_elimination_rocket.integer;
+	}
+	if (g_elimination_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_elimination_lightning.integer;
+	}
+	if (g_elimination_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_elimination_railgun.integer;
+	}
+	if (g_elimination_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_elimination_plasmagun.integer;
+	}
+	if (g_elimination_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_elimination_bfg.integer;
+	}
+    if (g_elimination_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_elimination_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_elimination_nail.integer;
+	}
+	if (g_elimination_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_elimination_mine.integer;
+	}
+	if (g_elimination_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_elimination_chain.integer;
+	}
+	if (g_elimination_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_elimination_flame.integer;
+	}
+	if (g_elimination_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_elimination_antimatter.integer;
+	}
+	if(g_elimination_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_elimination_quad.integer * 1000;
+	}
+    if(g_elimination_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_elimination_regen.integer * 1000;
+	}
+	if(g_elimination_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_elimination_haste.integer * 1000;
+	}
+	if(g_elimination_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_elimination_bsuit.integer * 1000;
+	}
+	if(g_elimination_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_elimination_invis.integer * 1000;
+	}
+	if(g_elimination_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_elimination_flight.integer * 1000;
+	}
+	if(g_elimination_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_elimination_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_elimination_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_elimination_startHealth.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+if	(client->sess.sessionTeam == TEAM_RED ) {
+	if (g_eliminationred_gauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	}
+	if (g_eliminationred_machinegun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_MACHINEGUN );
+		client->ps.ammo[WP_MACHINEGUN] = g_eliminationred_machinegun.integer;
+	}
+	if (g_eliminationred_shotgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SHOTGUN );
+		client->ps.ammo[WP_SHOTGUN] = g_eliminationred_shotgun.integer;
+	}
+	if (g_eliminationred_grenade.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRENADE_LAUNCHER );
+		client->ps.ammo[WP_GRENADE_LAUNCHER] = g_eliminationred_grenade.integer;
+	}
+	if (g_eliminationred_rocket.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = g_eliminationred_rocket.integer;
+	}
+	if (g_eliminationred_lightning.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_LIGHTNING );
+		client->ps.ammo[WP_LIGHTNING] = g_eliminationred_lightning.integer;
+	}
+	if (g_eliminationred_railgun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = g_eliminationred_railgun.integer;
+	}
+	if (g_eliminationred_plasmagun.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PLASMAGUN );
+		client->ps.ammo[WP_PLASMAGUN] = g_eliminationred_plasmagun.integer;
+	}
+	if (g_eliminationred_bfg.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BFG );
+		client->ps.ammo[WP_BFG] = g_eliminationred_bfg.integer;
+	}
+    if (g_eliminationred_grapple.integer) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GRAPPLING_HOOK );
+	}
+	if (g_eliminationred_nail.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_NAILGUN );
+		client->ps.ammo[WP_NAILGUN] = g_eliminationred_nail.integer;
+	}
+	if (g_eliminationred_mine.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_PROX_LAUNCHER );
+		client->ps.ammo[WP_PROX_LAUNCHER] = g_eliminationred_mine.integer;
+	}
+	if (g_eliminationred_chain.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_CHAINGUN );
+		client->ps.ammo[WP_CHAINGUN] = g_eliminationred_chain.integer;
+	}
+	if (g_eliminationred_flame.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_FLAMETHROWER );
+		client->ps.ammo[WP_FLAMETHROWER] = g_eliminationred_flame.integer;
+	}
+	if (g_eliminationred_antimatter.integer > 0) {
+		client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ANTIMATTER );
+		client->ps.ammo[WP_ANTIMATTER] = g_eliminationred_antimatter.integer;
+	}
+	if(g_eliminationred_quad.integer) {
+       client->ps.powerups[PW_QUAD] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_QUAD] +=  g_eliminationred_quad.integer * 1000;
+	}
+    if(g_eliminationred_regen.integer) {
+       client->ps.powerups[PW_REGEN] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_REGEN] +=  g_eliminationred_regen.integer * 1000;
+	}
+	if(g_eliminationred_haste.integer) {
+       client->ps.powerups[PW_HASTE] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_HASTE] +=  g_eliminationred_haste.integer * 1000;
+	}
+	if(g_eliminationred_bsuit.integer) {
+       client->ps.powerups[PW_BATTLESUIT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_BATTLESUIT] +=  g_eliminationred_bsuit.integer * 1000;
+	}
+	if(g_eliminationred_invis.integer) {
+       client->ps.powerups[PW_INVIS] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_INVIS] +=  g_eliminationred_invis.integer * 1000;
+	}
+	if(g_eliminationred_flight.integer) {
+       client->ps.powerups[PW_FLIGHT] =  level.time - ( level.time % 1000 );
+       client->ps.powerups[PW_FLIGHT] +=  g_eliminationred_flight.integer * 1000;
+	}
+	if(g_eliminationred_holdable.integer == 1) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 2) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 3) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 4) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+	}
+	if(g_eliminationred_holdable.integer == 5) {
+		client->ps.stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
+	}
+
+
+	ent->health = client->ps.stats[STAT_ARMOR] = g_eliminationred_startArmor.integer; //client->ps.stats[STAT_MAX_HEALTH]*2;
+	ent->health = client->ps.stats[STAT_HEALTH] = g_eliminationred_startHealth.integer + zombiehealth; //client->ps.stats[STAT_MAX_HEALTH]*2;
+}
+
+	//	ent->health = client->ps.stats[STAT_HEALTH] = 0;
+}
+	//Instantgib mode, replace weapons with rail (and maybe gauntlet)
+	if(g_instantgib.integer)
+	{
+		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_RAILGUN );
+		client->ps.ammo[WP_RAILGUN] = 999; //Don't display any ammo
+		if(g_instantgib.integer>1)
+		{
+			 client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_GAUNTLET );
+	              	client->ps.ammo[WP_GAUNTLET] = -1;
+		}
+	}
+
+	//nexuiz style rocket arena (rocket launcher only)
+	if(g_rockets.integer)
+	{
+		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_ROCKET_LAUNCHER );
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = 999;
+	}
+
+	G_SetOrigin( ent, spawn_origin );
+	VectorCopy( spawn_origin, client->ps.origin );
+
+	// the respawned flag will be cleared after the attack and jump keys come up
+	client->ps.pm_flags |= PMF_RESPAWNED;
+	if(g_gametype.integer==GT_ELIMINATION || g_gametype.integer==GT_CTF_ELIMINATION || g_gametype.integer==GT_LMS)
 		client->ps.pm_flags |= PMF_ELIMWARMUP;
 
 	trap_GetUsercmd( client - level.clients, &ent->client->pers.cmd );
 	SetClientViewAngle( ent, spawn_angles );
 
-	if ( (ent->client->sess.sessionTeam == TEAM_SPECTATOR) || ((client->ps.pm_type == PM_SPECTATOR || client->isEliminated) && 
+	if ( (ent->client->sess.sessionTeam == TEAM_SPECTATOR) || ((client->ps.pm_type == PM_SPECTATOR || client->isEliminated) &&
 		(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) {
                 //Sago: Lets see if this fixes the bots only bug - loose all point on dead bug. (It didn't)
             /*if(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) {
@@ -2113,7 +3946,7 @@ else
 	ClientThink( ent-g_entities );
 
 	// positively link the client, even if the command times are weird
-	if ( (ent->client->sess.sessionTeam != TEAM_SPECTATOR) || ( (!client->isEliminated || client->ps.pm_type != PM_SPECTATOR)&& 
+	if ( (ent->client->sess.sessionTeam != TEAM_SPECTATOR) || ( (!client->isEliminated || client->ps.pm_type != PM_SPECTATOR)&&
 		(g_gametype.integer == GT_ELIMINATION || g_gametype.integer == GT_CTF_ELIMINATION || g_gametype.integer == GT_LMS) ) ) {
 		BG_PlayerStateToEntityState( &client->ps, &ent->s, qtrue );
 		VectorCopy( ent->client->ps.origin, ent->r.currentOrigin );
@@ -2162,7 +3995,7 @@ void ClientDisconnect( int clientNum ) {
         ClientLeaving( clientNum);
     //KK-OAX Admin
     G_admin_namelog_update( ent->client, qtrue );
-    
+
         trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
 	// stop any following clients
@@ -2253,5 +4086,3 @@ void ClientDisconnect( int clientNum ) {
 		BotAIShutdownClient( clientNum, qfalse );
 	}
 }
-
-

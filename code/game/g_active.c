@@ -114,7 +114,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	if (g_drowndamage.integer == 1)
 	if ( waterlevel == 3 ) {
-		// envirosuit give air	
+		// envirosuit give air
 		if ( envirosuit ) {
 			ent->client->airOutTime = level.time + 10000;
 		}
@@ -132,7 +132,7 @@ void P_WorldEffects( gentity_t *ent ) {
 				// don't play a normal pain sound
 				ent->pain_debounce_time = level.time + 200;
 
-				G_Damage (ent, NULL, NULL, NULL, NULL, 
+				G_Damage (ent, NULL, NULL, NULL, NULL,
 					ent->damage, DAMAGE_NO_ARMOR, MOD_WATER);
 			}
 		}
@@ -144,7 +144,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	//
 	// check for sizzle damage (move to pmove?)
 	//
-	if (waterlevel && 
+	if (waterlevel &&
 		(ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER)) ) {
 		if (ent->health > 0
 			&& ent->pain_debounce_time <= level.time	) {
@@ -153,21 +153,21 @@ void P_WorldEffects( gentity_t *ent ) {
 			} else {
 				if (ent->watertype & CONTENTS_LAVA) {
 					if(g_lavadamage.integer > 0){
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						g_lavadamage.integer, 0, MOD_LAVA);
 					}
 				}
 
 				if (ent->watertype & CONTENTS_SLIME) {
 					if(g_slimedamage.integer > 0){
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						g_slimedamage.integer, 0, MOD_SLIME);
 					}
 				}
-				
+
 				if (ent->watertype & CONTENTS_WATER) {
 					if(g_waterdamage.integer > 0){
-					G_Damage (ent, NULL, NULL, NULL, NULL, 
+					G_Damage (ent, NULL, NULL, NULL, NULL,
 						g_waterdamage.integer, 0, MOD_WATER);
 					}
 				}
@@ -340,7 +340,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 
 	if ( client->sess.spectatorState != SPECTATOR_FOLLOW ) {
 		client->ps.pm_type = PM_SPECTATOR;
-		client->ps.speed = 700;	// faster than normal
+		client->ps.speed = g_spectatorspeed.integer;	// faster than normal
 
 		// set up for pmove
 		memset (&pm, 0, sizeof(pm));
@@ -363,10 +363,10 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	if(ent->client->sess.sessionTeam != TEAM_SPECTATOR && g_gametype.integer>=GT_ELIMINATION && g_gametype.integer<=GT_LMS)
 		return;
 	*/
-	
+
 	client->oldbuttons = client->buttons;
 	client->buttons = ucmd->buttons;
-	
+
     //KK-OAX Changed to keep followcycle functional
 	// attack button cycles through spectators
 	if ( ( client->buttons & BUTTON_ATTACK ) && ! ( client->oldbuttons & BUTTON_ATTACK ) ) {
@@ -398,8 +398,8 @@ qboolean ClientInactivityTimer( gclient_t *client ) {
 		// gameplay, everyone isn't kicked
 		client->inactivityTime = level.time + 60 * 1000;
 		client->inactivityWarning = qfalse;
-	} else if ( client->pers.cmd.forwardmove || 
-		client->pers.cmd.rightmove || 
+	} else if ( client->pers.cmd.forwardmove ||
+		client->pers.cmd.rightmove ||
 		client->pers.cmd.upmove ||
 		(client->pers.cmd.buttons & BUTTON_ATTACK) ) {
 		client->inactivityTime = level.time + g_inactivity.integer * 1000;
@@ -427,9 +427,17 @@ Actions that happen once a second
 void ClientTimerActions( gentity_t *ent, int msec ) {
 	gclient_t	*client;
 	int			maxHealth;
+	int			mins, seconds, tens;
 
 	client = ent->client;
 	client->timeResidual += msec;
+
+	// Dropped Ammo No-Pickup
+	if(level.time < ent->wait_to_pickup){
+		client->ps.stats[STAT_NO_PICKUP] = 1;
+	} else {
+		client->ps.stats[STAT_NO_PICKUP] = 0;
+	}
 
 	while ( client->timeResidual >= 1000 ) {
 		client->timeResidual -= 1000;
@@ -448,7 +456,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	if(g_plinf.integer==1){ client->ps.ammo[WP_PROX_LAUNCHER] = 999; }
 	if(g_ftinf.integer==1){ client->ps.ammo[WP_FLAMETHROWER] = 999; }
 	if(g_aminf.integer==1){ client->ps.ammo[WP_ANTIMATTER] = 999; }
-	
+
 	// guard inf ammo
 	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 	if (g_guard_infammo.integer == 1){
@@ -467,7 +475,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	{ client->ps.ammo[WP_ANTIMATTER] = 999; }
 	}
 	}
-	
+
 	// scout inf ammo
 	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
 	if (g_scout_infammo.integer == 1){
@@ -486,7 +494,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	{ client->ps.ammo[WP_ANTIMATTER] = 999; }
 	}
 	}
-	
+
 	// doubler inf ammo
 	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_DOUBLER ) {
 	if (g_doubler_infammo.integer == 1){
@@ -505,7 +513,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	{ client->ps.ammo[WP_ANTIMATTER] = 999; }
 	}
 	}
-	
+
 	//team red infammo
 	if(client->sess.sessionTeam == TEAM_RED){
 	if (g_teamred_infammo.integer == 1){
@@ -524,7 +532,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	{ client->ps.ammo[WP_ANTIMATTER] = 999; }
 	}
 	}
-	
+
 	//team blue infammo
 	if(client->sess.sessionTeam == TEAM_BLUE){
 	if (g_teamblue_infammo.integer == 1){
@@ -542,6 +550,22 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 	{ client->ps.ammo[WP_FLAMETHROWER] = 999; }
 	{ client->ps.ammo[WP_ANTIMATTER] = 999; }
 	}
+	}
+
+	if(ent->botskill >= 6){
+	{ client->ps.ammo[WP_ROCKET_LAUNCHER] = 999; }
+	{ client->ps.ammo[WP_GRENADE_LAUNCHER] = 999; }
+	{ client->ps.ammo[WP_PLASMAGUN] = 999; }
+	{ client->ps.ammo[WP_MACHINEGUN] = 999; }
+	{ client->ps.ammo[WP_SHOTGUN] = 999; }
+	{ client->ps.ammo[WP_BFG] = 999; }
+	{ client->ps.ammo[WP_RAILGUN] = 999; }
+	{ client->ps.ammo[WP_CHAINGUN] = 999; }
+	{ client->ps.ammo[WP_LIGHTNING] = 999; }
+	{ client->ps.ammo[WP_NAILGUN] = 999; }
+	{ client->ps.ammo[WP_PROX_LAUNCHER] = 999; }
+	{ client->ps.ammo[WP_FLAMETHROWER] = 999; }
+	{ client->ps.ammo[WP_ANTIMATTER] = 999; }
 	}
 
 		//Stop in elimination!!!
@@ -580,7 +604,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			//Start killing players in LMS, if we are in overtime
 			if(g_elimination_roundtime.integer&&g_gametype.integer==GT_LMS && TeamHealthCount( -1, TEAM_FREE ) != ent->health &&(level.roundNumber==level.roundNumberStarted)&&(level.time>=level.roundStartTime+1000*g_elimination_roundtime.integer)) {
 				ent->damage=5;
-				G_Damage (ent, NULL, NULL, NULL, NULL, 
+				G_Damage (ent, NULL, NULL, NULL, NULL,
 					ent->damage, DAMAGE_NO_ARMOR, MOD_UNKNOWN);
 			}
 			else
@@ -591,9 +615,14 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			}
 		}
 
+	G_SendWeaponProperties( ent );
+
 		// count down armor when over max
 		if ( client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH] ) {
 			client->ps.stats[STAT_ARMOR]--;
+		}
+		if ( client->ps.stats[STAT_ARMOR] < client->ps.stats[STAT_MAX_HEALTH] ) {
+			client->ps.stats[STAT_ARMOR]+=g_regenarmor.integer;
 		}
 	}
 	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_AMMOREGEN ) {
@@ -626,7 +655,7 @@ void ClientTimerActions( gentity_t *ent, int msec ) {
 			  inc = 999;
 			  t = 1;
 		  }
-		   
+
 		  if ( client->ps.ammo[w] >= max ) {
 			  client->ammoTimes[w] = 0;
 		  }
@@ -911,11 +940,11 @@ void ClientThink_real( gentity_t *ent ) {
 	if ( ucmd->serverTime < level.time - 1000 ) {
 		ucmd->serverTime = level.time - 1000;
 //		G_Printf("serverTime >>>>>\n" );
-	} 
+	}
 
 //Here comes the unlagged bit!
 //unlagged - backward reconciliation #4
-	// frameOffset should be about the number of milliseconds into a frame 
+	// frameOffset should be about the number of milliseconds into a frame
 	// this command packet was received, depending on how fast the server
 	// does a G_RunFrame()
 	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
@@ -1108,12 +1137,21 @@ void ClientThink_real( gentity_t *ent ) {
 
 	// set speed
 	client->ps.speed = g_speed.value;
-		if(client->sess.sessionTeam == TEAM_BLUE){
-			client->ps.speed = g_teamblue_speed.integer;
-		}
-		if(client->sess.sessionTeam == TEAM_RED){
-			client->ps.speed = g_teamred_speed.integer;
-		}
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->ps.speed *= 1.4;
+	}
+	if(client->sess.sessionTeam == TEAM_BLUE){
+	client->ps.speed = g_teamblue_speed.integer;
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->ps.speed *= 1.4;
+	}
+	}
+	if(client->sess.sessionTeam == TEAM_RED){
+	client->ps.speed = g_teamred_speed.integer + zombiespeed;
+	if(client->pers.playerclass == PCLASS_FEMALE){
+	client->ps.speed *= 1.4;
+	}
+	}
 	if( bg_itemlist[client->ps.stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
 		client->ps.speed *= g_scoutspeedfactor.value;
 	}
@@ -1128,6 +1166,33 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 	if ( client->ps.powerups[PW_HASTE] ) {
 		client->ps.speed *= g_speedfactor.value;
+	}
+	if ( ent->botskill == 6 ) {
+		client->ps.speed *= 1.05;
+	}
+	if ( ent->botskill == 7 ) {
+		client->ps.speed *= 1.10;
+	}
+	if ( ent->botskill == 8 ) {
+		client->ps.speed *= 1.15;
+	}
+	if ( ent->botskill == 9 ) {
+		client->ps.speed *= 1.20;
+	}
+	if ( ent->botskill == 10 ) {
+		client->ps.speed *= 1.25;
+	}
+	if ( ent->botskill == 11 ) {
+		client->ps.speed *= 1.30;
+	}
+	if ( ent->botskill == 12 ) {
+		client->ps.speed *= 1.35;
+	}
+	if ( ent->botskill == 13 ) {
+		client->ps.speed *= 1.40;
+	}
+	if ( ent->botskill == 14 ) {
+		client->ps.speed *= 1.45;
 	}
 
 	// Let go of the hook if we aren't firing
@@ -1286,12 +1351,12 @@ void ClientThink_real( gentity_t *ent ) {
 		// the player must be able to loose health
 		// pressing attack or use is the normal respawn method
 		if ( ( level.time > client->respawnTime ) &&
-			( ( ( g_forcerespawn.integer > 0 ) && 
+			( ( ( g_forcerespawn.integer > 0 ) &&
 			( level.time - client->respawnTime  > g_forcerespawn.integer * 1000 ) ) ||
 			( ( ( g_gametype.integer == GT_LMS ) ||
 			( g_gametype.integer == GT_ELIMINATION ) ||
 			( g_gametype.integer == GT_CTF_ELIMINATION ) ) &&
-			( level.time - client->respawnTime > 0 ) ) ||	
+			( level.time - client->respawnTime > 0 ) ) ||
 			( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) ) ) {
 
 			ClientRespawn( ent );
@@ -1304,7 +1369,7 @@ void ClientThink_real( gentity_t *ent ) {
                             client->lastSentFlying = -1;
 			}
 	}
-        
+
 	// perform once-a-second actions
 	ClientTimerActions( ent, msec );
 }
@@ -1389,9 +1454,9 @@ void SpectatorClientEndFrame( gentity_t *ent ) {
 				}
 			}
 		}
-	
-		
-			
+
+
+
 	}
 
 	if ( ent->client->sess.spectatorState == SPECTATOR_SCOREBOARD ) {
@@ -1527,5 +1592,3 @@ void ClientEndFrame( gentity_t *ent ) {
 //	i = trap_AAS_PointReachabilityAreaIndex( ent->client->ps.origin );
 //	ent->client->areabits[i >> 3] |= 1 << (i & 7);
 }
-
-

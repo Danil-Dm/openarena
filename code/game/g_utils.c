@@ -58,7 +58,7 @@ const char *BuildShaderStateConfig(void) {
 	static char	buff[MAX_STRING_CHARS*4];
 	char out[(MAX_QPATH * 2) + 5];
 	int i;
-  
+
 	memset(buff, 0, MAX_STRING_CHARS);
 	for (i = 0; i < remapCount; i++) {
 		Com_sprintf(out, (MAX_QPATH * 2) + 5, "%s=%s:%5.2f@", remappedShaders[i].oldShader, remappedShaders[i].newShader, remappedShaders[i].timeOffset);
@@ -234,7 +234,7 @@ match (string)self.target and call their .use function
 */
 void G_UseTargets( gentity_t *ent, gentity_t *activator ) {
 	gentity_t		*t;
-	
+
 	if ( !ent ) {
 		return;
 	}
@@ -344,7 +344,7 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 
 float vectoyaw( const vec3_t vec ) {
 	float	yaw;
-	
+
 	if (vec[YAW] == 0 && vec[PITCH] == 0) {
 		yaw = 0;
 	} else {
@@ -421,12 +421,12 @@ gentity_t *G_Spawn( void ) {
 		}
 		G_Error( "G_Spawn: no free entities" );
 	}
-	
+
 	// open up a new slot
 	level.num_entities++;
 
 	// let the server system know that there are more entities
-	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ), 
+	trap_LocateGameData( level.gentities, level.num_entities, sizeof( gentity_t ),
 		&level.clients[0].ps, sizeof( level.clients[0] ) );
 
 	G_InitGentity( e );
@@ -611,21 +611,21 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 /*
 =============
 G_GlobalSound
-KK-OAX G_SoundIndex must first be called. 
+KK-OAX G_SoundIndex must first be called.
 =============
 */
 void G_GlobalSound( int soundIndex )
 {
-    gentity_t  *te;    
+    gentity_t  *te;
     //Let's avoid the S_FindName error if soundIndex is 0.
     //Sago: And let's check that the sound index is within the allowed range.
 	if( ( soundIndex <= 0 ) ||  soundIndex >= MAX_SOUNDS ) {
 	    //Display this message when debugging
 	    #ifdef DEBUG
-            G_Printf( "GlobalSound: Error, no soundIndex specified. Check your code!\n" );	
+            G_Printf( "GlobalSound: Error, no soundIndex specified. Check your code!\n" );
 	    #endif
 	    return;
-	}    
+	}
 	//Spawn a Temporary Entity at the origin point for Intermission with the event EV_GLOBAL_SOUND
 	te = G_TempEntity( level.intermission_origin, EV_GLOBAL_SOUND );
 	//Add the soundIndex to the parameters for the EV_GLOBAL_SOUND event we are calling
@@ -652,6 +652,36 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	VectorClear( ent->s.pos.trDelta );
 
 	VectorCopy( origin, ent->r.currentOrigin );
+}
+
+/*
+================
+findradius
+================
+*/
+gentity_t *findradius (gentity_t *ent, vec3_t org, float rad) {
+
+	vec3_t eorg;
+	int j;
+
+	if (!ent)
+		ent = g_entities;
+	else
+		ent++;
+
+	for (; ent < &g_entities[level.num_entities]; ent++)
+		{
+		if (!ent->inuse)
+			continue;
+
+		for (j=0; j<3; j++)
+			eorg[j] = org[j] - (ent->r.currentOrigin[j] +
+			(ent->r.mins[j] + ent->r.maxs[j])*0.5);
+		if (VectorLength(eorg) > rad)
+			continue;
+		return ent;
+	}
+	return NULL;
 }
 
 /*
@@ -688,4 +718,94 @@ int DebugLine(vec3_t start, vec3_t end, int color) {
 	VectorMA(points[3], 2, cross, points[3]);
 
 	return trap_DebugPolygonCreate(color, 4, points);
+}
+
+
+
+/*
+****************
+G_WLK_GetLeft
+freaky - randomise items
+****************
+*/
+void G_WLK_GetLeft(const char *pszSource, char *pszDest,  int iLen);
+
+void randomiseitem(gentity_t *ent)
+{
+	char szClassRoot[80];
+	char szClassRoot2[80];
+	char szClassRoot3[80];
+	char szClassRoot4[80];
+
+	G_WLK_GetLeft(ent->classname, szClassRoot, 7);
+	G_WLK_GetLeft(ent->classname, szClassRoot2, 5);
+	G_WLK_GetLeft(ent->classname, szClassRoot3, 5);
+	G_WLK_GetLeft(ent->classname, szClassRoot4, 9);
+
+
+	if(!Q_stricmp(szClassRoot, "weapon_")||
+		!Q_stricmp(szClassRoot2, "ammo_")||
+		!Q_stricmp(szClassRoot3, "item_")||
+		!Q_stricmp(szClassRoot4, "holdable_"));
+	else return;
+
+	switch(rq3_random(1, 54))
+			{
+				case 1: strcpy(ent->classname, "item_armor_shard"); break;
+				case 2: strcpy(ent->classname, "item_armor_combat"); break;
+				case 3: strcpy(ent->classname, "item_armor_body"); break;
+				case 4: strcpy(ent->classname, "item_health_small"); break;
+				case 5: strcpy(ent->classname, "item_health"); break;
+				case 6: strcpy(ent->classname, "item_health_large"); break;
+				case 7: strcpy(ent->classname, "item_health_mega"); break;
+				case 8: strcpy(ent->classname, "weapon_gauntlet"); break;
+				case 9: strcpy(ent->classname, "weapon_machinegun"); break;
+				case 10: strcpy(ent->classname, "weapon_shotgun"); break;
+				case 11: strcpy(ent->classname, "weapon_grenadelauncher"); break;
+				case 12: strcpy(ent->classname, "weapon_rocketlauncher"); break;
+				case 13: strcpy(ent->classname, "weapon_lightning"); break;
+				case 14: strcpy(ent->classname, "weapon_railgun"); break;
+				case 15: strcpy(ent->classname, "weapon_plasmagun"); break;
+				case 16: strcpy(ent->classname, "weapon_bfg"); break;
+                case 17: strcpy(ent->classname, "weapon_grapplinghook"); break;
+				case 18: strcpy(ent->classname, "ammo_shells"); break;
+				case 19: strcpy(ent->classname, "ammo_bullets"); break;
+				case 20: strcpy(ent->classname, "ammo_grenades"); break;
+				case 21: strcpy(ent->classname, "ammo_rockets"); break;
+				case 22: strcpy(ent->classname, "ammo_lightning"); break;
+				case 23: strcpy(ent->classname, "ammo_slugs"); break;
+				case 24: strcpy(ent->classname, "ammo_cells"); break;
+				case 25: strcpy(ent->classname, "ammo_bfg"); break;
+				case 26: strcpy(ent->classname, "holdable_teleporter"); break;
+				case 27: strcpy(ent->classname, "holdable_medkit"); break;
+				case 28: strcpy(ent->classname, "item_quad"); break;
+				case 29: strcpy(ent->classname, "item_enviro"); break;
+				case 30: strcpy(ent->classname, "item_haste"); break;
+				case 31: strcpy(ent->classname, "item_invis"); break;
+				case 32: strcpy(ent->classname, "item_regen"); break;
+				case 33: strcpy(ent->classname, "item_flight"); break;
+				case 34: strcpy(ent->classname, "team_CTF_redflag"); break;
+				case 35: strcpy(ent->classname, "team_CTF_blueflag"); break;
+				case 36: strcpy(ent->classname, "holdable_kamikaze"); break;
+				case 37: strcpy(ent->classname, "holdable_portal"); break;
+				case 38: strcpy(ent->classname, "holdable_invulnerability"); break;
+				case 39: strcpy(ent->classname, "ammo_nails"); break;
+				case 40: strcpy(ent->classname, "ammo_mines"); break;
+				case 41: strcpy(ent->classname, "ammo_belt"); break;
+				case 42: strcpy(ent->classname, "item_scout"); break;
+				case 43: strcpy(ent->classname, "item_guard"); break;
+				case 44: strcpy(ent->classname, "item_doubler"); break;
+				case 45: strcpy(ent->classname, "item_ammoregen"); break;
+				case 46: strcpy(ent->classname, "team_CTF_neutralflag"); break;
+				case 47: strcpy(ent->classname, "item_redcube"); break;
+				case 48: strcpy(ent->classname, "item_bluecube"); break;
+				case 49: strcpy(ent->classname, "weapon_nailgun"); break;
+				case 50: strcpy(ent->classname, "weapon_prox_launcher"); break;
+				case 51: strcpy(ent->classname, "weapon_chaingun"); break;
+				case 52: strcpy(ent->classname, "weapon_flamethrower"); break;
+				case 53: strcpy(ent->classname, "ammo_flame"); break;
+				case 54: strcpy(ent->classname, "weapon_antimatter"); break;
+
+
+			}
 }

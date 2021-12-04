@@ -63,7 +63,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define AREACONTENTS_MAXMODELNUM		0xFF
 #define AREACONTENTS_MODELNUM			(AREACONTENTS_MAXMODELNUM << AREACONTENTS_MODELNUMSHIFT)
 
-#define IDEAL_ATTACKDIST			140
+#define IDEAL_ATTACKDIST			20
 
 #define MAX_WAYPOINTS		128
 
@@ -2302,43 +2302,44 @@ float BotAggression(bot_state_t *bs) {
 	//if the bot has quad
 	if (bs->inventory[INVENTORY_QUAD]) {
 		//if the bot is not holding the gauntlet or the enemy is really nearby
-		if (bs->weaponnum != WP_GAUNTLET ||
-			bs->inventory[ENEMY_HORIZONTAL_DIST] < 80) {
+		//if (bs->weaponnum != WP_GAUNTLET ||
+		//	bs->inventory[ENEMY_HORIZONTAL_DIST] < 80) {
 			return 70;
-		}
+		//}
 	}
 	//if the enemy is located way higher than the bot
-	if (bs->inventory[ENEMY_HEIGHT] > 200) return 0;
+//	if (bs->inventory[ENEMY_HEIGHT] > 200) return 0;
 	//if the bot is very low on health
-	if (bs->inventory[INVENTORY_HEALTH] < 60) return 0;
+	if (bs->inventory[INVENTORY_HEALTH] < 20) return 0;
 	//if the bot is low on health
-	if (bs->inventory[INVENTORY_HEALTH] < 80) {
+	if (bs->inventory[INVENTORY_HEALTH] < 10) {
 		//if the bot has insufficient armor
-		if (bs->inventory[INVENTORY_ARMOR] < 40) return 0;
+//		if (bs->inventory[INVENTORY_ARMOR] < 40) return 0;
+	return 0;
 	}
 	//if the bot can use the bfg
 	if (bs->inventory[INVENTORY_BFG10K] > 0 &&
 			bs->inventory[INVENTORY_BFGAMMO] > 7) return 100;
 	//if the bot can use the railgun
 	if (bs->inventory[INVENTORY_RAILGUN] > 0 &&
-			bs->inventory[INVENTORY_SLUGS] > 5) return 95;
+			bs->inventory[INVENTORY_SLUGS] > 5) return 100;
 	//if the bot can use the lightning gun
 	if (bs->inventory[INVENTORY_LIGHTNING] > 0 &&
-			bs->inventory[INVENTORY_LIGHTNINGAMMO] > 50) return 90;
+			bs->inventory[INVENTORY_LIGHTNINGAMMO] > 50) return 100;
 	//if the bot can use the rocketlauncher
 	if (bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 &&
-			bs->inventory[INVENTORY_ROCKETS] > 5) return 90;
+			bs->inventory[INVENTORY_ROCKETS] > 5) return 100;
 	//if the bot can use the plasmagun
 	if (bs->inventory[INVENTORY_PLASMAGUN] > 0 &&
-			bs->inventory[INVENTORY_CELLS] > 40) return 85;
+			bs->inventory[INVENTORY_CELLS] > 40) return 100;
 	//if the bot can use the grenade launcher
 	if (bs->inventory[INVENTORY_GRENADELAUNCHER] > 0 &&
-			bs->inventory[INVENTORY_GRENADES] > 10) return 80;
+			bs->inventory[INVENTORY_GRENADES] > 10) return 100;
 	//if the bot can use the shotgun
 	if (bs->inventory[INVENTORY_SHOTGUN] > 0 &&
-			bs->inventory[INVENTORY_SHELLS] > 10) return 50;
+			bs->inventory[INVENTORY_SHELLS] > 10) return 100;
 	//otherwise the bot is not feeling too good
-	return 0;
+	return 100;
 }
 
 /*
@@ -2348,15 +2349,15 @@ BotFeelingBad
 */
 float BotFeelingBad(bot_state_t *bs) {
 	if (bs->weaponnum == WP_GAUNTLET) {
-		return 100;
+		return 0;
 	}
-	if (bs->inventory[INVENTORY_HEALTH] < 40) {
+	if (bs->inventory[INVENTORY_HEALTH] < 5) {
 		return 100;
 	}
 	if (bs->weaponnum == WP_MACHINEGUN) {
-		return 90;
+		return 0;
 	}
-	if (bs->inventory[INVENTORY_HEALTH] < 60) {
+	if (bs->inventory[INVENTORY_HEALTH] < 10) {
 		return 80;
 	}
 	return 0;
@@ -2498,13 +2499,13 @@ int BotCanAndWantsToRocketJump(bot_state_t *bs) {
             return qtrue;
         }
 	//never rocket jump with the Quad
-	if (bs->inventory[INVENTORY_QUAD]) return qfalse;
+//	if (bs->inventory[INVENTORY_QUAD]) return qfalse;
 	//if low on health
-	if (bs->inventory[INVENTORY_HEALTH] < 60) return qfalse;
+	if (bs->inventory[INVENTORY_HEALTH] < 20) return qfalse;
 	//if not full health
-	if (bs->inventory[INVENTORY_HEALTH] < 90) {
+	if (bs->inventory[INVENTORY_HEALTH] < 30) {
 		//if the bot has insufficient armor
-		if (bs->inventory[INVENTORY_ARMOR] < 40) return qfalse;
+		if (bs->inventory[INVENTORY_ARMOR] < 5) return qfalse;
 	}
 	rocketjumper = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_WEAPONJUMPING, 0, 1);
 	if (rocketjumper < 0.5) return qfalse;
@@ -2801,14 +2802,18 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 			bs->attackjump_time = FloatTime() + 1;
 		}
 	}
-	if (bs->cur_ps.weapon == WP_GAUNTLET) {
+/*	if (bs->cur_ps.weapon == WP_GAUNTLET) {
 		attack_dist = 0;
 		attack_range = 0;
 	}
-	else {
+	if (bs->cur_ps.weapon == WP_LIGHTNING) {
+		attack_dist = 0;
+		attack_range = 0;
+	}*/
+//	else {
 		attack_dist = IDEAL_ATTACKDIST;
-		attack_range = 40;
-	}
+		attack_range = 0;
+//	}
 	//if the bot is stupid
 	if (attack_skill <= 0.4) {
 		//just walk to or away from the enemy

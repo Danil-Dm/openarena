@@ -145,9 +145,9 @@ void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce ) {
 	float	backoff;
 	float	change;
 	int		i;
-	
+
 	backoff = DotProduct (in, normal);
-	
+
 	if ( backoff < 0 ) {
 		backoff *= overbounce;
 	} else {
@@ -173,9 +173,9 @@ static void PM_Friction( void ) {
 	float	*vel;
 	float	speed, newspeed, control;
 	float	drop;
-	
+
 	vel = pm->ps->velocity;
-	
+
 	VectorCopy( vel, vec );
 	if ( pml.walking ) {
 		vec[2] = 0;	// ignore slope movement
@@ -239,7 +239,7 @@ Handles user intended acceleration
 ==============
 */
 static void PM_Accelerate( vec3_t wishdir, float wishspeed, float accel ) {
-if(! (pm->pmove_flags & DF_NO_BUNNY) ) {
+if(mod_accelerate == 1) {
 //#if 1
 
 	// q2 style
@@ -255,9 +255,9 @@ if(! (pm->pmove_flags & DF_NO_BUNNY) ) {
 	if (accelspeed > addspeed) {
 		accelspeed = addspeed;
 	}
-	
+
 	for (i=0 ; i<3 ; i++) {
-		pm->ps->velocity[i] += accelspeed*wishdir[i];	
+		pm->ps->velocity[i] += accelspeed*wishdir[i];
 	}
 } else {
         //#else
@@ -351,7 +351,7 @@ static void PM_SetMovementDir( void ) {
 			pm->ps->movementDir = 1;
 		} else if ( pm->ps->movementDir == 6 ) {
 			pm->ps->movementDir = 7;
-		} 
+		}
 	}
 }
 
@@ -381,7 +381,7 @@ static qboolean PM_CheckJump( void ) {
 		return qfalse;
 	}
 
-	
+
 
 
 	pml.groundPlane = qfalse;		// jumping away
@@ -389,7 +389,15 @@ static qboolean PM_CheckJump( void ) {
 	pm->ps->pm_flags |= PMF_JUMP_HELD;
 
 	pm->ps->groundEntityNum = ENTITYNUM_NONE;
+	if(mod_jumpmode == 1){
 	pm->ps->velocity[2] = JUMP_VELOCITY;
+	}
+	if(mod_jumpmode == 2){
+	pm->ps->velocity[1] = JUMP_VELOCITY;
+	}
+	if(mod_jumpmode == 3){
+	pm->ps->velocity[0] = JUMP_VELOCITY;
+	}
 	PM_AddEvent( EV_JUMP );
 
 	if ( pm->cmd.forwardmove >= 0 ) {
@@ -535,7 +543,7 @@ static void PM_WaterMove( void ) {
 	if ( pml.groundPlane && DotProduct( pm->ps->velocity, pml.groundTrace.plane.normal ) < 0 ) {
 		vel = VectorLength(pm->ps->velocity);
 		// slide along the ground plane
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 			pm->ps->velocity, OVERCLIP );
 
 		VectorNormalize(pm->ps->velocity);
@@ -556,6 +564,9 @@ static void PM_InvulnerabilityMove( void )
 {
 	if (mod_invulmove == 1){
 	PM_WaterMove();
+	}
+	if (mod_invulmove == 2){
+	PM_NoclipMove();
 	}
 	if (mod_invulmove == 0){
 	pm->cmd.forwardmove = 0;
@@ -655,7 +666,7 @@ static void PM_AirMove( void ) {
 	// though we don't have a groundentity
 	// slide along the steep plane
 	if ( pml.groundPlane ) {
-		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+		PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 			pm->ps->velocity, OVERCLIP );
 	}
 
@@ -691,7 +702,7 @@ static void PM_GrappleMove( void ) {
 	if (vlen <= 100)
 		VectorScale(vel, 10 * vlen, vel);
 	else
-		VectorScale(vel, 800, vel);
+		VectorScale(vel, 1000, vel);
 
 	VectorCopy(vel, pm->ps->velocity);
 
@@ -805,7 +816,7 @@ static void PM_WalkMove( void ) {
 	vel = VectorLength(pm->ps->velocity);
 
 	// slide along the ground plane
-	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal, 
+	PM_ClipVelocity (pm->ps->velocity, pml.groundTrace.plane.normal,
 		pm->ps->velocity, OVERCLIP );
 
 	// don't decrease velocity when going up or down a slope
@@ -894,7 +905,7 @@ static void PM_NoclipMove( void ) {
 
 	fmove = pm->cmd.forwardmove;
 	smove = pm->cmd.rightmove;
-	
+
 	for (i=0 ; i<3 ; i++)
 		wishvel[i] = pml.forward[i]*fmove + pml.right[i]*smove;
 	wishvel[2] += pm->cmd.upmove;
@@ -1163,7 +1174,7 @@ static void PM_GroundTrace( void ) {
 		pml.walking = qfalse;
 		return;
 	}
-	
+
 	// slopes that are too steep will not be considered onground
 	if ( trace.plane.normal[2] < MIN_WALK_NORMAL ) {
 		if ( pm->debugLevel ) {
@@ -1192,7 +1203,7 @@ static void PM_GroundTrace( void ) {
 		if ( pm->debugLevel ) {
 			Com_Printf("%i:Land\n", c_pmove);
 		}
-		
+
 		PM_CrashLand();
 
 		// don't do landing time if we were just going down a slope
@@ -1231,7 +1242,7 @@ static void PM_SetWaterLevel( void ) {
 
 	point[0] = pm->ps->origin[0];
 	point[1] = pm->ps->origin[1];
-	point[2] = pm->ps->origin[2] + MINS_Z + 1;	
+	point[2] = pm->ps->origin[2] + MINS_Z + 1;
 	cont = pm->pointcontents( point, pm->ps->clientNum );
 
 	if ( cont & MASK_WATER ) {
@@ -1370,7 +1381,7 @@ static void PM_Footsteps( void ) {
 		}
 		return;
 	}
-	
+
 
 	footstep = qfalse;
 
@@ -1489,7 +1500,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
 		return;
 	}
-	
+
 	if ( pm->ps->weaponstate == WEAPON_DROPPING ) {
 		return;
 	}
@@ -1593,22 +1604,72 @@ static void PM_Weapon( void ) {
 				if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_MEDKIT ){
 					if(mod_medkitinf == 0)
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+					if(mod_medkitinf == 2)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+					if(mod_medkitinf == 3)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+					if(mod_medkitinf == 4)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+					if(mod_medkitinf == 5)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+					if(mod_medkitinf == 6)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
 				}
 				else if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_TELEPORTER ){
 					if(mod_teleporterinf == 0)
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+					if(mod_teleporterinf == 2)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+					if(mod_teleporterinf == 3)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+					if(mod_teleporterinf == 4)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+					if(mod_teleporterinf == 5)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+					if(mod_teleporterinf == 6)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
 				}
 				else if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_PORTAL ){
 					if(mod_portalinf == 0)
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+					if(mod_portalinf == 2)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+					if(mod_portalinf == 3)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+					if(mod_portalinf == 4)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+					if(mod_portalinf == 5)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+					if(mod_portalinf == 6)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
 				}
 				else if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_INVULNERABILITY ){
 					if(mod_invulinf == 0)
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+					if(mod_invulinf == 2)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+					if(mod_invulinf == 3)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+					if(mod_invulinf == 4)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+					if(mod_invulinf == 5)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+					if(mod_invulinf == 6)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
 				}
 				else if ( bg_itemlist[pm->ps->stats[STAT_HOLDABLE_ITEM]].giTag == HI_KAMIKAZE ){
 					if(mod_kamikazeinf == 0)
 					pm->ps->stats[STAT_HOLDABLE_ITEM] = 0;
+					if(mod_kamikazeinf == 2)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Personal Teleporter" ) - bg_itemlist;
+					if(mod_kamikazeinf == 3)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Medkit" ) - bg_itemlist;
+					if(mod_kamikazeinf == 4)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Kamikaze" ) - bg_itemlist;
+					if(mod_kamikazeinf == 5)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Invulnerability" ) - bg_itemlist;
+					if(mod_kamikazeinf == 6)
+					pm->ps->stats[STAT_HOLDABLE_ITEM] = BG_FindItem( "Portal" ) - bg_itemlist;
 				}
 			}
 			return;
@@ -1719,7 +1780,7 @@ static void PM_Weapon( void ) {
 		addTime = mod_bfgdelay;
 		break;
 	case WP_GRAPPLING_HOOK:
-		addTime = 400;
+		addTime = 100;
 		break;
 	case WP_NAILGUN:
 		addTime = mod_ngdelay;
@@ -1805,7 +1866,7 @@ static void PM_Animate( void ) {
 		}
 	} else if ( pm->cmd.buttons & BUTTON_NEGATIVE ) {
 		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_NEGATIVE );
+			PM_StartTorsoAnim( TORSO_ATTACK2 );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
 	}
@@ -1932,7 +1993,7 @@ void PmoveSingle (pmove_t *pmove) {
 	}
 
 	// clear the respawned flag if attack and use are cleared
-	if ( pm->ps->stats[STAT_HEALTH] > 0 && 
+	if ( pm->ps->stats[STAT_HEALTH] > 0 &&
 		!( pm->cmd.buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) ) ) {
 		pm->ps->pm_flags &= ~PMF_RESPAWNED;
 	}
@@ -2128,4 +2189,3 @@ void Pmove (pmove_t *pmove) {
 	//PM_CheckStuck();
 
 }
-

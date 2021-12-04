@@ -1636,7 +1636,9 @@ SelectCTFSpawnPoint
 gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
 	gentity_t	*spot;
 
+if(info_zombie.integer == 0){
 	spot = SelectRandomTeamSpawnPoint ( teamstate, team );
+
 
 	if (!spot) {
 		return SelectSpawnPoint( vec3_origin, origin, angles );
@@ -1645,6 +1647,21 @@ gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3
 	VectorCopy (spot->s.origin, origin);
 	origin[2] += 9;
 	VectorCopy (spot->s.angles, angles);
+	
+}
+if(info_zombie.integer == 1){
+	spot = SelectSpawnPoint( vec3_origin, origin, angles );
+
+
+	if (!spot) {
+		return SelectRandomTeamSpawnPoint ( teamstate, team );
+	}
+
+	VectorCopy (spot->s.origin, origin);
+	origin[2] += 9;
+	VectorCopy (spot->s.angles, angles);
+	
+}
 
 	return spot;
 }

@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	GAME_VERSION		BASEGAME "-1"
 
 #define	DEFAULT_GRAVITY		800
-#define	GIB_HEALTH			-40
+#define	GIB_HEALTH			-20
 #define	ARMOR_PROTECTION	0.66
 
 #define	MAX_ITEMS			256
@@ -89,6 +89,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_BOTINFO				25
 
 #define	CS_ITEMS				27		// string of 0's and 1's that tell which items are present
+
+#define CS_ATMOSEFFECT  	28  	// Atmospheric effect, if any.
 
 #define	CS_MODELS				32
 #define	CS_SOUNDS				(CS_MODELS+MAX_MODELS)
@@ -237,7 +239,8 @@ typedef enum {
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
-	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
+	STAT_MAX_HEALTH,					// health / armor limit, changable by handicap
+	STAT_NO_PICKUP		// for dropped ammo
 } statIndex_t;
 
 
@@ -594,6 +597,14 @@ typedef enum {
 	TEAM_NUM_TEAMS
 } team_t;
 
+typedef enum {
+	PCLASS_FEMALE,
+	PCLASS_MALE,
+	PCLASS_NEUTER,
+
+	PCLASS_NUM_CLASSES
+} pclass_t;
+
 // This is a fair assumption for Double Domination:
 #define TEAM_NONE TEAM_SPECTATOR
 
@@ -614,6 +625,24 @@ typedef enum {
 	TEAMTASK_ESCORT,
 	TEAMTASK_CAMP
 } teamtask_t;
+
+#define LOCATION_NONE		0x00000000
+
+// Height layers
+#define LOCATION_HEAD		0x00000001 // [F,B,L,R] Top of head
+#define LOCATION_FACE		0x00000002 // [F] Face [B,L,R] Head
+#define LOCATION_SHOULDER	0x00000004 // [L,R] Shoulder [F] Throat, [B] Neck
+#define LOCATION_CHEST		0x00000008 // [F] Chest [B] Back [L,R] Arm
+#define LOCATION_STOMACH	0x00000010 // [L,R] Sides [F] Stomach [B] Lower Back
+#define LOCATION_GROIN		0x00000020 // [F] Groin [B] Butt [L,R] Hip
+#define LOCATION_LEG		0x00000040 // [F,B,L,R] Legs
+#define LOCATION_FOOT		0x00000080 // [F,B,L,R] Bottom of Feet
+
+// Relative direction strike came from
+#define LOCATION_LEFT		0x00000100
+#define LOCATION_RIGHT		0x00000200
+#define LOCATION_FRONT		0x00000400
+#define LOCATION_BACK		0x00000800
 
 // means of death
 typedef enum {
@@ -691,6 +720,7 @@ typedef struct gitem_s {
 
 // included in both the game dll and the client
 extern	gitem_t	bg_itemlist[];
+extern	gitem_t	bg_itemlistru[];
 extern	int		bg_numItems;
 
 gitem_t	*BG_FindItem( const char *pickupName );
@@ -798,8 +828,8 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 #define MAX_ARENAS			1024
 #define	MAX_ARENAS_TEXT		8192
 
-#define MAX_BOTS			1024
-#define MAX_BOTS_TEXT		8192
+#define MAX_BOTS			2048
+#define MAX_BOTS_TEXT		16384
 
 
 // Kamikaze

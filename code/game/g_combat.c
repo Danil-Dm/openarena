@@ -131,10 +131,10 @@ void TossClientItems( gentity_t *self ) {
 	}
 
 	if (g_instantgib.integer || g_rockets.integer || g_gametype.integer == GT_CTF_ELIMINATION || g_elimination_allgametypes.integer){
-	//Nothing!	
+	//Nothing!
 	}
 	else
-	if ( weapon > WP_MACHINEGUN && weapon != WP_GRAPPLING_HOOK && 
+	if ( weapon > WP_MACHINEGUN && weapon != WP_GRAPPLING_HOOK &&
 		self->client->ps.ammo[ weapon ] ) {
 		// find the item type for this weapon
 		item = BG_FindItemForWeapon( weapon );
@@ -144,7 +144,7 @@ void TossClientItems( gentity_t *self ) {
 	}
 
 	// drop all the powerups if not in teamplay
-	if ( g_gametype.integer != GT_TEAM ) {
+
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 			if ( self->client->ps.powerups[ i ] > level.time ) {
@@ -161,7 +161,27 @@ void TossClientItems( gentity_t *self ) {
 				angle += 45;
 			}
 		}
+	if(self->client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Personal Teleporter" ) - bg_itemlist) {
+	item = BG_FindItem( "Personal Teleporter" );
+	Drop_Item( self, item, 0 );
 	}
+	if(self->client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Medkit" ) - bg_itemlist) {
+	item = BG_FindItem( "Medkit" );
+	Drop_Item( self, item, 0 );
+	}
+	if(self->client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Kamikaze" ) - bg_itemlist) {
+	item = BG_FindItem( "Kamikaze" );
+	Drop_Item( self, item, 0 );
+	}
+	if(self->client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Invulnerability" ) - bg_itemlist) {
+	item = BG_FindItem( "Invulnerability" );
+	Drop_Item( self, item, 0 );
+	}
+	if(self->client->ps.stats[STAT_HOLDABLE_ITEM] == BG_FindItem( "Portal" ) - bg_itemlist) {
+	item = BG_FindItem( "Portal" );
+	Drop_Item( self, item, 0 );
+	}
+
 }
 
 /*
@@ -264,7 +284,7 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker ) 
 	self->client->ps.stats[STAT_DEAD_YAW] = vectoyaw ( dir );
 
 	/*angles[YAW] =*/ vectoyaw ( dir );
-	//angles[PITCH] = 0; 
+	//angles[PITCH] = 0;
 	//angles[ROLL] = 0;
 }
 
@@ -490,9 +510,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// make sure the body shows up in the client's current position
 	G_UnTimeShiftClient( self );
 //unlagged - backward reconciliation #2
-    //KK-OAX Here is where we run the streak logic. 
+    //KK-OAX Here is where we run the streak logic.
     G_RunStreakLogic( attacker, self );
-    
+
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
 	// check for a player that almost brought in cubes
@@ -531,8 +551,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		obit = modNames[meansOfDeath];
 	}
 
-	G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n", 
-		killer, self->s.number, meansOfDeath, killerName, 
+	G_LogPrintf("Kill: %i %i %i: %s killed %s by %s\n",
+		killer, self->s.number, meansOfDeath, killerName,
 		self->client->pers.netname, obit );
 
 	// broadcast the death event to everyone
@@ -551,7 +571,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	self->client->ps.persistant[PERS_KILLED]++;
 
-	if (attacker && attacker->client) {
+	if (attacker) {
 		attacker->client->lastkilled_client = self->s.number;
 
 		if ( attacker == self || OnSameTeam (self, attacker ) ) {
@@ -563,11 +583,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				AddScore( attacker, self->r.currentOrigin, 1 );
 
 			if( meansOfDeath == MOD_GAUNTLET ) {
-				
+
 				// Attack gets a challenge complete:
 				if(!(attacker->r.svFlags & SVF_BOT) && !(self->r.svFlags & SVF_BOT))
 					ChallengeMessage(attacker,WEAPON_GAUNTLET_KILLS);
-		
+
 				// play humiliation on player
 				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
                                 G_LogPrintf( "Award: %i %i: %s gained the %s award!\n", attacker->client->ps.clientNum, 0, attacker->client->pers.netname, "GAUNTLET" );
@@ -582,7 +602,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			}
 
                         //If neither attacker or taget is bots and not the same
-                        if(!(attacker->r.svFlags & SVF_BOT) && !(self->r.svFlags & SVF_BOT) && self!=attacker)
+                        if(self!=attacker)
                         {
                             switch(meansOfDeath)
                             {
@@ -603,14 +623,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
                                 case MOD_ROCKET_SPLASH:
                                     ChallengeMessage(attacker,WEAPON_ROCKET_KILLS);
                                     break;
-								case MOD_FLAME:
-                                case MOD_FLAME_SPLASH:
-                                    ChallengeMessage(attacker,WEAPON_FLAMETHROWER_KILLS);
-                                    break;
-								case MOD_ANTIMATTER:
-                                case MOD_ANTIMATTER_SPLASH:
-                                    ChallengeMessage(attacker,WEAPON_FLAMETHROWER_KILLS);
-                                    break;
                                 case MOD_LIGHTNING:
                                     ChallengeMessage(attacker,WEAPON_LIGHTNING_KILLS);
                                     break;
@@ -628,6 +640,14 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
                                 case MOD_BFG_SPLASH:
                                     ChallengeMessage(attacker,WEAPON_BFG_KILLS);
                                     break;
+																case MOD_FLAME:
+		                            case MOD_FLAME_SPLASH:
+		                                ChallengeMessage(attacker,WEAPON_FLAMETHROWER_KILLS);
+		                                break;
+																case MOD_ANTIMATTER:
+				                        case MOD_ANTIMATTER_SPLASH:
+				                            ChallengeMessage(attacker,WEAPON_DARKFLARE_KILLS);
+				                            break;
                                 case MOD_NAIL:
                                     ChallengeMessage(attacker,WEAPON_NAILGUN_KILLS);
                                     break;
@@ -653,6 +673,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
                                     ChallengeMessage(attacker,WEAPON_TELEFRAG_KILLS);
                                     break;
                             };
+                            ChallengeMessage(attacker,GENERAL_MONEY);
                             ChallengeMessage(attacker,GENERAL_TOTALKILLS);
                             ChallengeMessage(self,GENERAL_TOTALDEATHS);
 
@@ -729,9 +750,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
 				attacker->client->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->client->rewardTime = level.time + REWARD_SPRITE_TIME;
-			} else { 
+			} else {
 			    //KK-OAX Clear multikill count
-			    //Must be 1 so the correct number of kills are displayed to the clients. 
+			    //Must be 1 so the correct number of kills are displayed to the clients.
 			    attacker->client->pers.multiKillCount = 1;
 			}
 			attacker->client->lastKillTime = level.time;
@@ -805,6 +826,17 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
 	self->client->respawnTime = level.time + g_respawnwait.integer +i;
+		if(self->client->sess.sessionTeam == TEAM_BLUE){
+		if(info_zombie.integer == 0){
+		self->client->respawnTime = level.time + g_teamblue_respawnwait.integer +i;
+		}
+		if(info_zombie.integer == 1){
+		self->client->respawnTime = level.time + 65000;
+		}
+		}
+		if(self->client->sess.sessionTeam == TEAM_RED){
+		self->client->respawnTime = level.time + g_teamred_respawnwait.integer +i;
+		}
         if(g_respawntime.integer>0) {
             for(i=0; self->client->respawnTime > i*g_respawntime.integer*1000;i++);
 
@@ -818,7 +850,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			self->client->respawnTime = level.time + rand()%800;
 
         RespawnTimeMessage(self,self->client->respawnTime);
-		
+
 
 	// remove powerups
 	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
@@ -852,9 +884,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			self->health = GIB_HEALTH+1;
 		}
 
-		self->client->ps.legsAnim = 
+		self->client->ps.legsAnim =
 			( ( self->client->ps.legsAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
-		self->client->ps.torsoAnim = 
+		self->client->ps.torsoAnim =
 			( ( self->client->ps.torsoAnim & ANIM_TOGGLEBIT ) ^ ANIM_TOGGLEBIT ) | anim;
 
 		G_AddEvent( self, EV_DEATH1 + i, killer );
@@ -1005,6 +1037,129 @@ static int catchup_damage(int damage, int attacker_points, int target_points) {
 
 /*
 ============
+G_LocationDamage
+============
+*/
+int G_LocationDamage(vec3_t point, gentity_t* targ, gentity_t* attacker, int take) {
+	vec3_t bulletPath;
+	vec3_t bulletAngle;
+
+	int clientHeight;
+	int clientFeetZ;
+	int clientRotation;
+	int bulletHeight;
+	int bulletRotation;	// Degrees rotation around client.
+				// used to check Back of head vs. Face
+	int impactRotation;
+
+
+	// First things first.  If we're not damaging them, why are we here?
+	if (!take)
+		return 0;
+
+	// Point[2] is the REAL world Z. We want Z relative to the clients feet
+
+	// Where the feet are at [real Z]
+	clientFeetZ  = targ->r.currentOrigin[2] + targ->r.mins[2];
+	// How tall the client is [Relative Z]
+	clientHeight = targ->r.maxs[2] - targ->r.mins[2];
+	// Where the bullet struck [Relative Z]
+	bulletHeight = point[2] - clientFeetZ;
+
+	// Get a vector aiming from the client to the bullet hit
+	VectorSubtract(targ->r.currentOrigin, point, bulletPath);
+	// Convert it into PITCH, ROLL, YAW
+	vectoangles(bulletPath, bulletAngle);
+
+	clientRotation = targ->client->ps.viewangles[YAW];
+	bulletRotation = bulletAngle[YAW];
+
+	impactRotation = abs(clientRotation-bulletRotation);
+
+	impactRotation += 45; // just to make it easier to work with
+	impactRotation = impactRotation % 360; // Keep it in the 0-359 range
+
+	if (impactRotation < 90)
+		targ->client->lasthurt_location = LOCATION_BACK;
+	else if (impactRotation < 180)
+		targ->client->lasthurt_location = LOCATION_RIGHT;
+	else if (impactRotation < 270)
+		targ->client->lasthurt_location = LOCATION_FRONT;
+	else if (impactRotation < 360)
+		targ->client->lasthurt_location = LOCATION_LEFT;
+	else
+		targ->client->lasthurt_location = LOCATION_NONE;
+
+	// The upper body never changes height, just distance from the feet
+		if (bulletHeight > clientHeight - 2)
+			targ->client->lasthurt_location |= LOCATION_HEAD;
+		else if (bulletHeight > clientHeight - 8)
+			targ->client->lasthurt_location |= LOCATION_FACE;
+		else if (bulletHeight > clientHeight - 10)
+			targ->client->lasthurt_location |= LOCATION_SHOULDER;
+		else if (bulletHeight > clientHeight - 16)
+			targ->client->lasthurt_location |= LOCATION_CHEST;
+		else if (bulletHeight > clientHeight - 26)
+			targ->client->lasthurt_location |= LOCATION_STOMACH;
+		else if (bulletHeight > clientHeight - 29)
+			targ->client->lasthurt_location |= LOCATION_GROIN;
+		else if (bulletHeight < 4)
+			targ->client->lasthurt_location |= LOCATION_FOOT;
+		else
+			// The leg is the only thing that changes size when you duck,
+			// so we check for every other parts RELATIVE location, and
+			// whats left over must be the leg.
+			targ->client->lasthurt_location |= LOCATION_LEG;
+
+
+
+		// Check the location ignoring the rotation info
+		switch ( targ->client->lasthurt_location &
+				~(LOCATION_BACK | LOCATION_LEFT | LOCATION_RIGHT | LOCATION_FRONT) )
+		{
+		case LOCATION_HEAD:
+			take *= 3.8;
+			break;
+		case LOCATION_FACE:
+			if (targ->client->lasthurt_location & LOCATION_FRONT)
+				take *= 7.0; // Faceshots REALLY suck
+			else
+				take *= 3.8;
+			break;
+		case LOCATION_SHOULDER:
+			if (targ->client->lasthurt_location & (LOCATION_FRONT | LOCATION_BACK))
+				take *= 1.4; // Throat or nape of neck
+			else
+				take *= 1.1; // Shoulders
+			break;
+		case LOCATION_CHEST:
+			if (targ->client->lasthurt_location & (LOCATION_FRONT | LOCATION_BACK))
+				take *= 1.3; // Belly or back
+			else
+				take *= 0.8; // Arms
+			break;
+		case LOCATION_STOMACH:
+			take *= 1.2;
+			break;
+		case LOCATION_GROIN:
+			if (targ->client->lasthurt_location & LOCATION_FRONT)
+				take *= 1.3; // Groin shot
+			break;
+		case LOCATION_LEG:
+			take *= 0.7;
+			break;
+		case LOCATION_FOOT:
+			take *= 0.5;
+			break;
+
+		}
+	return take;
+
+}
+
+
+/*
+============
 T_Damage
 
 targ		entity that is being damaged
@@ -1035,7 +1190,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	int			asave;
 	int			knockback;
 	int			max;
-        
+
 	vec3_t		bouncedir, impactpoint;
 
 	if (!targ->takedamage) {
@@ -1057,7 +1212,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
         //Sago: This was moved up
         client = targ->client;
-        
+
         //Sago: See if the client was sent flying
         //Check if damage is by somebody who is not a player!
         if( (!attacker || attacker->s.eType != ET_PLAYER) && client && client->lastSentFlying>-1 && ( mod==MOD_FALLING || mod==MOD_LAVA || mod==MOD_SLIME || mod==MOD_TRIGGER_HURT || mod==MOD_SUICIDE) )  {
@@ -1068,7 +1223,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
                 attacker = &g_entities[client->lastSentFlying];
             }
         }
-        
+
 	if ( !inflictor ) {
 		inflictor = &g_entities[ENTITYNUM_WORLD];
 	}
@@ -1112,9 +1267,48 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	knockback = damage;
-	if ( knockback > 200 ) {
-		knockback = 200;
-	}
+
+	if ( mod == MOD_GAUNTLET )
+	knockback *= g_gknockback.value;
+	if ( mod == MOD_MACHINEGUN )
+	knockback *= g_mgknockback.value;
+	if ( mod == MOD_SHOTGUN )
+	knockback *= g_sgknockback.value;
+	if ( mod == MOD_GRENADE )
+	knockback *= g_glknockback.value;
+	if ( mod == MOD_GRENADE_SPLASH )
+	knockback *= g_glknockback.value;
+	if ( mod == MOD_ROCKET )
+	knockback *= g_rlknockback.value;
+	if ( mod == MOD_ROCKET_SPLASH )
+	knockback *= g_rlknockback.value;
+	if ( mod == MOD_PLASMA )
+	knockback *= g_pgknockback.value;
+	if ( mod == MOD_PLASMA_SPLASH )
+	knockback *= g_pgknockback.value;
+	if ( mod == MOD_RAILGUN )
+	knockback *= g_rgknockback.value;
+	if ( mod == MOD_LIGHTNING )
+	knockback *= g_lgknockback.value;
+	if ( mod == MOD_BFG )
+	knockback *= g_bfgknockback.value;
+	if ( mod == MOD_BFG_SPLASH )
+	knockback *= g_bfgknockback.value;
+	if ( mod == MOD_NAIL )
+	knockback *= g_ngknockback.value;
+	if ( mod == MOD_CHAINGUN )
+	knockback *= g_cgknockback.value;
+	if ( mod == MOD_PROXIMITY_MINE )
+	knockback *= g_plknockback.value;
+	if ( mod == MOD_FLAME )
+	knockback *= g_ftknockback.value;
+	if ( mod == MOD_FLAME_SPLASH )
+	knockback *= g_ftknockback.value;
+	if ( mod == MOD_ANTIMATTER )
+	knockback *= g_amknockback.value;
+	if ( mod == MOD_ANTIMATTER_SPLASH )
+	knockback *= g_amknockback.value;
+
 	if ( targ->flags & FL_NO_KNOCKBACK ) {
 		knockback = 0;
 	}
@@ -1229,7 +1423,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 
         if(targ && targ->client && attacker->client )
             damage = catchup_damage(damage, attacker->client->ps.persistant[PERS_SCORE], targ->client->ps.persistant[PERS_SCORE]);
-        
+
         if(g_damageModifier.value > 0.01) {
             damage *= g_damageModifier.value;
         }
@@ -1237,7 +1431,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if ( damage < 1 ) {
 		damage = 1;
 	}
-        
+
         if(targ == attacker && (g_dmflags.integer & DF_NO_SELF_DAMAGE) )
             damage = 0;
 
@@ -1297,10 +1491,18 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		// set the last client who damaged the target
 		targ->client->lasthurt_client = attacker->s.number;
 		targ->client->lasthurt_mod = mod;
+
+		if(g_locationdamage.integer == 1){
+		// Modify the damage for location damage
+		if (point && targ && targ->health > 0 && attacker && take)
+		take = G_LocationDamage(point, targ, attacker, take);
+		else
+		targ->client->lasthurt_location = LOCATION_NONE;
+		}
 	}
 
 	//If vampire is enabled, gain health but not from self or teammate, cannot steal more than targ has
-	if( g_vampire.value>0.0 && (targ != attacker) && take > 0 && 
+	if( g_vampire.value>0.0 && (targ != attacker) && take > 0 &&
                 !(OnSameTeam(targ, attacker)) && attacker->health > 0 && targ->health > 0 )
 	{
 		if(take<targ->health)
@@ -1349,6 +1551,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	if(mod==MOD_LIGHTNING){
+if(g_portallight.integer == 1){
+PortalTouches( targ );
+}
 		if(g_lgvampire.integer==1){
 			if(attacker->health<mod_vampire_max_health){
 				attacker->health += take;
@@ -1435,7 +1640,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 	}
-	
+
 	if((mod==MOD_FLAME)||(mod==MOD_FLAME_SPLASH)){
 		if(g_ftvampire.integer==1){
 			if(attacker->health<mod_vampire_max_health){
@@ -1446,7 +1651,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			}
 		}
 	}
-	
+
 	if((mod==MOD_ANTIMATTER)||(mod==MOD_ANTIMATTER_SPLASH)){
 		if(g_amvampire.integer==1){
 			if(attacker->health<mod_vampire_max_health){
@@ -1468,14 +1673,14 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		if ( targ->client ) {
 			targ->client->ps.stats[STAT_HEALTH] = targ->health;
 		}
-			
+
 		if ( targ->health <= 0 ) {
 			if ( client )
 				targ->flags |= FL_NO_KNOCKBACK;
 
 			if (targ->health < -999)
 				targ->health = -999;
-                        
+
 			targ->enemy = attacker;
 			targ->die (targ, inflictor, attacker, take, mod);
 			return;
@@ -1484,7 +1689,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 	}
 
-	
+
 }
 
 
@@ -1511,7 +1716,7 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin) {
 	if (tr.fraction == 1.0 || tr.entityNum == targ->s.number)
 		return qtrue;
 
-	// this should probably check in the plane of projection, 
+	// this should probably check in the plane of projection,
 	// rather than in world coordinate, and also include Z
 	VectorCopy (midpoint, dest);
 	dest[0] += 15.0;

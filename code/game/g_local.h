@@ -97,13 +97,13 @@ struct gentity_s {
 	char		*model;
 	char		*model2;
 	int			freetime;			// level.time when the object was freed
-	
+
 	int			eventTime;			// events will be cleared EVENT_VALID_MSEC after set
 	qboolean	freeAfterEvent;
 	qboolean	unlinkAfterEvent;
 
 	qboolean	physicsObject;		// if true, it can be pushed by movers and fall off edges
-									// all game items are physicsObjects, 
+									// all game items are physicsObjects,
 	float		physicsBounce;		// 1.0 = continuous bounce, 0.0 = no bounce
 	int			clipmask;			// brushes with this content value will be collided against
 									// when moving.  items and corpses do not collide against
@@ -174,12 +174,22 @@ struct gentity_s {
 	int			waterlevel;
 
 	int			noise_index;
+	float		lip;
+	float		height;
+	float		phase;
 
 	// timing variables
 	float		wait;
 	float		random;
 
 	gitem_t		*item;			// for bonus items
+	int		wait_to_pickup;
+	int			oasbid;
+	int			oasbheight;
+	int			botskill;
+//	int			oasbhp;
+//	int			oasbphys;
+//	int			oasbphysbounce;
 };
 
 
@@ -248,7 +258,7 @@ typedef struct {
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
-	clientConnected_t	connected;	
+	clientConnected_t	connected;
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
 	qboolean	initialSpawn;		// the first spawn should be at a cool location
@@ -261,6 +271,9 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+
+   pclass_t	playerclass;	   // The players current class
+   pclass_t	newplayerclass;	   // The class the player will become when it respawns
 	//elimination:
 	int		roundReached;			//Only spawn if we are new to this round
 	int		livesLeft;			//lives in LMS
@@ -268,7 +281,6 @@ typedef struct {
 //unlagged - client options
 	// these correspond with variables in the userinfo string
 	int			delag;
-//	int			debugDelag;
 	int			cmdTimeNudge;
 //unlagged - client options
 //unlagged - lag simulation #2
@@ -288,8 +300,8 @@ typedef struct {
     int         deathstreak;
     qboolean    onSpree;
     int         multiKillCount;
-    
-//KK-OAX Admin Stuff        
+
+//KK-OAX Admin Stuff
     char        guid[ 33 ];
     char        ip[ 40 ];
     qboolean    muted;
@@ -300,11 +312,11 @@ typedef struct {
 // flood protection
     int         floodDemerits;
     int         floodTime;
- 
+
 //Used To Track Name Changes
     int         nameChangeTime;
     int         nameChanges;
-    
+
 } clientPersistant_t;
 
 //unlagged - backward reconciliation #1
@@ -360,6 +372,7 @@ struct gclient_s {
 	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
+	int			lasthurt_location;	// Where the client was hit.
 
 	// timers
 	int			respawnTime;		// can respawn when time > this, force after g_forcerespwan
@@ -393,10 +406,10 @@ struct gclient_s {
         //New vote system. The votes are saved in the client info, so we know who voted on what and can cancel votes on leave.
         //0=not voted, 1=voted yes, -1=voted no
         int vote;
-        
+
         int lastSentFlying;                             //The last client that sent the player flying
         int lastSentFlyingTime;                         //So we can time out
-        
+
 
 	//unlagged - backward reconciliation #1
 	// the serverTime the button was pressed
@@ -416,12 +429,12 @@ struct gclient_s {
 //unlagged - smooth clients #1
 	// the last frame number we got an update from this client
 	int			lastUpdateFrame;
+//	int			debugDelag;
 //unlagged - smooth clients #1
         qboolean        spawnprotected;
 
         int			accuracy[WP_NUM_WEAPONS][2];
 };
-
 
 //
 // this structure is cleared as each map is entered
@@ -540,28 +553,28 @@ typedef struct {
 	// actual time this server frame started
 	int			frameStartTime;
 //unlagged - backward reconciliation #4
-//KK-OAX Storing upper bounds of spree/multikill arrays 
+//KK-OAX Storing upper bounds of spree/multikill arrays
     int         kSpreeUBound;
     int         dSpreeUBound;
     int         mKillUBound;
-//KK-OAX Storing g_spreeDiv to avoid dividing by 0.    
+//KK-OAX Storing g_spreeDiv to avoid dividing by 0.
     int         spreeDivisor;
 
     qboolean    RedTeamLocked;
     qboolean    BlueTeamLocked;
     qboolean    FFALocked;
-    
+
     //Obelisk tell
     int healthRedObelisk; //health in percent
     int healthBlueObelisk; //helth in percent
     qboolean MustSendObeliskHealth; //Health has changed
-     
+
 } level_locals_t;
 
 //KK-OAX These are some Print Shortcuts for KillingSprees and Admin
 //KK-Moved to g_admin.h
 //Prints to All when using "va()" in conjunction.
-//#define AP(x)   trap_SendServerCommand(-1, x) 
+//#define AP(x)   trap_SendServerCommand(-1, x)
 
 //
 // g_spawn.c
@@ -584,10 +597,10 @@ void SetTeam( gentity_t *ent, char *s );
 void Cmd_FollowCycle_f( gentity_t *ent );  //KK-OAX Changed to match definition
 char *ConcatArgs( int start );  //KK-OAX This declaration moved from g_svccmds.c
 //KK-OAX Added this to make accessible from g_svcmds_ext.c
-void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ); 
+void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText );
 
 
-// KK-OAX Added these in a seperate file to keep g_cmds.c familiar. 
+// KK-OAX Added these in a seperate file to keep g_cmds.c familiar.
 // g_cmds_ext.c
 //
 
@@ -599,7 +612,7 @@ void        G_MatchOnePlayer( int *plist, int num, char *err, int len );
 void        G_SanitiseString( char *in, char *out, int len );
 int         G_ClientNumbersFromString( char *s, int *plist, int max );
 int         G_FloodLimited( gentity_t *ent );
-//void QDECL G_AdminMessage( const char *prefix, const char *fmt, ... ) 
+//void QDECL G_AdminMessage( const char *prefix, const char *fmt, ... )
 // ^^ Do Not Need to Declare--Just for Documentation of where it is.
 void        Cmd_AdminMessage_f( gentity_t *ent );
 int         G_ClientNumberFromString( char *s );
@@ -637,6 +650,10 @@ void ClearRegisteredItems( void );
 void RegisterItem( gitem_t *item );
 void SaveRegisteredItems( void );
 
+// oatmeal begin
+gentity_t *Throw_Item( gentity_t *ent, gitem_t *item, float angle );
+// oatmeal end
+
 //
 // g_utils.c
 //
@@ -650,6 +667,7 @@ void	G_UseTargets (gentity_t *ent, gentity_t *activator);
 void	G_SetMovedir ( vec3_t angles, vec3_t movedir);
 
 void	G_InitGentity( gentity_t *e );
+gentity_t *findradius (gentity_t *ent, vec3_t org, float rad); //freaky - find radius
 gentity_t	*G_Spawn (void);
 gentity_t *G_TempEntity( vec3_t origin, int event );
 void	G_Sound( gentity_t *ent, int channel, int soundIndex );
@@ -729,6 +747,24 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
 void DropPortalSource( gentity_t *ent );
 void DropPortalDestination( gentity_t *ent );
+void G_AddProp( void );
+void G_BuildProp( gentity_t *client );
+void G_AddItem( void );
+void Svcmd_AddProp_f( void );
+void Svcmd_SendClientCmd_f( void );
+void Svcmd_SendClientMusic_f( void );
+void Svcmd_SendClientSound_f( void );
+void Svcmd_SendClientModel_f( void );
+void Svcmd_SendClientTorso_f( void );
+void Svcmd_SendClientTorsoSkin_f( void );
+void Svcmd_SendClientHead_f( void );
+void Svcmd_SendClientHeadSkin_f( void );
+void NextRound_f( void );
+void Svcmd_SendClientLegs_f( void );
+void Svcmd_ReplaceTexture( void );
+void Svcmd_AddItem_f( void );
+void Svcmd_RCM( void );
+void G_Regit( int itemnumid );
 
 
 //
@@ -845,8 +881,9 @@ void SendYourTeamMessageToTeam( team_t team );
 void QDECL G_Printf( const char *fmt, ... );
 void QDECL G_Error( const char *fmt, ... ) __attribute__((noreturn));
 //KK-OAX Made Accessible for g_admin.c
-void LogExit( const char *string ); 
+void LogExit( const char *string );
 void CheckTeamVote( int team );
+void G_LevelLoadComplete(void);
 
 //
 // g_client.c
@@ -959,6 +996,31 @@ extern int allowedFraglimit(int limit);
 extern int VoteParseCustomVotes( void );
 extern t_customvote getCustomVote(char* votecommand);
 
+//
+// g_mapcycle.c
+//
+void G_GotoNextMapCycle ( void );
+char *G_GetNextMapCycle ( char *map );
+char *G_GetNextMap ( char *map );
+void G_GetMapfile ( char *map );
+qboolean G_mapIsVoteable ( char* map );
+void G_drawAllowedMaps ( gentity_t *ent );
+void G_drawMapcycle ( gentity_t *ent );
+void G_sendMapcycle( void );
+void G_LoadMapcycle ( void );
+qboolean SkippedChar ( char in );
+int G_GetMapLockArena ( char *map );
+
+//
+// g_mapfiles.c
+//
+qboolean G_ClassnameAllowed( char *input );
+void G_WriteMapfile_f( void );
+void G_LoadMapfile( char *filename );
+void G_LoadMapfilec( char *filename );
+void G_LoadMapfile_f( void );
+void G_LoadMapfilec_f( void );
+
 // ai_main.c
 #define MAX_FILEPATH			144
 
@@ -994,6 +1056,8 @@ void grenade_think( gentity_t *ent );
 void bfg_think( gentity_t *ent );
 void nailgun_think( gentity_t *ent );
 void 	Newmodcommands( void );
+extern	int 		CustomModRun;
+extern	char 		cmapname[64];
 extern	int			mod_ammolimit;
 extern 	int 		mod_jumpheight;
 extern 	int			mod_gdelay;
@@ -1039,6 +1103,32 @@ extern	int			mod_teleporterinf;
 extern	int			mod_portalinf;
 extern	int			mod_kamikazeinf;
 extern	int			mod_invulinf;
+extern	int			mod_oasb_x;
+extern	int			mod_oasb_y;
+extern	int			mod_oasb_z;
+extern	int sl_px;
+extern	int sl_py;
+extern	int sl_pz;
+extern	int 		mod_teamblue_damage;
+extern	int 		mod_teamred_damage;
+extern	int			zombiedamageone;
+extern	int			zombiedamagetwo;
+extern	int			mod_accelerate;
+extern	int			mod_jumpmode;
+extern	int			mod_overlay;
+extern	int			mod_zombiemode;
+extern	int			mod_zround;
+extern	int	zombieround;
+extern	int	zombiemulti;
+extern	int	zombiedamage;
+extern	int	zombiespeed;
+extern	int	zombiehealth;
+//122 setting
+extern	vmCvar_t	g_portalgrabitems;
+extern	vmCvar_t	g_portallight;
+extern	vmCvar_t	g_building;
+extern	vmCvar_t	g_buildingtime;
+extern	vmCvar_t	g_minigame;
 //gh set
 extern	vmCvar_t	g_ghspeed;
 extern	vmCvar_t	g_ghtimeout;
@@ -1047,6 +1137,7 @@ extern	int 		mod_ghtimeout;
 extern	vmCvar_t	g_gdelay;
 extern	vmCvar_t	g_gdamage;
 extern	vmCvar_t	g_grange;
+extern	vmCvar_t	g_gknockback;
 //mg set
 extern	vmCvar_t	g_mgdelay;
 extern	vmCvar_t	g_mgdamage;
@@ -1056,6 +1147,7 @@ extern	vmCvar_t	g_mgsdamage;
 extern	vmCvar_t	g_mgsradius;
 extern	vmCvar_t	g_mgvampire;
 extern	vmCvar_t	g_mginf;
+extern	vmCvar_t	g_mgknockback;
 //sg set
 extern	vmCvar_t	g_sgdelay;
 extern	vmCvar_t	g_sgdamage;
@@ -1066,6 +1158,7 @@ extern	vmCvar_t	g_sgsradius;
 extern	vmCvar_t	g_sgcount;
 extern	vmCvar_t	g_sgvampire;
 extern	vmCvar_t	g_sginf;
+extern	vmCvar_t	g_sgknockback;
 //gl set
 extern	vmCvar_t	g_gldelay;
 extern	vmCvar_t	g_glspeed;
@@ -1078,6 +1171,7 @@ extern	vmCvar_t	g_glgravity;
 extern	vmCvar_t	g_glvampire;
 extern	vmCvar_t	g_glinf;
 extern	vmCvar_t	g_glbouncemodifier;
+extern	vmCvar_t	g_glknockback;
 //rl set
 extern	vmCvar_t	g_rldelay;
 extern	vmCvar_t	g_rlspeed;
@@ -1090,6 +1184,7 @@ extern	vmCvar_t	g_rlgravity;
 extern	vmCvar_t	g_rlvampire;
 extern	vmCvar_t	g_rlinf;
 extern	vmCvar_t	g_rlbouncemodifier;
+extern	vmCvar_t	g_rlknockback;
 //lg set
 extern	vmCvar_t	g_lgdamage;
 extern	vmCvar_t	g_lgdelay;
@@ -1099,23 +1194,26 @@ extern	vmCvar_t	g_lgsdamage;
 extern	vmCvar_t	g_lgsradius;
 extern	vmCvar_t	g_lgvampire;
 extern	vmCvar_t	g_lginf;
+extern	vmCvar_t	g_lgknockback;
 //rg set
 extern	vmCvar_t	g_rgdelay;
 extern	vmCvar_t	g_rgdamage;
 extern	vmCvar_t	g_rgvampire;
 extern	vmCvar_t	g_rginf;
+extern	vmCvar_t	g_rgknockback;
 //pg set
 extern	vmCvar_t	g_pgdelay;
 extern	vmCvar_t	g_pgsradius;
 extern	vmCvar_t	g_pgspeed;
 extern	vmCvar_t	g_pgsdamage;
 extern	vmCvar_t	g_pgdamage;
-extern	vmCvar_t	g_pgtimeout; 
+extern	vmCvar_t	g_pgtimeout;
 extern	vmCvar_t	g_pgbounce;
 extern	vmCvar_t	g_pggravity;
 extern	vmCvar_t	g_pgvampire;
 extern	vmCvar_t	g_pginf;
 extern	vmCvar_t	g_pgbouncemodifier;
+extern	vmCvar_t	g_pgknockback;
 //bfg set
 extern	vmCvar_t	g_bfgdelay;
 extern	vmCvar_t	g_bfgspeed;
@@ -1128,6 +1226,7 @@ extern	vmCvar_t	g_bfggravity;
 extern	vmCvar_t	g_bfgvampire;
 extern	vmCvar_t	g_bfginf;
 extern	vmCvar_t	g_bfgbouncemodifier;
+extern	vmCvar_t	g_bfgknockback;
 //ng set
 extern	vmCvar_t	g_ngdelay;
 extern	vmCvar_t	g_ngspeed;
@@ -1141,6 +1240,7 @@ extern	vmCvar_t	g_ngrandom;
 extern	vmCvar_t	g_ngvampire;
 extern	vmCvar_t	g_nginf;
 extern	vmCvar_t	g_ngbouncemodifier;
+extern	vmCvar_t	g_ngknockback;
 //pl set
 extern	vmCvar_t	g_pldelay;
 extern	vmCvar_t	g_plspeed;
@@ -1151,12 +1251,14 @@ extern	vmCvar_t	g_pldamage;
 extern	vmCvar_t	g_plgravity;
 extern	vmCvar_t	g_plvampire;
 extern	vmCvar_t	g_plinf;
+extern	vmCvar_t	g_plknockback;
 //cg set
 extern	vmCvar_t	g_cgdelay;
 extern	vmCvar_t	g_cgdamage;
 extern	vmCvar_t	g_cgspread;
 extern	vmCvar_t	g_cgvampire;
 extern	vmCvar_t	g_cginf;
+extern	vmCvar_t	g_cgknockback;
 //ft set
 extern	vmCvar_t	g_ftdelay;
 extern	vmCvar_t	g_ftsradius;
@@ -1169,6 +1271,7 @@ extern	vmCvar_t	g_ftgravity;
 extern	vmCvar_t	g_ftvampire;
 extern	vmCvar_t	g_ftinf;
 extern	vmCvar_t	g_ftbouncemodifier;
+extern	vmCvar_t	g_ftknockback;
 //am set
 extern	vmCvar_t	g_amdelay;
 extern	vmCvar_t	g_amsradius;
@@ -1181,6 +1284,22 @@ extern	vmCvar_t	g_amgravity;
 extern	vmCvar_t	g_amvampire;
 extern	vmCvar_t	g_aminf;
 extern	vmCvar_t	g_ambouncemodifier;
+extern	vmCvar_t	g_amknockback;
+//guided and homing
+extern	vmCvar_t	g_glhoming;
+extern	vmCvar_t	g_glguided;
+extern	vmCvar_t	g_rlhoming;
+extern	vmCvar_t	g_rlguided;
+extern	vmCvar_t	g_pghoming;
+extern	vmCvar_t	g_pgguided;
+extern	vmCvar_t	g_bfghoming;
+extern	vmCvar_t	g_bfgguided;
+extern	vmCvar_t	g_nghoming;
+extern	vmCvar_t	g_ngguided;
+extern	vmCvar_t	g_fthoming;
+extern	vmCvar_t	g_ftguided;
+extern	vmCvar_t	g_amhoming;
+extern	vmCvar_t	g_amguided;
 //rune s set
 extern	vmCvar_t	g_scoutspeedfactor;
 extern	vmCvar_t	g_scoutfirespeed;
@@ -1221,6 +1340,7 @@ extern	vmCvar_t	g_bfgammocount;
 extern	vmCvar_t	g_ngammocount;
 extern	vmCvar_t	g_plammocount;
 extern	vmCvar_t	g_cgammocount;
+extern	vmCvar_t	g_ftammocount;
 //weaponcount,s
 extern	vmCvar_t	g_mgweaponcount;
 extern	vmCvar_t	g_sgweaponcount;
@@ -1241,14 +1361,50 @@ extern	vmCvar_t	g_teamblue_gravityModifier;
 extern	vmCvar_t	g_teamblue_firespeed;
 extern	vmCvar_t	g_teamblue_damage;
 extern	vmCvar_t	g_teamblue_infammo;
+extern	vmCvar_t	g_teamblue_respawnwait;
+extern	vmCvar_t	g_teamblue_pickupitems;
 //redteam set
 extern	vmCvar_t	g_teamred_speed;
 extern	vmCvar_t	g_teamred_gravityModifier;
 extern	vmCvar_t	g_teamred_firespeed;
 extern	vmCvar_t	g_teamred_damage;
 extern	vmCvar_t	g_teamred_infammo;
+extern	vmCvar_t	g_teamred_respawnwait;
+extern	vmCvar_t	g_teamred_pickupitems;
+//NextArenaSandBox Set
+extern	vmCvar_t	oasb_angle0;
+extern	vmCvar_t	oasb_angle1;
+extern	vmCvar_t	oasb_angle2;
+extern	vmCvar_t	oasb_text;
+extern	vmCvar_t	oasb_clientid;
+extern	vmCvar_t	oasb_itemid;
+extern	vmCvar_t	oasb_z;
+extern	vmCvar_t	oasb_y;
+extern	vmCvar_t	oasb_x;
+extern	vmCvar_t	oasb_id;
+extern	vmCvar_t	oasb_hp;
+extern	vmCvar_t	oasb_noclip;
+extern	vmCvar_t	oasb_phys;
+extern	vmCvar_t	oasb_physbounce;
 //cvars
-extern	vmCvar_t	cm_running;
+extern	vmCvar_t	g_zombiemode;
+extern	vmCvar_t	tex_name;
+extern	vmCvar_t	tex_newname;
+extern	vmCvar_t	g_regenarmor;
+extern	vmCvar_t	g_spectatorspeed;
+extern	vmCvar_t	eliminationredrespawn;
+extern	vmCvar_t	eliminationrespawn;
+extern	vmCvar_t	onandroid;
+extern	vmCvar_t	g_lavatowater;
+extern	vmCvar_t	g_overlay;
+extern	vmCvar_t	g_jumpmode;
+extern	vmCvar_t	g_accelerate;
+extern	vmCvar_t	g_randomItems;
+extern	vmCvar_t	info_zombie;
+extern	vmCvar_t	g_locationdamage;
+extern 	vmCvar_t	g_mapcycle;
+extern 	vmCvar_t	g_useMapcycle;
+extern	vmCvar_t	g_mapcycleposition;
 extern	vmCvar_t	g_kill;
 extern	vmCvar_t	g_kamikazeinfinf;
 extern	vmCvar_t	g_invulinf;
@@ -1364,7 +1520,8 @@ extern	vmCvar_t	g_elimination_grapple;
 extern	vmCvar_t	g_elimination_roundtime;
 extern	vmCvar_t	g_elimination_warmup;
 extern	vmCvar_t	g_elimination_activewarmup;
-extern  vmCvar_t        g_elimination_allgametypes;
+extern  vmCvar_t    g_elimination_allgametypes;
+extern	vmCvar_t	g_elimination_gauntlet;
 extern	vmCvar_t	g_elimination_machinegun;
 extern	vmCvar_t	g_elimination_shotgun;
 extern	vmCvar_t	g_elimination_grenade;
@@ -1384,6 +1541,33 @@ extern	vmCvar_t	g_elimination_invis;
 extern	vmCvar_t	g_elimination_regen;
 extern	vmCvar_t	g_elimination_flight;
 extern	vmCvar_t	g_elimination_items;
+extern	vmCvar_t	g_elimination_holdable;
+
+//elimination:
+extern	vmCvar_t	g_eliminationred_startHealth;
+extern	vmCvar_t	g_eliminationred_startArmor;
+extern	vmCvar_t	g_eliminationred_bfg;
+extern	vmCvar_t	g_eliminationred_grapple;
+extern	vmCvar_t	g_eliminationred_gauntlet;
+extern	vmCvar_t	g_eliminationred_machinegun;
+extern	vmCvar_t	g_eliminationred_shotgun;
+extern	vmCvar_t	g_eliminationred_grenade;
+extern	vmCvar_t	g_eliminationred_rocket;
+extern	vmCvar_t	g_eliminationred_railgun;
+extern	vmCvar_t	g_eliminationred_lightning;
+extern	vmCvar_t	g_eliminationred_plasmagun;
+extern	vmCvar_t	g_eliminationred_chain;
+extern	vmCvar_t	g_eliminationred_mine;
+extern	vmCvar_t	g_eliminationred_nail;
+extern	vmCvar_t	g_eliminationred_flame;
+extern	vmCvar_t	g_eliminationred_antimatter;
+extern	vmCvar_t	g_eliminationred_quad;
+extern	vmCvar_t	g_eliminationred_haste;
+extern	vmCvar_t	g_eliminationred_bsuit;
+extern	vmCvar_t	g_eliminationred_invis;
+extern	vmCvar_t	g_eliminationred_regen;
+extern	vmCvar_t	g_eliminationred_flight;
+extern	vmCvar_t	g_eliminationred_holdable;
 
 //If lockspectator: 0=no limit, 1 = cannot follow enemy, 2 = must follow friend
 extern  vmCvar_t        g_elimination_lockspectator;
@@ -1668,7 +1852,7 @@ int		trap_GeneticParentsAndChildSelection(int numranks, float *ranks, int *paren
 void	trap_SnapVector( float *v );
 
 //KK-OAX
-//These enable the simplified command handling. 
+//These enable the simplified command handling.
 
 #define CMD_CHEAT           0x0001
 #define CMD_CHEAT_TEAM      0x0002 // is a cheat when used on a team
@@ -1690,7 +1874,7 @@ typedef struct
 
 //
 // g_svcmds_ext.c
-// These were added to a seperate file to keep g_svcmds.c navigable. 
+// These were added to a seperate file to keep g_svcmds.c navigable.
 void Svcmd_Status_f( void );
 void Svcmd_TeamMessage_f( void );
 void Svcmd_CenterPrint_f( void );

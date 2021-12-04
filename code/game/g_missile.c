@@ -576,6 +576,215 @@ void G_RunMissile( gentity_t *ent ) {
 
 //=============================================================================
 
+
+
+
+
+
+
+
+
+/*
+================
+G_HomingMissile               
+freaky - homing missile code
+================
+*/
+
+void G_HomingMissile( gentity_t *ent )
+{
+	gentity_t	*target = NULL;
+	gentity_t	*blip = NULL;
+	vec3_t      dir, blipdir, temp_dir;
+
+	while (( blip = findradius( blip, ent->r.currentOrigin, 2000 )) != NULL ) {
+
+		if ( blip->client == NULL )			
+			continue;
+
+		if ( blip == ent->parent )			
+			continue;
+
+		if ( blip->health<=0 )			
+			continue;
+
+		if ( blip->client->sess.sessionTeam == TEAM_SPECTATOR )
+			continue;
+
+		if (( g_gametype.integer == GT_TEAM || g_gametype.integer == GT_CTF ) &&
+			blip->client->sess.sessionTeam == ent->parent->client->sess.sessionTeam )
+			continue;
+
+		//freaky - not working with 1.15c codebase, removed.
+		/*
+		if (!visible (ent, blip))
+			continue;
+		*/
+
+		VectorSubtract( blip->r.currentOrigin, ent->r.currentOrigin, blipdir );
+		blipdir[2] += 16;
+
+		if (( target == NULL ) || ( VectorLength( blipdir ) < VectorLength( dir ) )) {
+
+			//if new target is the nearest
+			VectorCopy( blipdir, temp_dir );
+			VectorNormalize( temp_dir );
+			VectorAdd( temp_dir, ent->r.currentAngles, temp_dir );	
+
+			//now the longer temp_dir length is the more straight path for the rocket.
+			if ( VectorLength( temp_dir ) >0.8 ) {	
+
+				//if this 1.6 were smaller,the rocket also get to target the enemy on his back.
+				target = blip;
+				VectorCopy( blipdir, dir );
+			}
+		}
+	}
+
+	if ( target == NULL ) {	
+		ent->nextthink = level.time + 10000;
+	} else {
+		ent->s.pos.trTime=level.time;
+		VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
+
+		//for exact trajectory calculation, set current point to base.		
+		VectorNormalize( dir );
+		VectorScale( dir, 1.8,dir );
+		VectorAdd( dir, ent->r.currentAngles, dir );
+
+		// this 0.3 is swing rate.this value is cheap,I think.try 0.8 or 1.5.
+		// if you want fastest swing,comment out these 3 lines.
+		VectorNormalize( dir );
+		VectorCopy( dir, ent->r.currentAngles );
+
+		//locate nozzle to target
+		VectorScale ( dir, VectorLength( ent->s.pos.trDelta )*1.1, ent->s.pos.trDelta );
+
+		//trDelta is actual vector for movement.Because the rockets slow down
+		// when swing large angle,so accelalate them.
+		SnapVector ( ent->s.pos.trDelta ); // save net bandwidth
+		ent->nextthink = level.time + 100;	//decrease this value also makes fast swing.
+	}
+
+       if ( ent->parent->client->ps.stats[STAT_HEALTH] <= 0 || ent->parent->health <= 0 )
+           G_ExplodeMissile( ent );
+
+       if ( level.time > ent->wait ) {
+           G_ExplodeMissile( ent );
+	}
+}
+
+
+
+
+
+/*
+================
+Guided_Missile_Think             
+freaky - guided missile code
+================
+*/
+void Guided_Missile_Think( gentity_t *missile )
+{
+	vec3_t forward, right, up; 
+	vec3_t muzzle;
+	float  dist;
+
+	gentity_t *player = missile->parent;
+
+	// If our owner can't be found, just return
+	if ( !player ) {
+		G_Printf ("Guided_Missile_Think : missile has no owner!\n");
+		return;
+	}
+
+	// Get our forward, right, up vector from the view angle of the player
+	AngleVectors ( player->client->ps.viewangles, forward, right, up );
+
+	// Calculate the player's eyes origin, and store this origin in muzzle
+	CalcMuzzlePoint ( player, forward, right, up, muzzle );
+ 
+	// Tells the engine that our movement starts at the current missile's origin
+	VectorCopy ( missile->r.currentOrigin, missile->s.pos.trBase );
+
+	// Trajectory type setup (linear move - fly)
+	missile->s.pos.trType = TR_LINEAR;
+	missile->s.pos.trTime = level.time - 50;
+
+	// Get the dir vector between the player's point of view and the rocket
+	// and store it into muzzle again
+	VectorSubtract( muzzle, missile->r.currentOrigin, muzzle );
+	
+	// Add some range to our "line" so we can go behind blocks
+	// We could have used a trace function here, but the rocket would
+	// have come back if player was aiming on a block while the rocket is behind it
+	// as the trace stops on solid blocks
+
+//	dist = VectorLength( muzzle ) + 400;	 //give the range of our muzzle vector + 400 units
+//	VectorScale( forward, dist, forward );
+		if(missile->classname == "plasma"){
+     VectorScale( forward, g_pgspeed.integer, forward );
+		}
+		if(missile->classname == "grenade"){
+     VectorScale( forward, g_glspeed.integer, forward );
+		}
+		if(missile->classname == "bfg"){
+     VectorScale( forward, g_bfgspeed.integer, forward );
+		}
+		if(missile->classname == "rocket"){
+     VectorScale( forward, g_rlspeed.integer, forward );
+		}
+		if(missile->classname == "nail"){
+     VectorScale( forward, g_ngspeed.integer, forward );
+		}
+		if(missile->classname == "flame"){
+     VectorScale( forward, g_ftspeed.integer, forward );
+		}
+		if(missile->classname == "antimatter"){
+     VectorScale( forward, g_amspeed.integer, forward );
+		}
+
+	// line straight forward
+	VectorAdd( forward, muzzle, muzzle );
+
+	// Normalize the vector so it's 1 unit long, but keep its direction
+	VectorNormalize( muzzle );
+
+	// Slow the rocket down a bit, so we can handle it
+    // VectorScale( muzzle, 300, forward );
+
+	// Set the rockets's velocity so it'll move toward our new direction
+	VectorCopy( forward, missile->s.pos.trDelta );
+
+	// Change the rocket's angle so it'll point toward the new direction
+	vectoangles( muzzle, missile->s.angles );
+
+	// This should "save net bandwidth" =D
+	SnapVector( missile->s.pos.trDelta );
+
+	/*
+	// Call this function in 0,1 s
+    //missile->nextthink = level.time + FRAMETIME;
+	*/
+    
+    //freaky - using frametime was buggy, so used custom value instead.
+    missile->nextthink = level.time + 25;
+	//end
+
+    if ( level.time > missile->wait ) {
+        G_ExplodeMissile( missile );
+	}
+}
+
+
+
+
+
+
+
+
+
+
 /*
 =================
 fire_plasma
@@ -589,8 +798,26 @@ gentity_t *fire_plasma (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "plasma";
+if(g_pghoming.integer == 0){
 	bolt->nextthink = level.time + g_pgtimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_pghoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_pgtimeout.integer;
+}
+if(g_pghoming.integer == 0){
+if(g_pgguided.integer == 0){
+	bolt->nextthink = level.time + g_pgtimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_pgguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_pgtimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_pgbounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;
@@ -642,8 +869,26 @@ gentity_t *fire_grenade (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "grenade";
+if(g_glhoming.integer == 0){
 	bolt->nextthink = level.time + g_gltimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_glhoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_gltimeout.integer;
+}
+if(g_glhoming.integer == 0){
+if(g_glguided.integer == 0){
+	bolt->nextthink = level.time + g_gltimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_glguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_gltimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_glbounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;
@@ -695,8 +940,26 @@ gentity_t *fire_bfg (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "bfg";
+if(g_bfghoming.integer == 0){
 	bolt->nextthink = level.time + g_bfgtimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_bfghoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_bfgtimeout.integer;
+}
+if(g_bfghoming.integer == 0){
+if(g_bfgguided.integer == 0){
+	bolt->nextthink = level.time + g_bfgtimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_bfgguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_bfgtimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_bfgbounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;
@@ -747,8 +1010,26 @@ gentity_t *fire_rocket (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "rocket";
+if(g_rlhoming.integer == 0){
 	bolt->nextthink = level.time + g_rltimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_rlhoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_rltimeout.integer;
+}
+if(g_rlhoming.integer == 0){
+if(g_rlguided.integer == 0){
+	bolt->nextthink = level.time + g_rltimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_rlguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_rltimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_rlbounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;
@@ -857,8 +1138,26 @@ gentity_t *fire_nail( gentity_t *self, vec3_t start, vec3_t forward, vec3_t righ
 
 	bolt = G_Spawn();
 	bolt->classname = "nail";
+if(g_nghoming.integer == 0){
 	bolt->nextthink = level.time + g_ngtimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_nghoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_ngtimeout.integer;
+}
+if(g_nghoming.integer == 0){
+if(g_ngguided.integer == 0){
+	bolt->nextthink = level.time + g_ngtimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_ngguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_ngtimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_ngbounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;
@@ -967,8 +1266,26 @@ gentity_t *fire_flame (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "flame";
+if(g_fthoming.integer == 0){
 	bolt->nextthink = level.time + g_fttimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_fthoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_fttimeout.integer;
+}
+if(g_fthoming.integer == 0){
+if(g_ftguided.integer == 0){
+	bolt->nextthink = level.time + g_fttimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_ftguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_fttimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_ftbounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;
@@ -1017,8 +1334,26 @@ gentity_t *fire_antimatter (gentity_t *self, vec3_t start, vec3_t dir) {
 
 	bolt = G_Spawn();
 	bolt->classname = "antimatter";
+if(g_amhoming.integer == 0){
 	bolt->nextthink = level.time + g_amtimeout.integer;
 	bolt->think = G_ExplodeMissile;
+}
+if(g_amhoming.integer == 1){
+	bolt->nextthink = level.time + 10;
+	bolt->think = G_HomingMissile;
+    bolt->wait = level.time + g_amtimeout.integer;
+}
+if(g_amhoming.integer == 0){
+if(g_amguided.integer == 0){
+	bolt->nextthink = level.time + g_amtimeout.integer;
+	bolt->think = G_ExplodeMissile;
+}
+if(g_amguided.integer == 1){
+	bolt->nextthink = level.time + 50;
+	bolt->think = Guided_Missile_Think;
+    bolt->wait = level.time + g_amtimeout.integer;
+}
+}
 	bolt->s.eType = ET_MISSILE;
 	if (g_ambounce.integer == 1)
 	bolt->s.eFlags = EF_BOUNCE_HALF;

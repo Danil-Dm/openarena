@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-// g_weapon.c 
+// g_weapon.c
 // perform the server side effects of a weapon firing
 
 #include "g_local.h"
@@ -116,7 +116,7 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 	if(g_instantgib.integer)
 		damage = 500; //High damage in instant gib (normally enough to gib)
 	else
-		damage = g_gdamage.integer * s_quadFactor;
+		damage = g_gdamage.integer * s_quadFactor + zombiedamage;
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
 		damage, 0, MOD_GAUNTLET );
 
@@ -138,7 +138,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -167,7 +167,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -232,18 +232,18 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 //unlagged - backward reconciliation #2
 
 		trap_Trace (&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
-                
+
 //unlagged - backward reconciliation #2
 		// put them back
 		G_UndoTimeShiftFor( ent );
 //unlagged - backward reconciliation #2
-                
+
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			return;
 		}
 
 		traceEnt = &g_entities[ tr.entityNum ];
-		
+
 	 //freaky - explode machinegun bullets
     if(g_mgexplode.integer) {
        tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
@@ -359,7 +359,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	for (i = 0; i < 10; i++) {
 		trap_Trace (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
 		traceEnt = &g_entities[ tr.entityNum ];
-		
+
 		    //freaky - explode shotgun bullets
 	if(g_sgexplode.integer) {
        tent = G_TempEntity( tr.endpos, EV_MISSILE_HIT );
@@ -369,7 +369,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	   G_RadiusDamage(tr.endpos, ent, g_sgsdamage.value/*45*/ * s_quadFactor, g_sgsradius.value/*35*/ * s_quadFactor, traceEnt, MOD_SHOTGUN);
 	}
     //end
-		
+
 
 		// send bullet impact
 		if (  tr.surfaceFlags & SURF_NOIMPACT ) {
@@ -662,7 +662,7 @@ void weapon_railgun_fire (gentity_t *ent) {
 			ent->client->accurateCount -= 2;
 			ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
                         G_LogPrintf( "Award: %i %i: %s gained the %s award!\n", ent->client->ps.clientNum, 2, ent->client->pers.netname, "IMPRESSIVE" );
-                        if(!level.hadBots) //There has not been any bots
+//                        if(!level.hadBots) //There has not been any bots
                             ChallengeMessage(ent,AWARD_IMPRESSIVE);
                         // add the sprite over the player's head
 			ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
@@ -982,11 +982,41 @@ void FireWeapon( gentity_t *ent ) {
 	s_quadFactor *= g_scoutdamagefactor.value;
 	}
 	if( ent->client->sess.sessionTeam == TEAM_BLUE ) {
-	s_quadFactor *= g_teamblue_damage.value;
+	s_quadFactor *= mod_teamblue_damage;
 	}
 	if( ent->client->sess.sessionTeam == TEAM_RED ) {
-	s_quadFactor *= g_teamred_damage.value;
+	s_quadFactor *= mod_teamred_damage;
 	}
+	if(ent->botskill == 6){
+	s_quadFactor *= 1.5;
+	}
+	if(ent->botskill == 7){
+	s_quadFactor *= 2;
+	}
+	if(ent->botskill == 8){
+	s_quadFactor *= 3;
+	}
+	if(ent->botskill == 9){
+	s_quadFactor *= 5;
+	}
+	if(ent->botskill == 10){
+	s_quadFactor *= 10;
+	}
+	if(ent->botskill == 11){
+	s_quadFactor *= 15;
+	}
+	if(ent->botskill == 12){
+	s_quadFactor *= 20;
+	}
+	if(ent->botskill == 13){
+	s_quadFactor *= 50;
+	}
+	if(ent->botskill == 14){
+	s_quadFactor *= 100;
+	}
+//	if( ent->client->pers.playerclass == PCLASS_FEMALE){
+//	s_quadFactor *= 1.2;
+//	}
 
         if (ent->client->spawnprotected)
             ent->client->spawnprotected = qfalse;

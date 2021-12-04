@@ -934,6 +934,22 @@ Only in One Flag CTF games
 /* sounds */ ""
 	},
 	
+/*QUAKED ammo_flame (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_flame",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/flamethroweram.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_flamethrower",
+/* pickup */	"Flame",
+		50,
+		IT_AMMO,
+		WP_FLAMETHROWER,
+/* precache */ "",
+/* sounds */ ""
+	},
+	
 	
 	
 	/*QUAKED weapon_antimatter (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -1113,6 +1129,1092 @@ Only in Domination games
 	{NULL}
 };
 
+gitem_t	bg_itemlistru[] = 
+{
+	{
+		NULL,
+		NULL,
+		{ NULL,
+		NULL,
+		NULL, NULL} ,
+/* icon */		NULL,
+/* pickup */	NULL,
+		0,
+		0,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},	// leave index 0 alone
+
+	//
+	// ARMOR
+	//
+
+/*QUAKED item_armor_shard (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_armor_shard", 
+		"sound/misc/ar1_pkup.wav",
+		{ "models/powerups/armor/shard.md3", 
+		"models/powerups/armor/shard_sphere.md3",
+		NULL, NULL} ,
+/* icon */		"icons/iconr_shard",
+/* pickup */	"Осколок брони",
+		5,
+		IT_ARMOR,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_armor_combat (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_armor_combat", 
+		"sound/misc/ar2_pkup.wav",
+        { "models/powerups/armor/armor_yel.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconr_yellow",
+/* pickup */	"Броня",
+		50,
+		IT_ARMOR,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_armor_body", 
+		"sound/misc/ar2_pkup.wav",
+        { "models/powerups/armor/armor_red.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconr_red",
+/* pickup */	"Тяжёлая броня",
+		100,
+		IT_ARMOR,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	//
+	// health
+	//
+/*QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_health_small",
+		"sound/items/s_health.wav",
+        { "models/powerups/health/small_cross.md3", 
+		"models/powerups/health/small_sphere.md3", 
+		NULL, NULL },
+/* icon */		"icons/iconh_green",
+/* pickup */	"Здоровье 5",
+		5,
+		IT_HEALTH,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_health",
+		"sound/items/n_health.wav",
+        { "models/powerups/health/medium_cross.md3", 
+		"models/powerups/health/medium_sphere.md3", 
+		NULL, NULL },
+/* icon */		"icons/iconh_yellow",
+/* pickup */	"Здоровье 25",
+		25,
+		IT_HEALTH,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_health_large",
+		"sound/items/l_health.wav",
+        { "models/powerups/health/large_cross.md3", 
+		"models/powerups/health/large_sphere.md3", 
+		NULL, NULL },
+/* icon */		"icons/iconh_red",
+/* pickup */	"Здоровье 50",
+		50,
+		IT_HEALTH,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_health_mega",
+		"sound/items/m_health.wav",
+        { "models/powerups/health/mega_cross.md3", 
+		"models/powerups/health/mega_sphere.md3", 
+		NULL, NULL },
+/* icon */		"icons/iconh_mega",
+/* pickup */	"Мега Здоровье",
+		100,
+		IT_HEALTH,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+
+	//
+	// WEAPONS 
+	//
+
+/*QUAKED weapon_gauntlet (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_gauntlet", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/gauntlet/gauntlet.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_gauntlet",
+/* pickup */	"Пила",
+		0,
+		IT_WEAPON,
+		WP_GAUNTLET,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_shotgun", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/shotgun/shotgun.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_shotgun",
+/* pickup */	"Дробовик",
+		10,
+		IT_WEAPON,
+		WP_SHOTGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_machinegun", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/machinegun/machinegun.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_machinegun",
+/* pickup */	"Пулемёт",
+		40,
+		IT_WEAPON,
+		WP_MACHINEGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_grenadelauncher",
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/grenadel/grenadel.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_grenade",
+/* pickup */	"Гранатомёт",
+		10,
+		IT_WEAPON,
+		WP_GRENADE_LAUNCHER,
+/* precache */ "",
+/* sounds */ "sound/weapons/grenade/hgrenb1a.wav sound/weapons/grenade/hgrenb2a.wav"
+	},
+
+/*QUAKED weapon_rocketlauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_rocketlauncher",
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/rocketl/rocketl.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_rocket",
+/* pickup */	"Ракетница",
+		10,
+		IT_WEAPON,
+		WP_ROCKET_LAUNCHER,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_lightning (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_lightning", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/lightning/lightning.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_lightning",
+/* pickup */	"Молния",
+		100,
+		IT_WEAPON,
+		WP_LIGHTNING,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_railgun", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/railgun/railgun.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_railgun",
+/* pickup */	"Рэйлган",
+		10,
+		IT_WEAPON,
+		WP_RAILGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_plasmagun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_plasmagun", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/plasma/plasma.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_plasma",
+/* pickup */	"Плазменная пушка",
+		50,
+		IT_WEAPON,
+		WP_PLASMAGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_bfg",
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/bfg/bfg.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_bfg",
+/* pickup */	"БФГ10К",
+		20,
+		IT_WEAPON,
+		WP_BFG,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_grapplinghook (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_grapplinghook",
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/grapple/grapple.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_grapple",
+/* pickup */	"Крюк",
+		0,
+		IT_WEAPON,
+		WP_GRAPPLING_HOOK,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	//
+	// AMMO ITEMS
+	//
+
+/*QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_shells",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/shotgunam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_shotgun",
+/* pickup */	"Дробь",
+		10,
+		IT_AMMO,
+		WP_SHOTGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_bullets",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/machinegunam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_machinegun",
+/* pickup */	"Пули",
+		50,
+		IT_AMMO,
+		WP_MACHINEGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_grenades",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/grenadeam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_grenade",
+/* pickup */	"Гранаты",
+		5,
+		IT_AMMO,
+		WP_GRENADE_LAUNCHER,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_cells (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_cells",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/plasmaam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_plasma",
+/* pickup */	"Плазма",
+		30,
+		IT_AMMO,
+		WP_PLASMAGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_lightning (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_lightning",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/lightningam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_lightning",
+/* pickup */	"Электричество",
+		60,
+		IT_AMMO,
+		WP_LIGHTNING,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_rockets",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/rocketam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_rocket",
+/* pickup */	"Ракеты",
+		5,
+		IT_AMMO,
+		WP_ROCKET_LAUNCHER,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_slugs (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_slugs",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/railgunam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_railgun",
+/* pickup */	"Слаги",
+		10,
+		IT_AMMO,
+		WP_RAILGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_bfg",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/bfgam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_bfg",
+/* pickup */	"БФГ Патроны",
+		15,
+		IT_AMMO,
+		WP_BFG,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	//
+	// HOLDABLE ITEMS
+	//
+/*QUAKED holdable_teleporter (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"holdable_teleporter", 
+		"sound/items/holdable.wav",
+        { "models/powerups/holdable/teleporter.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/teleporter",
+/* pickup */	"Телепортер",
+		60,
+		IT_HOLDABLE,
+		HI_TELEPORTER,
+/* precache */ "",
+/* sounds */ ""
+	},
+/*QUAKED holdable_medkit (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"holdable_medkit", 
+		"sound/items/holdable.wav",
+        { 
+		"models/powerups/holdable/medkit.md3", 
+		"models/powerups/holdable/medkit_sphere.md3",
+		NULL, NULL},
+/* icon */		"icons/medkit",
+/* pickup */	"Аптечка",
+		60,
+		IT_HOLDABLE,
+		HI_MEDKIT,
+/* precache */ "",
+/* sounds */ "sound/items/use_medkit.wav"
+	},
+
+	//
+	// POWERUP ITEMS
+	//
+/*QUAKED item_quad (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_quad", 
+		"sound/items/quaddamage.wav",
+        { "models/powerups/instant/quad.md3", 
+        "models/powerups/instant/quad_ring.md3",
+		NULL, NULL },
+/* icon */		"icons/quad",
+/* pickup */	"Квадратный урон",
+		5,
+		IT_POWERUP,
+		PW_QUAD,
+/* precache */ "",
+/* sounds */ "sound/items/damage2.wav sound/items/damage3.wav"
+	},
+
+/*QUAKED item_enviro (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_enviro",
+		"sound/items/protect.wav",
+        { "models/powerups/instant/enviro.md3", 
+		"models/powerups/instant/enviro_ring.md3", 
+		NULL, NULL },
+/* icon */		"icons/envirosuit",
+/* pickup */	"Боевой щит",
+		30,
+		IT_POWERUP,
+		PW_BATTLESUIT,
+/* precache */ "",
+/* sounds */ "sound/items/airout.wav sound/items/protect3.wav"
+	},
+
+/*QUAKED item_haste (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_haste",
+		"sound/items/haste.wav",
+        { "models/powerups/instant/haste.md3", 
+		"models/powerups/instant/haste_ring.md3", 
+		NULL, NULL },
+/* icon */		"icons/haste",
+/* pickup */	"Скорость",
+		30,
+		IT_POWERUP,
+		PW_HASTE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_invis (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_invis",
+		"sound/items/invisibility.wav",
+        { "models/powerups/instant/invis.md3", 
+		"models/powerups/instant/invis_ring.md3", 
+		NULL, NULL },
+/* icon */		"icons/invis",
+/* pickup */	"Невидимость",
+		30,
+		IT_POWERUP,
+		PW_INVIS,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_regen (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_regen",
+		"sound/items/regeneration.wav",
+        { "models/powerups/instant/regen.md3", 
+		"models/powerups/instant/regen_ring.md3", 
+		NULL, NULL },
+/* icon */		"icons/regen",
+/* pickup */	"Регенерация",
+		30,
+		IT_POWERUP,
+		PW_REGEN,
+/* precache */ "",
+/* sounds */ "sound/items/regen.wav"
+	},
+
+/*QUAKED item_flight (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"item_flight",
+		"sound/items/flight.wav",
+        { "models/powerups/instant/flight.md3", 
+		"models/powerups/instant/flight_ring.md3", 
+		NULL, NULL },
+/* icon */		"icons/flight",
+/* pickup */	"Полёт",
+		60,
+		IT_POWERUP,
+		PW_FLIGHT,
+/* precache */ "",
+/* sounds */ "sound/items/flight.wav"
+	},
+
+/*QUAKED team_CTF_redflag (1 0 0) (-16 -16 -16) (16 16 16)
+Only in CTF games
+*/
+	{
+		"team_CTF_redflag",
+		NULL,
+        { "models/flags/r_flag.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconf_red1",
+/* pickup */	"Красный флаг",
+		0,
+		IT_TEAM,
+		PW_REDFLAG,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED team_CTF_blueflag (0 0 1) (-16 -16 -16) (16 16 16)
+Only in CTF games
+*/
+	{
+		"team_CTF_blueflag",
+		NULL,
+        { "models/flags/b_flag.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconf_blu1",
+/* pickup */	"Синий флаг",
+		0,
+		IT_TEAM,
+		PW_BLUEFLAG,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"holdable_kamikaze", 
+		"sound/items/holdable.wav",
+        { "models/powerups/kamikazi.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/kamikaze",
+/* pickup */	"Камикадзе",
+		60,
+		IT_HOLDABLE,
+		HI_KAMIKAZE,
+/* precache */ "",
+/* sounds */ "sound/items/kamikazerespawn.wav"
+	},
+
+/*QUAKED holdable_portal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"holdable_portal", 
+		"sound/items/holdable.wav",
+        { "models/powerups/holdable/porter.md3",
+		NULL, NULL, NULL},
+/* icon */		"icons/portal",
+/* pickup */	"Портал",
+		60,
+		IT_HOLDABLE,
+		HI_PORTAL,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED holdable_invulnerability (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"holdable_invulnerability", 
+		"sound/items/holdable.wav",
+        { "models/powerups/holdable/invulnerability.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/invulnerability",
+/* pickup */	"Оболочка",
+		60,
+		IT_HOLDABLE,
+		HI_INVULNERABILITY,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_nails (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_nails",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/nailgunam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_nailgun",
+/* pickup */	"Гвозди",
+		20,
+		IT_AMMO,
+		WP_NAILGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_mines (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_mines",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/proxmineam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_proxlauncher",
+/* pickup */	"Мины",
+		10,
+		IT_AMMO,
+		WP_PROX_LAUNCHER,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED ammo_belt (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_belt",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/chaingunam.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_chaingun",
+/* pickup */	"Снаряды",
+		100,
+		IT_AMMO,
+		WP_CHAINGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	//
+	// PERSISTANT POWERUP ITEMS
+	//
+/*QUAKED item_scout (.3 .3 1) (-16 -16 -16) (16 16 16) suspended redTeam blueTeam
+*/
+	{
+		"item_scout",
+		"sound/items/scout.wav",
+        { "models/powerups/scout.md3", 
+		NULL, NULL, NULL },
+/* icon */		"icons/scout",
+/* pickup */	"Бегун",
+		30,
+		IT_PERSISTANT_POWERUP,
+		PW_SCOUT,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_guard (.3 .3 1) (-16 -16 -16) (16 16 16) suspended redTeam blueTeam
+*/
+	{
+		"item_guard",
+		"sound/items/guard.wav",
+        { "models/powerups/guard.md3", 
+		NULL, NULL, NULL },
+/* icon */		"icons/guard",
+/* pickup */	"Защитник",
+		30,
+		IT_PERSISTANT_POWERUP,
+		PW_GUARD,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_doubler (.3 .3 1) (-16 -16 -16) (16 16 16) suspended redTeam blueTeam
+*/
+	{
+		"item_doubler",
+		"sound/items/doubler.wav",
+        { "models/powerups/doubler.md3", 
+		NULL, NULL, NULL },
+/* icon */		"icons/doubler",
+/* pickup */	"Стрелок",
+		30,
+		IT_PERSISTANT_POWERUP,
+		PW_DOUBLER,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED item_doubler (.3 .3 1) (-16 -16 -16) (16 16 16) suspended redTeam blueTeam
+*/
+	{
+		"item_ammoregen",
+		"sound/items/ammoregen.wav",
+        { "models/powerups/ammo.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/ammo_regen",
+/* pickup */	"Регенерация пуль",
+		30,
+		IT_PERSISTANT_POWERUP,
+		PW_AMMOREGEN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+        
+	/*QUAKED team_CTF_neutralflag (0 0 1) (-16 -16 -16) (16 16 16)
+Only in One Flag CTF games
+*/
+	{
+		"team_CTF_neutralflag",
+		NULL,
+        { "models/flags/n_flag.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconf_neutral1",
+/* pickup */	"Нейтральный флаг",
+		0,
+		IT_TEAM,
+		PW_NEUTRALFLAG,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	{
+		"item_redcube",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/orb/r_orb.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconh_rorb",
+/* pickup */	"Красный череп",
+		0,
+		IT_TEAM,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	{
+		"item_bluecube",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/orb/b_orb.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconh_borb",
+/* pickup */	"Синий череп",
+		0,
+		IT_TEAM,
+		0,
+/* precache */ "",
+/* sounds */ ""
+	},
+/*QUAKED weapon_nailgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_nailgun", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons/nailgun/nailgun.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_nailgun",
+/* pickup */	"Гвоздомёт",
+		10,
+		IT_WEAPON,
+		WP_NAILGUN,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED weapon_prox_launcher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_prox_launcher", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons/proxmine/proxmine.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_proxlauncher",
+/* pickup */	"Миноукладчик",
+		5,
+		IT_WEAPON,
+		WP_PROX_LAUNCHER,
+/* precache */ "",
+/* sounds */ "sound/weapons/proxmine/wstbtick.wav "
+			"sound/weapons/proxmine/wstbactv.wav "
+			"sound/weapons/proxmine/wstbimpl.wav "
+			"sound/weapons/proxmine/wstbimpm.wav "
+			"sound/weapons/proxmine/wstbimpd.wav "
+			"sound/weapons/proxmine/wstbactv.wav"
+	},
+
+/*QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_chaingun", 
+		"sound/misc/w_pkup.wav",
+        { "models/weapons/vulcan/vulcan.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_chaingun",
+/* pickup */	"Миниган",
+		80,
+		IT_WEAPON,
+		WP_CHAINGUN,
+/* precache */ "",
+/* sounds */ "sound/weapons/vulcan/wvulwind.wav"
+	},
+	
+	
+/*QUAKED weapon_flamethrower (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_flamethrower",
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/flamethrower/rocketl.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_flamethrower",
+/* pickup */	"Огнемёт",
+		100,
+		IT_WEAPON,
+		WP_FLAMETHROWER,
+/* precache */ "",
+/* sounds */ ""
+	},
+	
+/*QUAKED ammo_flame (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"ammo_flame",
+		"sound/misc/am_pkup.wav",
+        { "models/powerups/ammo/flamethroweram.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/icona_flamethrower",
+/* pickup */	"Пламя",
+		50,
+		IT_AMMO,
+		WP_FLAMETHROWER,
+/* precache */ "",
+/* sounds */ ""
+	},
+	
+	
+	
+	/*QUAKED weapon_antimatter (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
+*/
+	{
+		"weapon_antimatter",
+		"sound/misc/w_pkup.wav",
+        { "models/weapons2/antimatter/plasma.md3", 
+		NULL, NULL, NULL},
+/* icon */		"icons/iconw_voodoo",
+/* pickup */	"Чёрная вспышка",
+		5,
+		IT_WEAPON,
+		WP_ANTIMATTER,
+/* precache */ "",
+/* sounds */ ""
+	},
+//#endif
+
+/*QUAKED team_DD_point
+Only in DD games
+*/
+	{
+		"team_DD_pointAblue",
+		NULL,
+        { "models/dpoints/a_blue.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/icona_blue",
+/* pickup */	"Точка A (Синяя)",
+		0,
+		IT_TEAM,
+		DD_POINTABLUE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED team_DD_point
+Only in DD games
+*/
+	{
+		"team_DD_pointBblue",
+		NULL,
+        { "models/dpoints/b_blue.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconb_blue",
+/* pickup */	"Точка B (Синяя)",
+		0,
+		IT_TEAM,
+		DD_POINTBBLUE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED team_DD_point
+Only in DD games
+*/
+	{
+		"team_DD_pointAred",
+		NULL,
+        { "models/dpoints/a_red.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/icona_red",
+/* pickup */	"Точка A (Красная)",
+		0,
+		IT_TEAM,
+		DD_POINTARED,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED team_DD_point
+Only in DD games
+*/
+	{
+		"team_DD_pointBred",
+		NULL,
+        { "models/dpoints/b_red.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconb_red",
+/* pickup */	"Точка B (Красная)",
+		0,
+		IT_TEAM,
+		DD_POINTBRED,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED team_DD_point
+Only in DD games
+*/
+	{
+		"team_DD_pointAwhite",
+		NULL,
+        { "models/dpoints/a_white.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/icona_white",
+/* pickup */	"Точка A (Белая)",
+		0,
+		IT_TEAM,
+		DD_POINTAWHITE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED team_DD_point
+Only in DD games
+*/
+	{
+		"team_DD_pointBwhite",
+		NULL,
+        { "models/dpoints/b_white.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconb_white",
+/* pickup */	"Точка B (Белая)",
+		0,
+		IT_TEAM,
+		DD_POINTBWHITE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+//Now things for standard domination:
+
+
+/*QUAKED 
+Only in Domination games
+*/
+	{
+		"team_dom_pointWhite",
+		NULL,
+        { "models/flags/n_flag.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconf_neutral1",
+/* pickup */	"Нейтральный флаг",
+		0,
+		IT_TEAM,
+		DOM_POINTWHITE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED 
+Only in Domination games
+*/
+	{
+		"team_dom_pointRed",
+		NULL,
+        { "models/flags/r_flag.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconf_red1",
+/* pickup */	"Красный флаг",
+		0,
+		IT_TEAM,
+		DOM_POINTRED,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+/*QUAKED 
+Only in Domination games
+*/
+	{
+		"team_dom_pointBlue",
+		NULL,
+        { "models/flags/b_flag.md3",
+		NULL, NULL, NULL },
+/* icon */		"icons/iconf_blu1",
+/* pickup */	"Синий флаг",
+		0,
+		IT_TEAM,
+		DOM_POINTBLUE,
+/* precache */ "",
+/* sounds */ ""
+	},
+
+	// end of list marker
+	{NULL}
+};
+
 int		bg_numItems = sizeof(bg_itemlist) / sizeof(bg_itemlist[0]) - 1;
 
 
@@ -1241,15 +2343,23 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	switch( item->giType ) {
 	case IT_WEAPON:
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
 		return qtrue;	// weapons are always picked up
 
 	case IT_AMMO:
+		// oatmeal begin
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
+		// oatmeal end
 		if ( ps->ammo[ item->giTag ] >= mod_ammolimit ) {
 			return qfalse;		// can't hold any more
 		}
 		return qtrue;
 
 	case IT_ARMOR:
+		// oatmeal begin
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
+		// oatmeal end
+#ifdef MISSIONPACK
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_SCOUT ) {
 			return qfalse;
 		}
@@ -1265,15 +2375,26 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if ( ps->stats[STAT_ARMOR] >= upperBound ) {
 			return qfalse;
 		}
+#else
+		if ( ps->stats[STAT_ARMOR] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
+			return qfalse;
+		}
+#endif
 		return qtrue;
 
 	case IT_HEALTH:
+		// oatmeal begin
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
+		// oatmeal end
+
 		// small and mega healths will go over the max, otherwise
 		// don't pick up if already at max
+#ifdef MISSIONPACK
 		if( bg_itemlist[ps->stats[STAT_PERSISTANT_POWERUP]].giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
 		}
 		else
+#endif
 		if ( item->quantity == 5 || item->quantity == 100 ) {
 			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
 				return qfalse;
@@ -1287,9 +2408,11 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_POWERUP:
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
 		return qtrue;	// powerups are always picked up
 
 	case IT_PERSISTANT_POWERUP:
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
 
 		//In Double D we don't want persistant Powerups (or maybe, can be discussed)
 		if(gametype == GT_DOUBLE_D)
@@ -1311,6 +2434,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_TEAM: // team items, such as flags	
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG ) {
@@ -1367,6 +2491,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qfalse;
 
 	case IT_HOLDABLE:
+		if(ps->stats[STAT_NO_PICKUP]==1){ return qfalse; }
 		// can only hold one item at a time
 		if ( ps->stats[STAT_HOLDABLE_ITEM] ) {
 			return qfalse;
@@ -1820,4 +2945,17 @@ char *BG_TeamName( team_t team )
   if( team == TEAM_FREE )
     return "Free For All";
   return "<team>";
+}
+
+/*
+*************
+rq3_random
+freaky - randomise items
+*************
+*/
+int rq3_random(int min, int max)
+{
+	int number;
+	number = (rand() % (max - min + 1)) + (min);
+	return number;
 }
