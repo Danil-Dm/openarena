@@ -139,9 +139,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #elif defined __i386__
 #define ARCH_STRING "i386"
 #define Q3_LITTLE_ENDIAN
-#elif defined __x86_64__
-#define ARCH_STRING "x86_64"
-#define Q3_LITTLE_ENDIAN
 #endif
 
 #define DLL_EXT ".dylib"
@@ -150,23 +147,42 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================= LINUX ===
 
-#if defined(__linux__) || defined(__FreeBSD_kernel__) || defined(__GNU__)
+#ifdef __linux__
 
 #include <endian.h>
 
-#if defined(__linux__)
 #define OS_STRING "linux"
-#elif defined(__FreeBSD_kernel__)
-#define OS_STRING "kFreeBSD"
-#else
-#define OS_STRING "GNU"
-#endif
-
 #define ID_INLINE inline
 #define PATH_SEP '/'
 
-#if !defined(ARCH_STRING)
-# error ARCH_STRING should be defined by the Makefile
+#if defined __i386__
+#define ARCH_STRING "i386"
+#elif defined __x86_64__
+#define ARCH_STRING "x86_64"
+#elif defined __powerpc64__
+#define ARCH_STRING "ppc64"
+#elif defined __powerpc__
+#define ARCH_STRING "ppc"
+#elif defined __s390__
+#define ARCH_STRING "s390"
+#elif defined __s390x__
+#define ARCH_STRING "s390x"
+#elif defined __ia64__
+#define ARCH_STRING "ia64"
+#elif defined __alpha__
+#define ARCH_STRING "alpha"
+#elif defined __sparc__
+#define ARCH_STRING "sparc"
+#elif defined __arm__
+#define ARCH_STRING "arm"
+#elif defined __cris__
+#define ARCH_STRING "cris"
+#elif defined __hppa__
+#define ARCH_STRING "hppa"
+#elif defined __mips__
+#define ARCH_STRING "mips"
+#elif defined __sh__
+#define ARCH_STRING "sh"
 #endif
 
 #if __FLOAT_WORD_ORDER == __BIG_ENDIAN
@@ -203,8 +219,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __i386__
 #define ARCH_STRING "i386"
-#elif defined __x86_64__ || defined __amd64__
-#define ARCH_STRING "x86_64"
 #elif defined __axp__
 #define ARCH_STRING "alpha"
 #endif

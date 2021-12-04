@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //#ifdef STANDALONE
   #define PRODUCT_NAME			"ioq3+oa"
   #define BASEGAME			"baseoa"
-  #define CLIENT_WINDOW_TITLE     	"OpenArena"
+  #define CLIENT_WINDOW_TITLE     	"NextArena"
   #define CLIENT_WINDOW_MIN_TITLE 	"OA"
 /*#else
   #define PRODUCT_NAME			"ioq3"
@@ -40,10 +40,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef _MSC_VER
   #define PRODUCT_VERSION "1.35"
-#endif
-
-#ifndef PRODUCT_DATE
-#  define PRODUCT_DATE __DATE__
 #endif
 
 #define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
@@ -190,8 +186,6 @@ typedef int		clipHandle_t;
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 
-#define ARRAY_LEN(x)			(sizeof(x) / sizeof(*(x)))
-#define STRARRAY_LEN(x)			(ARRAY_LEN(x) - 1)
 
 // angle indexes
 #define	PITCH				0		// up / down
@@ -470,7 +464,7 @@ void ByteToDir( int b, vec3_t dir );
 typedef struct {
 	float	v[3];
 } vec3struct_t;
-#define VectorCopy(a,b)	(*(vec3struct_t *)b=*(const vec3struct_t *)a)
+#define VectorCopy(a,b)	(*(vec3struct_t *)b=*(vec3struct_t *)a)
 #endif
 #endif
 
@@ -478,6 +472,8 @@ typedef struct {
 #define VectorNegate(a,b)		((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 #define VectorSet(v, x, y, z)	((v)[0]=(x), (v)[1]=(y), (v)[2]=(z))
 #define Vector4Copy(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
+
+#define Byte4Copy(a,b)			((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 
 #define	SnapVector(v) {v[0]=((int)(v[0]));v[1]=((int)(v[1]));v[2]=((int)(v[2]));}
 // just in case you do't want to use the macros
@@ -696,9 +692,6 @@ typedef enum {
 	FS_SEEK_SET
 } fsOrigin_t;
 
-
-void Q_StrToLower(char *io_string);
-
 //=============================================
 
 int Q_isprint( int c );
@@ -710,10 +703,7 @@ int Q_isalpha( int c );
 int		Q_stricmp (const char *s1, const char *s2);
 #define Q_strequal(s1,s2) (Q_stricmp(s1,s2)==0)
 int		Q_strncmp (const char *s1, const char *s2, int n);
-#define Q_strnequal(s1, s2, n) (Q_strncmp(s1, s2, n)==0)
 int		Q_stricmpn (const char *s1, const char *s2, int n);
-#define Q_strequaln(s1, s2, n) (Q_stricmpn(s1, s2, n)==0)
-#define strequals(s1, s2) (strcmp(s1, s2)==0)
 char	*Q_strlwr( char *s1 );
 char	*Q_strupr( char *s1 );
 const char	*Q_stristr( const char *s, const char *find);
@@ -799,6 +789,7 @@ char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_big( char *s, const char *key );
 void Info_SetValueForKey( char *s, const char *key, const char *value );
+void Info_SetValueForKey_Big( char *s, const char *key, const char *value );
 qboolean Info_Validate( const char *s );
 void Info_NextPair( const char **s, char *key, char *value );
 
