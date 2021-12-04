@@ -14,6 +14,7 @@ ui_menu
 ui_ingame
 ui_confirm
 ui_setup
+ui_options
 ui_display
 ui_firstconnect
 ui_sound
@@ -36,6 +37,8 @@ ui_team
 ui_video
 ui_addbots
 ui_removebots
+ui_saveconfig
+ui_loadconfig
 ui_teamorders
 ui_cdkey
 ui_mods

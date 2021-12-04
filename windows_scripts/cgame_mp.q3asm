@@ -1,8 +1,10 @@
--o "../../missionpack/vm/cgame"
+-o "../../baseoa/vm/cgame"
 cg_main
 ..\cg_syscalls
+cg_atmospheric
 cg_challenges
 cg_consolecmds
+cg_carnagehud
 cg_newdraw
 cg_draw
 cg_drawtools
