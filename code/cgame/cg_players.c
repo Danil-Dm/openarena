@@ -39,6 +39,12 @@ char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*taunt.wav"
 };
 
+// leilei - eyes hack
+
+vec3_t headpos;
+vec3_t headang;
+
+int enableQ;
 
 /*
 ================
@@ -121,6 +127,7 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 	ci->footsteps = FOOTSTEP_NORMAL;
 	VectorClear( ci->headOffset );
 	ci->gender = GENDER_MALE;
+	trap_Cvar_Set( "gender", "MALE" );
 	ci->fixedlegs = qfalse;
 	ci->fixedtorso = qfalse;
 
@@ -159,6 +166,15 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 				ci->headOffset[i] = atof( token );
 			}
 			continue;
+		} else if ( !Q_stricmp( token, "eyes" ) ) {	// leilei - EYES
+			for ( i = 0 ; i < 3 ; i++ ) {
+				token = COM_Parse( &text_p );
+				if ( !token ) {
+					break;
+				}
+				ci->eyepos[i] = atof( token );
+			}
+			continue;
 		} else if ( !Q_stricmp( token, "sex" ) ) {
 			token = COM_Parse( &text_p );
 			if ( !token ) {
@@ -166,10 +182,19 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 			}
 			if ( token[0] == 'f' || token[0] == 'F' ) {
 				ci->gender = GENDER_FEMALE;
+//if ( cent->currentState.number == cg.snap->ps.clientNum) {
+//				trap_Cvar_Set( "gender", "FEMALE" );
+//}
 			} else if ( token[0] == 'n' || token[0] == 'N' ) {
 				ci->gender = GENDER_NEUTER;
+//if ( cent->currentState.number == cg.snap->ps.clientNum) {
+//				trap_Cvar_Set( "gender", "NEUTER" );
+//}
 			} else {
 				ci->gender = GENDER_MALE;
+//if ( cent->currentState.number == cg.snap->ps.clientNum) {
+//				trap_Cvar_Set( "gender", "MALE" );
+//}
 			}
 			continue;
 		} else if ( !Q_stricmp( token, "fixedlegs" ) ) {
@@ -291,6 +316,67 @@ static qboolean	CG_ParseAnimationFile( const char *filename, clientInfo_t *ci ) 
 }
 
 /*
+======================
+CG_ParseEyesFile
+
+Read eyes definitions.  Maybe this should be done engine-side for mod compatiblity? :S
+======================
+*/
+static qboolean	CG_ParseEyesFile( const char *filename, clientInfo_t *ci ) {
+	char		*text_p, *prev;
+	int			len;
+	int			i;
+	char		*token;
+	float		fps;
+	int			skip;
+	char		text[20000];
+	fileHandle_t	f;
+	// load the file
+	len = trap_FS_FOpenFile( filename, &f, FS_READ );
+	if ( len <= 0 ) {
+		return qfalse;
+	}
+	if ( len >= sizeof( text ) - 1 ) {
+		CG_Printf( "File %s too long\n", filename );
+		trap_FS_FCloseFile( f );
+		return qfalse;
+	}
+	trap_FS_Read( text, len, f );
+	text[len] = 0;
+	trap_FS_FCloseFile( f );
+
+	// parse the text
+	text_p = text;
+	skip = 0;	// quite the compiler warning
+
+
+	// read optional parameters
+	while ( 1 ) {
+		prev = text_p;	// so we can unget
+		token = COM_Parse( &text_p );
+		if ( !token ) {
+			break;
+		}
+
+
+		if ( !Q_stricmp( token, "eyes" ) ) {	// leilei - EYES
+			for ( i = 0 ; i < 3 ; i++ ) {
+				token = COM_Parse( &text_p );
+				if ( !token ) {
+					break;
+				}
+				ci->eyepos[i] = atof( token );
+			}
+			continue;
+		}
+		break;
+	}
+
+	return qtrue;
+}
+
+
+/*
 ==========================
 CG_FileExists
 ==========================
@@ -314,7 +400,7 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 	char *team, *charactersFolder;
 	int i;
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && 1 == 0) {
 		switch ( ci->team ) {
 			case TEAM_BLUE: {
 				team = "blue";
@@ -343,7 +429,7 @@ static qboolean	CG_FindClientModelFile( char *filename, int length, clientInfo_t
 			if ( CG_FileExists( filename ) ) {
 				return qtrue;
 			}
-			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && 1 == 0) {
 				if ( i == 0 && teamName && *teamName ) {
 					//								"models/players/characters/sergei/stroggs/lower_red.skin"
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", charactersFolder, modelName, teamName, base, team, ext );
@@ -389,7 +475,7 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 	char *team, *headsFolder;
 	int i;
 
-	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+	if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && 1 == 0) {
 		switch ( ci->team ) {
 			case TEAM_BLUE: {
 				team = "blue";
@@ -423,7 +509,7 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 			if ( CG_FileExists( filename ) ) {
 				return qtrue;
 			}
-			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+			if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 && 1 == 0) {
 				if ( i == 0 &&  teamName && *teamName ) {
 					Com_sprintf( filename, length, "models/players/%s%s/%s%s_%s.%s", headsFolder, headModelName, teamName, base, team, ext );
 				}
@@ -461,7 +547,7 @@ static qboolean	CG_FindClientHeadFile( char *filename, int length, clientInfo_t 
 CG_RegisterClientSkin
 ==========================
 */
-static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName ) {
+static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName, const char *redTeam ) {
 	char filename[MAX_QPATH];
 
 	/*
@@ -486,21 +572,22 @@ static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, c
 		}
 	}
 	*/
-	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, teamName, modelName, skinName, "lower", "skin" ) ) {
+	if(cg_forceModel.integer == 1){
+	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, NULL, modelName, ui_mslegsskin.string, "lower", "skin" ) ) {
 		ci->legsSkin = trap_R_RegisterSkin( filename );
 	}
 	if (!ci->legsSkin) {
 		Com_Printf( "Leg skin load failure: %s\n", filename );
 	}
 
-	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, teamName, modelName, skinName, "upper", "skin" ) ) {
+	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, NULL, modelName, skinName, "upper", "skin" ) ) {
 		ci->torsoSkin = trap_R_RegisterSkin( filename );
 	}
 	if (!ci->torsoSkin) {
 		Com_Printf( "Torso skin load failure: %s\n", filename );
 	}
 
-	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headModelName, headSkinName, "head", "skin" ) ) {
+	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, NULL, headModelName, headSkinName, "head", "skin" ) ) {
 		ci->headSkin = trap_R_RegisterSkin( filename );
 	}
 	if (!ci->headSkin) {
@@ -513,13 +600,45 @@ static qboolean	CG_RegisterClientSkin( clientInfo_t *ci, const char *teamName, c
 	}
 	return qtrue;
 }
+	if(cg_forceModel.integer == 0){
+	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, NULL, modelName, redTeam, "lower", "skin" ) ) {
+		ci->legsSkin = trap_R_RegisterSkin( filename );
+	}
+	if (!ci->legsSkin) {
+		Com_Printf( "Leg skin load failure using default: %s\n", filename );
+	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, NULL, modelName, skinName, "lower", "skin" ) ) {
+		ci->legsSkin = trap_R_RegisterSkin( filename );
+	}
+	}
+
+	if ( CG_FindClientModelFile( filename, sizeof(filename), ci, NULL, modelName, skinName, "upper", "skin" ) ) {
+		ci->torsoSkin = trap_R_RegisterSkin( filename );
+	}
+	if (!ci->torsoSkin) {
+		Com_Printf( "Torso skin load failure: %s\n", filename );
+	}
+
+	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, NULL, headModelName, headSkinName, "head", "skin" ) ) {
+		ci->headSkin = trap_R_RegisterSkin( filename );
+	}
+	if (!ci->headSkin) {
+		Com_Printf( "Head skin load failure: %s\n", filename );
+	}
+
+	// if any skins failed to load
+	if ( !ci->legsSkin || !ci->torsoSkin || !ci->headSkin ) {
+		return qfalse;
+}
+}
+return qtrue;
+}
 
 /*
 ==========================
 CG_RegisterClientModelname
 ==========================
 */
-static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName, const char *teamName ) {
+static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName, const char *headModelName, const char *headSkinName, const char *teamName, const char *redTeam ) {
 	char	filename[MAX_QPATH*2];
 	const char		*headName;
 	char newTeamName[MAX_QPATH*2];
@@ -570,7 +689,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 	}
 
 	// if any skins failed to load, return failure
-	if ( !CG_RegisterClientSkin( ci, teamName, modelName, skinName, headName, headSkinName ) ) {
+	if ( !CG_RegisterClientSkin( ci, teamName, modelName, skinName, headName, headSkinName, redTeam ) ) {
 		if ( teamName && *teamName) {
 			Com_Printf( "Failed to load skin file: %s : %s : %s, %s : %s\n", teamName, modelName, skinName, headName, headSkinName );
 			if( ci->team == TEAM_BLUE ) {
@@ -579,7 +698,7 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 			else {
 				Com_sprintf(newTeamName, sizeof(newTeamName), "%s/", DEFAULT_REDTEAM_NAME);
 			}
-			if ( !CG_RegisterClientSkin( ci, newTeamName, modelName, skinName, headName, headSkinName ) ) {
+			if ( !CG_RegisterClientSkin( ci, newTeamName, modelName, skinName, headName, headSkinName, redTeam ) ) {
 				Com_Printf( "Failed to load skin file: %s : %s : %s, %s : %s\n", newTeamName, modelName, skinName, headName, headSkinName );
 				return qfalse;
 			}
@@ -598,6 +717,14 @@ static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelN
 			return qfalse;
 		}
 	}
+
+	// leilei - load eyes
+	Com_sprintf( filename, sizeof( filename ), "models/players/%s/eyes.cfg", modelName );
+	if ( !CG_ParseEyesFile( filename, ci ) ) {
+		//	Com_Printf( "No eyes for %s\n", filename );
+		}
+
+
 
 	if ( CG_FindClientHeadFile( filename, sizeof(filename), ci, teamName, headName, headSkinName, "icon", "skin" ) ) {
 		ci->modelIcon = trap_R_RegisterShaderNoMip( filename );
@@ -654,24 +781,29 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 	int			i, modelloaded;
 	const char	*s;
 	char		teamname[MAX_QPATH];
+//	char		redTeam[MAX_QPATH];
 
 	teamname[0] = 0;
 #ifdef MISSIONPACK
-	if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
-		if( ci->team == TEAM_BLUE ) {
-			Q_strncpyz(teamname, cg_blueTeamName.string, sizeof(teamname) );
-		} else {
-			Q_strncpyz(teamname, cg_redTeamName.string, sizeof(teamname) );
-		}
-	}
-	if( teamname[0] ) {
-		strcat( teamname, "/" );
-	}
+//	if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+//		if( ci->team == TEAM_BLUE ) {
+//			Q_strncpyz(teamname, cg_blueTeamName.string, sizeof(teamname) );
+//		} else {
+//			Q_strncpyz(teamname, cg_redTeamName.string, sizeof(teamname) );
+//		}
+//	}
+//	if( teamname[0] ) {
+//		strcat( teamname, "/" );
+//	}
 #endif
+//			Q_strncpyz(teamname, ui_mslegsskin.string, sizeof(teamname) );
+
+//			Q_strncpyz(redTeam, ui_mslegsskin.string, sizeof(redTeam) );
+
 	modelloaded = qtrue;
-	if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname ) ) {
+	if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname, ci->redTeam ) ) {
 		if ( cg_buildScript.integer ) {
-			CG_Error( "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname );
+//			CG_Error( "CG_RegisterClientModelname( %s, %s, %s, %s %s ) failed", ci->modelName, ci->skinName, ci->headModelName, ci->headSkinName, teamname );
 		}
 
 		// fall back to default team name
@@ -682,12 +814,12 @@ static void CG_LoadClientInfo( int clientNum, clientInfo_t *ci ) {
 			} else {
 				Q_strncpyz(teamname, DEFAULT_REDTEAM_NAME, sizeof(teamname) );
 			}
-			if ( !CG_RegisterClientModelname( ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname ) ) {
-				CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName );
+			if ( !CG_RegisterClientModelname( ci, DEFAULT_TEAM_MODEL, ci->skinName, DEFAULT_TEAM_HEAD, ci->skinName, teamname, "default" ) ) {
+//				CG_Error( "DEFAULT_TEAM_MODEL / skin (%s/%s) failed to register", DEFAULT_TEAM_MODEL, ci->skinName );
 			}
 		} else {
-			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", DEFAULT_MODEL, "default", teamname ) ) {
-				CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
+			if ( !CG_RegisterClientModelname( ci, DEFAULT_MODEL, "default", DEFAULT_MODEL, "default", teamname, "default" ) ) {
+//				CG_Error( "DEFAULT_MODEL (%s) failed to register", DEFAULT_MODEL );
 			}
 		}
 		modelloaded = qfalse;
@@ -740,6 +872,7 @@ CG_CopyClientInfoModel
 */
 static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to ) {
 	VectorCopy( from->headOffset, to->headOffset );
+	VectorCopy( from->eyepos, to->eyepos );
 	to->footsteps = from->footsteps;
 	to->gender = from->gender;
 
@@ -777,8 +910,8 @@ static qboolean CG_ScanForExistingClientInfo( clientInfo_t *ci ) {
 		if ( !Q_stricmp( ci->modelName, match->modelName )
 			&& !Q_stricmp( ci->skinName, match->skinName )
 			&& !Q_stricmp( ci->headModelName, match->headModelName )
-			&& !Q_stricmp( ci->headSkinName, match->headSkinName ) 
-			&& !Q_stricmp( ci->blueTeam, match->blueTeam ) 
+			&& !Q_stricmp( ci->headSkinName, match->headSkinName )
+			&& !Q_stricmp( ci->blueTeam, match->blueTeam )
 			&& !Q_stricmp( ci->redTeam, match->redTeam )
 			&& (cgs.gametype < GT_TEAM || cgs.ffa_gt==1 || ci->team == match->team) ) {
 			// this clientinfo is identical, so use it's handles
@@ -903,6 +1036,46 @@ void CG_NewClientInfo( int clientNum ) {
 	v = Info_ValueForKey( configstring, "c2" );
 	CG_ColorFromString( v, newInfo.color2 );
 
+	// flashlight and cpma skin mode
+	v = Info_ValueForKey( configstring, "helightred" );
+	newInfo.helred = atoi( v );
+
+	v = Info_ValueForKey( configstring, "helightgreen" );
+	newInfo.helgreen = atoi( v );
+
+	v = Info_ValueForKey( configstring, "helightblue" );
+	newInfo.helblue = atoi( v );
+
+	v = Info_ValueForKey( configstring, "tolightred" );
+	newInfo.tolred = atoi( v );
+
+	v = Info_ValueForKey( configstring, "tolightgreen" );
+	newInfo.tolgreen = atoi( v );
+
+	v = Info_ValueForKey( configstring, "tolightblue" );
+	newInfo.tolblue = atoi( v );
+
+	v = Info_ValueForKey( configstring, "plightred" );
+	newInfo.plred = atoi( v );
+
+	v = Info_ValueForKey( configstring, "plightgreen" );
+	newInfo.plgreen = atoi( v );
+
+	v = Info_ValueForKey( configstring, "plightblue" );
+	newInfo.plblue = atoi( v );
+
+	v = Info_ValueForKey( configstring, "ptex" );
+	newInfo.ptex = atoi( v );
+
+	v = Info_ValueForKey( configstring, "totex" );
+	newInfo.totex = atoi( v );
+
+	v = Info_ValueForKey( configstring, "hetex" );
+	newInfo.hetex = atoi( v );
+
+	v = Info_ValueForKey( configstring, "plightradius" );
+	newInfo.plradius = atoi( v );
+
 	// bot skill
 	v = Info_ValueForKey( configstring, "skill" );
 	newInfo.botSkill = atoi( v );
@@ -945,7 +1118,7 @@ void CG_NewClientInfo( int clientNum ) {
 		char modelStr[MAX_QPATH];
 		char *skin;
 
-		if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+		if(5 == 100) {
 			Q_strncpyz( newInfo.modelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.modelName ) );
 			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
 		} else {
@@ -960,7 +1133,7 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.modelName, modelStr, sizeof( newInfo.modelName ) );
 		}
 
-		if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1 ) {
+		if (5 == 100) {
 			// keep skin name
 			slash = strchr( v, '/' );
 			if ( slash ) {
@@ -989,7 +1162,7 @@ void CG_NewClientInfo( int clientNum ) {
 		char modelStr[MAX_QPATH];
 		char *skin;
 
-		if( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+		if(5 == 100) {
 			Q_strncpyz( newInfo.headModelName, DEFAULT_TEAM_MODEL, sizeof( newInfo.headModelName ) );
 			Q_strncpyz( newInfo.headSkinName, "default", sizeof( newInfo.headSkinName ) );
 		} else {
@@ -1004,7 +1177,7 @@ void CG_NewClientInfo( int clientNum ) {
 			Q_strncpyz( newInfo.headModelName, modelStr, sizeof( newInfo.headModelName ) );
 		}
 
-		if ( cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
+		if ( 5 == 100) {
 			// keep skin name
 			slash = strchr( v, '/' );
 			if ( slash ) {
@@ -1294,7 +1467,7 @@ static void CG_SwingAngles( float destination, float swingTolerance, float clamp
 	if ( !*swinging ) {
 		return;
 	}
-	
+
 	// modify the speed depending on the delta
 	// so it doesn't seem so linear
 	swing = AngleSubtract( destination, *angle );
@@ -1371,6 +1544,9 @@ Handles seperate torso motion
   if < 45 degrees, also show in torso
 ===============
 */
+
+vec3_t		eyeat;
+
 static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], vec3_t head[3] ) {
 	vec3_t		legsAngles, torsoAngles, headAngles;
 	float		dest;
@@ -1379,22 +1555,70 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 	float		speed;
 	int			dir, clientNum;
 	clientInfo_t	*ci;
+	int		camereyes;
 
+
+
+	{
 	VectorCopy( cent->lerpAngles, headAngles );
 	headAngles[YAW] = AngleMod( headAngles[YAW] );
+	}
+
+
+	//headAngles[YAW] = AngleMod( headAngles[YAW] );
+
+
 	VectorClear( legsAngles );
 	VectorClear( torsoAngles );
+
+
+	camereyes = 0;
+	if ( cent->currentState.number == cg.snap->ps.clientNum) {
+			camereyes = 1; // it's me!
+
+
+		}
+
+	// leilei -- new third person camera prep
+	cent->newcamrunning = 0;
+	if (cg_cameramode.integer == 1)
+	{
+	if ((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_ATTACK)
+	cent->newcamrunning = 1;
+	else
+	cent->newcamrunning = 0;
+
+
+	}
 
 	// --------- yaw -------------
 
 	// allow yaw to drift a bit
-	if ( ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE 
-		|| ((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_STAND 
-		&& (cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_STAND2)) {
+	if ( ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLE && ( cent->currentState.legsAnim & ~ANIM_TOGGLEBIT ) != LEGS_IDLECR || ((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_ATTACK && (cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_ATTACK2) && ((cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_STAND && (cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_STAND2) && (cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_GESTURE && (cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_RAISE && (cent->currentState.torsoAnim & ~ANIM_TOGGLEBIT) != TORSO_DROP ) {
 		// if not standing still, always point all in the same direction
 		cent->pe.torso.yawing = qtrue;	// always center
 		cent->pe.torso.pitching = qtrue;	// always center
 		cent->pe.legs.yawing = qtrue;	// always center
+
+	}
+
+
+
+
+	// etc
+
+	if(cent->newcamrunning){
+	// lean towards the direction of travel
+		VectorCopy( cent->currentState.pos.trDelta, velocity );
+		speed = VectorNormalize( velocity );
+		if ( speed ) {
+			vec3_t	axis[3];
+			vec3_t	veel;
+			vec3_t fwad, rait;
+			float	side, frt, rrt;
+			AngleVectors(veel, velocity, fwad, rait);
+			speed *= 0.05f;
+		}
 	}
 
 	// adjust legs for movement dir
@@ -1410,9 +1634,22 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 	legsAngles[YAW] = headAngles[YAW] + movementOffsets[ dir ];
 	torsoAngles[YAW] = headAngles[YAW] + 0.25 * movementOffsets[ dir ];
 
+if (cg_thirdPersongta.integer == 0){
 	// torso
 	CG_SwingAngles( torsoAngles[YAW], 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
 	CG_SwingAngles( legsAngles[YAW], 40, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+}
+if (cg_thirdPersongta.integer == 1){
+	if(cg_thirdPerson.integer == 0){
+	CG_SwingAngles( torsoAngles[YAW], 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
+	CG_SwingAngles( legsAngles[YAW], 40, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+	}
+	if(cg_thirdPerson.integer == 1){
+	// torso
+	CG_SwingAngles( torsoAngles[YAW], 60000, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing );
+	CG_SwingAngles( legsAngles[YAW], 60000, 90, cg_swingSpeed.value, &cent->pe.legs.yawAngle, &cent->pe.legs.yawing );
+	}
+}
 
 	torsoAngles[YAW] = cent->pe.torso.yawAngle;
 	legsAngles[YAW] = cent->pe.legs.yawAngle;
@@ -1436,6 +1673,15 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 		if ( ci->fixedtorso ) {
 			torsoAngles[PITCH] = 0.0f;
 		}
+if (cg_thirdPersongta.integer == 1){
+	if(cg_thirdPerson.integer == 1){
+			torsoAngles[PITCH] = 0.0f;
+	}
+}
+
+	if(cg_cameraEyes.integer == 3){
+			torsoAngles[PITCH] = 0.0f;
+	}
 	}
 
 	// --------- roll -------------
@@ -1471,13 +1717,50 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 
 	// pain twitch
 	CG_AddPainTwitch( cent, torsoAngles );
+	// TODO: make eyes erode on pain twitch
+
+	// leilei - eyes hack
+
+	if (camereyes){
+	cent->eyesAngles[YAW] = headAngles[YAW];
+	cent->eyesAngles[PITCH] = headAngles[PITCH];
+	cent->eyesAngles[ROLL] = headAngles[ROLL];
+	}
 
 	// pull the angles back out of the hierarchial chain
 	AnglesSubtract( headAngles, torsoAngles, headAngles );
 	AnglesSubtract( torsoAngles, legsAngles, torsoAngles );
 	AnglesToAxis( legsAngles, legs );
 	AnglesToAxis( torsoAngles, torso );
+if (cg_thirdPersongta.integer == 1){
+	if(cg_thirdPerson.integer == 0){
 	AnglesToAxis( headAngles, head );
+	}
+	if(cg_thirdPerson.integer == 1){
+	AnglesToAxis( torsoAngles, head );
+	}
+}
+if (cg_thirdPersongta.integer == 0){
+	AnglesToAxis( headAngles, head );
+}
+
+	// eyes crap
+	{
+	vec3_t	eyelookat;
+	vec3_t	eyelookfrom;
+	vec3_t	forwaad;
+	trace_t		traced;
+
+	// offset from the model we have.
+	VectorClear(eyelookfrom);
+//	eyelookfrom[0] += 3.0; // cg_modelEyes_Up.value;		// TODO: Read from eeys.cfg or some eye parameter from animation.cfg
+//	eyelookfrom[1] += 1.4; // cg_modelEyes_Right.value;
+//	eyelookfrom[2] += 3.3; //cg_modelEyes_Fwd.value;
+
+	VectorCopy(ci->eyepos, cent->pe.eyepos);
+	//VectorCopy(eyelookfrom, cent->pe.eyepos);			// leilei - copy eye poistion
+	}
+
 }
 
 
@@ -1509,10 +1792,10 @@ static void CG_HasteTrail( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, origin );
 	origin[2] -= 16;
 
-	smoke = CG_SmokePuff( origin, vec3_origin, 
-				  8, 
+	smoke = CG_SmokePuff( origin, vec3_origin,
+				  8,
 				  1, 1, 1, 1,
-				  500, 
+				  500,
 				  cg.time,
 				  0,
 				  0,
@@ -1829,6 +2112,7 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		return;
 	}
 
+
 	// quad gives a dlight
 	if ( powerups & ( 1 << PW_QUAD ) ) {
 		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1 );
@@ -1964,7 +2248,7 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	}
 
 	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
-	if ( !(cent->currentState.eFlags & EF_DEAD) && 
+	if ( !(cent->currentState.eFlags & EF_DEAD) &&
 		cg.snap->ps.persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM && cgs.ffa_gt!=1) {
 		if (cg_drawFriend.integer) {
@@ -2021,11 +2305,11 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	alpha = 1.0 - trace.fraction;
 
 	// bk0101022 - hack / FPE - bogus planes?
-	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f ) 
+	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f )
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
-	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
+	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
 		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, 24, qtrue );
 
 	return qtrue;
@@ -2148,22 +2432,36 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state, int te
 		else {*/
 			trap_R_AddRefEntityToScene( ent );
 		//}
-                        if(!isMissile && (cgs.dmflags & DF_PLAYER_OVERLAY) && !(state->eFlags & EF_DEAD)  ) {
+                        if(!isMissile && (mod_overlay) && !(state->eFlags & EF_DEAD)  ) {
                             switch(team) {
                                 case TEAM_RED:
+									if(mod_overlay == 1){
                                     ent->customShader = cgs.media.redOverlay;
                                     trap_R_AddRefEntityToScene( ent );
+									}
+									if(mod_overlay == 2){
+                                    ent->customShader = cgs.media.redOverlay;
+                                    trap_R_AddRefEntityToScene( ent );
+									}
                                     break;
                                 case TEAM_BLUE:
+									if(mod_overlay == 1){
                                     ent->customShader = cgs.media.blueOverlay;
                                     trap_R_AddRefEntityToScene( ent );
+									}
+									if(mod_overlay == 3){
+                                    ent->customShader = cgs.media.blueOverlay;
+                                    trap_R_AddRefEntityToScene( ent );
+									}
                                     break;
                                 default:
+									if(mod_overlay){
                                     ent->customShader = cgs.media.neutralOverlay;
                                     trap_R_AddRefEntityToScene( ent );
+									}
                             }
                         }
-                        
+
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
 			if (team == TEAM_RED)
@@ -2210,7 +2508,7 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 			verts[i].modulate[2] = ambientLight[2];
 			verts[i].modulate[3] = 255;
 			continue;
-		} 
+		}
 		j = ( ambientLight[0] + incoming * directedLight[0] );
 		if ( j > 255 ) {
 			j = 255;
@@ -2239,6 +2537,8 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 CG_Player
 ===============
 */
+//extern	vmCvar_t	cg_leiChibi;
+
 void CG_Player( centity_t *cent ) {
 	clientInfo_t	*ci;
 	refEntity_t		legs;
@@ -2254,6 +2554,41 @@ void CG_Player( centity_t *cent ) {
 	float			c;
 	float			angle;
 	vec3_t			dir, angles;
+	int camereyes = 0;
+	// leilei - chibi hack
+	float chibifactorbody = 0.0f;
+	float chibifactortorso = 0.0f;
+	float chibifactorhead = 0.0f;
+	byte			bcol[4];
+	int texp;
+	int texto;
+	int texhe;
+
+		if (cg_leiChibi.integer > 0) {
+		if (cg_leiChibi.integer == 1) {
+			// chibi SD proportion
+			chibifactortorso = 0.0f;
+			chibifactorbody = 0.62f;
+			chibifactorhead = 2.7f;
+		} else if (cg_leiChibi.integer == 2) {
+			// slightly younger proportion
+			chibifactorbody = 0.92f;
+			chibifactortorso = 0.82f;
+			chibifactorhead = 1.30f;
+		} else if (cg_leiChibi.integer == 3) {
+			// slightly more 'real' proportion
+			chibifactorbody = 0.92f;
+			chibifactortorso = 0.97f;
+			chibifactorhead = 0.92f;
+		} else if (cg_leiChibi.integer == 4) {
+			// big torso
+			chibifactorbody = 0.85f;
+			chibifactortorso = 1.3f;
+			chibifactorhead = 0.91f;
+		}
+	} else {
+		chibifactorbody = chibifactortorso = chibifactorhead = 0; // normal scale...
+	}
 
 	// the client number is stored in clientNum.  It can't be derived
 	// from the entity number, because a single client may have
@@ -2264,6 +2599,18 @@ void CG_Player( centity_t *cent ) {
 	}
 	ci = &cgs.clientinfo[ clientNum ];
 
+if ( cent->currentState.number == cg.snap->ps.clientNum) {
+if(ci->gender == GENDER_NEUTER){
+				trap_Cvar_Set( "gender", "NEUTER" );
+}
+if(ci->gender == GENDER_FEMALE){
+				trap_Cvar_Set( "gender", "FEMALE" );
+}
+if(ci->gender == GENDER_MALE){
+				trap_Cvar_Set( "gender", "MALE" );
+}
+}
+
 	// it is possible to see corpses from disconnected players that may
 	// not have valid clientinfo
 	if ( !ci->infoValid ) {
@@ -2273,6 +2620,7 @@ void CG_Player( centity_t *cent ) {
 	// get the player model information
 	renderfx = 0;
 	if ( cent->currentState.number == cg.snap->ps.clientNum) {
+		camereyes = 1;	// it's me!
 		if (!cg.renderingThirdPerson) {
 			renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 		} else {
@@ -2289,19 +2637,23 @@ void CG_Player( centity_t *cent ) {
 
 	// get the rotation information
 	CG_PlayerAngles( cent, legs.axis, torso.axis, head.axis );
-	
+
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,
 		 &torso.oldframe, &torso.frame, &torso.backlerp );
 
 	// add the talk baloon or disconnect icon
+	if ( cent->currentState.number == cg.snap->ps.clientNum) {
+//	CG_PlayerSprites( cent );
+	} else {
 	CG_PlayerSprites( cent );
+	}
 
 	// add the shadow
 	shadow = CG_PlayerShadow( cent, &shadowPlane );
 
 	// add a water splash if partially in and out of water
-	CG_PlayerSplash( cent );
+//	CG_PlayerSplash( cent );
 
 	if ( cg_shadows.integer == 3 && shadow ) {
 		renderfx |= RF_SHADOW_PLANE;
@@ -2310,18 +2662,599 @@ void CG_Player( centity_t *cent ) {
 	if( cgs.gametype == GT_HARVESTER ) {
 		CG_PlayerTokens( cent, renderfx );
 	}
+
+/*	if ( cent->currentState.eFlags & EF_DEAD ) {
+		bcol[0] = teamcolormodels[ci->team][0]*0xff;
+		bcol[1] = teamcolormodels[ci->team][1]*0xff;
+		bcol[2] = teamcolormodels[ci->team][2]*0xff;
+	} else {
+		bcol[0] = teamcolormodels[ci->team][0]*0xff;
+		bcol[1] = teamcolormodels[ci->team][1]*0xff;
+		bcol[2] = teamcolormodels[ci->team][2]*0xff;
+	}
+	bcol[3] = 0xff;
+
+	Byte4Copy( bcol, legs.shaderRGBA );
+	Byte4Copy( bcol, torso.shaderRGBA );
+	Byte4Copy( bcol, head.shaderRGBA );*/
+
 	//
 	// add the legs
 	//
 	legs.hModel = ci->legsModel;
 	legs.customSkin = ci->legsSkin;
+if(ci->ptex == 1	){
+legs.customShader = cgs.media.ptex1Shader;
+}
+if(ci->ptex == 2	){
+legs.customShader = cgs.media.ptex2Shader;
+}
+if(ci->ptex == 3	){
+legs.customShader = cgs.media.ptex3Shader;
+}
+if(ci->ptex == 4	){
+legs.customShader = cgs.media.ptex4Shader;
+}
+if(ci->ptex == 5	){
+legs.customShader = cgs.media.ptex5Shader;
+}
+if(ci->ptex == 6	){
+legs.customShader = cgs.media.ptex6Shader;
+}
+if(ci->ptex == 7	){
+legs.customShader = cgs.media.ptex7Shader;
+}
+if(ci->ptex == 8	){
+legs.customShader = cgs.media.ptex8Shader;
+}
+if(ci->ptex == 9	){
+legs.customShader = cgs.media.ptex9Shader;
+}
+if(ci->ptex == 10	){
+legs.customShader = cgs.media.ptex10Shader;
+}
+if(ci->ptex == 11	){
+legs.customShader = cgs.media.ptex11Shader;
+}
+if(ci->ptex == 12	){
+legs.customShader = cgs.media.ptex12Shader;
+}
+if(ci->ptex == 13	){
+legs.customShader = cgs.media.ptex13Shader;
+}
+if(ci->ptex == 14	){
+legs.customShader = cgs.media.ptex14Shader;
+}
+if(ci->ptex == 15	){
+legs.customShader = cgs.media.ptex15Shader;
+}
+if(ci->ptex == 16	){
+legs.customShader = cgs.media.ptex16Shader;
+}
+if(ci->ptex == 17	){
+legs.customShader = cgs.media.ptex17Shader;
+}
+if(ci->ptex == 18	){
+legs.customShader = cgs.media.ptex18Shader;
+}
+if(ci->ptex == 19	){
+legs.customShader = cgs.media.ptex19Shader;
+}
+if(ci->ptex == 20	){
+legs.customShader = cgs.media.ptex20Shader;
+}
+if(ci->ptex == 21	){
+legs.customShader = cgs.media.ptex21Shader;
+}
+if(ci->ptex == 22	){
+legs.customShader = cgs.media.ptex22Shader;
+}
+if(ci->ptex == 23	){
+legs.customShader = cgs.media.ptex23Shader;
+}
+if(ci->ptex == 24	){
+legs.customShader = cgs.media.ptex24Shader;
+}
+if(ci->ptex == 25	){
+legs.customShader = cgs.media.ptex25Shader;
+}
+if(ci->ptex == 26	){
+legs.customShader = cgs.media.ptex26Shader;
+}
+if(ci->ptex == 27	){
+legs.customShader = cgs.media.ptex27Shader;
+}
+if(ci->ptex == 28	){
+legs.customShader = cgs.media.ptex28Shader;
+}
+if(ci->ptex == 29	){
+legs.customShader = cgs.media.ptex29Shader;
+}
+if(ci->ptex == 30	){
+legs.customShader = cgs.media.ptex30Shader;
+}
+if(ci->ptex == 31	){
+legs.customShader = cgs.media.ptex31Shader;
+}
+if(ci->ptex == 32	){
+legs.customShader = cgs.media.ptex32Shader;
+}
+if(ci->ptex == 33	){
+legs.customShader = cgs.media.ptex33Shader;
+}
+if(ci->ptex == 34	){
+legs.customShader = cgs.media.ptex34Shader;
+}
+if(ci->ptex == 35	){
+legs.customShader = cgs.media.ptex35Shader;
+}
+if(ci->ptex == 36	){
+legs.customShader = cgs.media.ptex36Shader;
+}
+if(ci->ptex == 37	){
+legs.customShader = cgs.media.ptex37Shader;
+}
+if(ci->ptex == 38	){
+legs.customShader = cgs.media.ptex38Shader;
+}
+if(ci->ptex == 39	){
+legs.customShader = cgs.media.ptex39Shader;
+}
+if(ci->ptex == 40	){
+legs.customShader = cgs.media.ptex40Shader;
+}
+if(ci->ptex == 41	){
+legs.customShader = cgs.media.ptex41Shader;
+}
+if(ci->ptex == 42	){
+legs.customShader = cgs.media.ptex42Shader;
+}
+if(ci->ptex == 43	){
+legs.customShader = cgs.media.ptex43Shader;
+}
+if(ci->ptex == 44	){
+legs.customShader = cgs.media.ptex44Shader;
+}
+if(ci->ptex == 45	){
+legs.customShader = cgs.media.ptex45Shader;
+}
+if(ci->ptex == 46	){
+legs.customShader = cgs.media.ptex46Shader;
+}
+if(ci->ptex == 47	){
+legs.customShader = cgs.media.ptex47Shader;
+}
+if(ci->ptex == 48	){
+legs.customShader = cgs.media.ptex48Shader;
+}
+if(ci->ptex == 49	){
+legs.customShader = cgs.media.ptex49Shader;
+}
+if(ci->ptex == 50	){
+legs.customShader = cgs.media.ptex50Shader;
+}
+if(ci->ptex == 51	){
+legs.customShader = cgs.media.ptex51Shader;
+}
+if(ci->ptex == 52	){
+legs.customShader = cgs.media.ptex52Shader;
+}
+if(ci->ptex == 53	){
+legs.customShader = cgs.media.ptex53Shader;
+}
+if(ci->ptex == 54	){
+legs.customShader = cgs.media.ptex54Shader;
+}
+if(ci->ptex == 55	){
+legs.customShader = cgs.media.ptex55Shader;
+}
+if(ci->ptex == 56	){
+legs.customShader = cgs.media.ptex56Shader;
+}
+if(ci->ptex == 57	){
+legs.customShader = cgs.media.ptex57Shader;
+}
+if(ci->ptex == 58	){
+legs.customShader = cgs.media.ptex58Shader;
+}
+if(ci->ptex == 59	){
+legs.customShader = cgs.media.ptex59Shader;
+}
+if(ci->ptex == 60	){
+legs.customShader = cgs.media.ptex60Shader;
+}
+if(ci->ptex == 61	){
+legs.customShader = cgs.media.ptex61Shader;
+}
+if(ci->ptex == 62	){
+legs.customShader = cgs.media.ptex62Shader;
+}
+if(ci->ptex == 63	){
+legs.customShader = cgs.media.ptex63Shader;
+}
+if(ci->ptex == 64	){
+legs.customShader = cgs.media.ptex64Shader;
+}
+if(ci->ptex == 65	){
+legs.customShader = cgs.media.ptex65Shader;
+}
+if(ci->ptex == 66	){
+legs.customShader = cgs.media.ptex66Shader;
+}
+if(ci->ptex == 67	){
+legs.customShader = cgs.media.ptex67Shader;
+}
+if(ci->ptex == 68	){
+legs.customShader = cgs.media.ptex68Shader;
+}
+if(ci->ptex == 69	){
+legs.customShader = cgs.media.ptex69Shader;
+}
+if(ci->ptex == 70	){
+legs.customShader = cgs.media.ptex70Shader;
+}
+if(ci->ptex == 71	){
+legs.customShader = cgs.media.ptex71Shader;
+}
+if(ci->ptex == 72	){
+legs.customShader = cgs.media.ptex72Shader;
+}
+if(ci->ptex == 73	){
+legs.customShader = cgs.media.ptex73Shader;
+}
+if(ci->ptex == 74	){
+legs.customShader = cgs.media.ptex74Shader;
+}
+if(ci->ptex == 75	){
+legs.customShader = cgs.media.ptex75Shader;
+}
+if(ci->ptex == 76	){
+legs.customShader = cgs.media.ptex76Shader;
+}
+if(ci->ptex == 77	){
+legs.customShader = cgs.media.ptex77Shader;
+}
+if(ci->ptex == 78	){
+legs.customShader = cgs.media.ptex78Shader;
+}
+if(ci->ptex == 79	){
+legs.customShader = cgs.media.ptex79Shader;
+}
+if(ci->ptex == 80	){
+legs.customShader = cgs.media.ptex80Shader;
+}
+if(ci->ptex == 81	){
+legs.customShader = cgs.media.ptex81Shader;
+}
+if(ci->ptex == 82	){
+legs.customShader = cgs.media.ptex82Shader;
+}
+if(ci->ptex == 83	){
+legs.customShader = cgs.media.ptex83Shader;
+}
+if(ci->ptex == 84	){
+legs.customShader = cgs.media.ptex84Shader;
+}
+if(ci->ptex == 85	){
+legs.customShader = cgs.media.ptex85Shader;
+}
+if(ci->ptex == 86	){
+legs.customShader = cgs.media.ptex86Shader;
+}
+if(ci->ptex == 87	){
+legs.customShader = cgs.media.ptex87Shader;
+}
+if(ci->ptex == 88	){
+legs.customShader = cgs.media.ptex88Shader;
+}
+if(ci->ptex == 89	){
+legs.customShader = cgs.media.ptex89Shader;
+}
+if(ci->ptex == 90	){
+legs.customShader = cgs.media.ptex90Shader;
+}
+if(ci->ptex == 91	){
+legs.customShader = cgs.media.ptex91Shader;
+}
+if(ci->ptex == 92	){
+legs.customShader = cgs.media.ptex92Shader;
+}
+if(ci->ptex == 93	){
+legs.customShader = cgs.media.ptex93Shader;
+}
+if(ci->ptex == 94	){
+legs.customShader = cgs.media.ptex94Shader;
+}
+if(ci->ptex == 95	){
+legs.customShader = cgs.media.ptex95Shader;
+}
+if(ci->ptex == 96	){
+legs.customShader = cgs.media.ptex96Shader;
+}
+if(ci->ptex == 97	){
+legs.customShader = cgs.media.ptex97Shader;
+}
+if(ci->ptex == 98	){
+legs.customShader = cgs.media.ptex98Shader;
+}
+if(ci->ptex == 99	){
+legs.customShader = cgs.media.ptex99Shader;
+}
+if(ci->ptex == 100	){
+legs.customShader = cgs.media.ptex100Shader;
+}
+if(ci->ptex == 101	){
+legs.customShader = cgs.media.ptex101Shader;
+}
+if(ci->ptex == 102	){
+legs.customShader = cgs.media.ptex102Shader;
+}
+if(ci->ptex == 103	){
+legs.customShader = cgs.media.ptex103Shader;
+}
+if(ci->ptex == 104	){
+legs.customShader = cgs.media.ptex104Shader;
+}
+if(ci->ptex == 105	){
+legs.customShader = cgs.media.ptex105Shader;
+}
+if(ci->ptex == 106	){
+legs.customShader = cgs.media.ptex106Shader;
+}
+if(ci->ptex == 107	){
+legs.customShader = cgs.media.ptex107Shader;
+}
+if(ci->ptex == 108	){
+legs.customShader = cgs.media.ptex108Shader;
+}
+if(ci->ptex == 109	){
+legs.customShader = cgs.media.ptex109Shader;
+}
+if(ci->ptex == 110	){
+legs.customShader = cgs.media.ptex110Shader;
+}
+if(ci->ptex == 111	){
+legs.customShader = cgs.media.ptex111Shader;
+}
+if(ci->ptex == 112	){
+legs.customShader = cgs.media.ptex112Shader;
+}
+if(ci->ptex == 113	){
+legs.customShader = cgs.media.ptex113Shader;
+}
+if(ci->ptex == 114	){
+legs.customShader = cgs.media.ptex114Shader;
+}
+if(ci->ptex == 115	){
+legs.customShader = cgs.media.ptex115Shader;
+}
+if(ci->ptex == 116	){
+legs.customShader = cgs.media.ptex116Shader;
+}
+if(ci->ptex == 117	){
+legs.customShader = cgs.media.ptex117Shader;
+}
+if(ci->ptex == 118	){
+legs.customShader = cgs.media.ptex118Shader;
+}
+if(ci->ptex == 119	){
+legs.customShader = cgs.media.ptex119Shader;
+}
+if(ci->ptex == 120	){
+legs.customShader = cgs.media.ptex120Shader;
+}
+if(ci->ptex == 121	){
+legs.customShader = cgs.media.ptex121Shader;
+}
+if(ci->ptex == 122	){
+legs.customShader = cgs.media.ptex122Shader;
+}
+if(ci->ptex == 123	){
+legs.customShader = cgs.media.ptex123Shader;
+}
+if(ci->ptex == 124	){
+legs.customShader = cgs.media.ptex124Shader;
+}
+if(ci->ptex == 125	){
+legs.customShader = cgs.media.ptex125Shader;
+}
+if(ci->ptex == 126	){
+legs.customShader = cgs.media.ptex126Shader;
+}
+if(ci->ptex == 127	){
+legs.customShader = cgs.media.ptex127Shader;
+}
+if(ci->ptex == 128	){
+legs.customShader = cgs.media.ptex128Shader;
+}
+if(ci->ptex == 129	){
+legs.customShader = cgs.media.ptex129Shader;
+}
+if(ci->ptex == 130	){
+legs.customShader = cgs.media.ptex130Shader;
+}
+if(ci->ptex == 131	){
+legs.customShader = cgs.media.ptex131Shader;
+}
+if(ci->ptex == 132	){
+legs.customShader = cgs.media.ptex132Shader;
+}
+if(ci->ptex == 133	){
+legs.customShader = cgs.media.ptex133Shader;
+}
+if(ci->ptex == 134	){
+legs.customShader = cgs.media.ptex134Shader;
+}
+if(ci->ptex == 135	){
+legs.customShader = cgs.media.ptex135Shader;
+}
+if(ci->ptex == 136	){
+legs.customShader = cgs.media.ptex136Shader;
+}
+if(ci->ptex == 137	){
+legs.customShader = cgs.media.ptex137Shader;
+}
+if(ci->ptex == 138	){
+legs.customShader = cgs.media.ptex138Shader;
+}
+if(ci->ptex == 139	){
+legs.customShader = cgs.media.ptex139Shader;
+}
+if(ci->ptex == 140	){
+legs.customShader = cgs.media.ptex140Shader;
+}
+if(ci->ptex == 141	){
+legs.customShader = cgs.media.ptex141Shader;
+}
+if(ci->ptex == 142	){
+legs.customShader = cgs.media.ptex142Shader;
+}
+if(ci->ptex == 143	){
+legs.customShader = cgs.media.ptex143Shader;
+}
+if(ci->ptex == 144	){
+legs.customShader = cgs.media.ptex144Shader;
+}
+if(ci->ptex == 145	){
+legs.customShader = cgs.media.ptex145Shader;
+}
+if(ci->ptex == 146	){
+legs.customShader = cgs.media.ptex146Shader;
+}
+if(ci->ptex == 147	){
+legs.customShader = cgs.media.ptex147Shader;
+}
+if(ci->ptex == 148	){
+legs.customShader = cgs.media.ptex148Shader;
+}
+if(ci->ptex == 149	){
+legs.customShader = cgs.media.ptex149Shader;
+}
+if(ci->ptex == 150	){
+legs.customShader = cgs.media.ptex150Shader;
+}
+if(ci->ptex == 151	){
+legs.customShader = cgs.media.ptex151Shader;
+}
+if(ci->ptex == 152	){
+legs.customShader = cgs.media.ptex152Shader;
+}
+if(ci->ptex == 153	){
+legs.customShader = cgs.media.ptex153Shader;
+}
+	legs.shaderRGBA[0] = ci->plred;
+	legs.shaderRGBA[1] = ci->plgreen;
+	legs.shaderRGBA[2] = ci->plblue;
+	legs.shaderRGBA[3] = 255;
+	if(cg_forceModel.integer == 1){
+	legs.shaderRGBA[0] = cg_plightred.integer;
+	legs.shaderRGBA[1] = cg_plightgreen.integer;
+	legs.shaderRGBA[2] = cg_plightblue.integer;
+	legs.shaderRGBA[3] = 255;
+	}
 
 	VectorCopy( cent->lerpOrigin, legs.origin );
 
 	VectorCopy( cent->lerpOrigin, legs.lightingOrigin );
+
+	if (chibifactorbody) {
+		VectorScale(legs.axis[0], chibifactorbody, legs.axis[0]);
+		VectorScale(legs.axis[1], chibifactorbody, legs.axis[1]);
+		VectorScale(legs.axis[2], chibifactorbody, legs.axis[2]);
+	}
+
+/*	if (mod_zombiemode == 15) {
+		VectorScale(legs.axis[0], 500 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 500 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 500 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 14) {
+		VectorScale(legs.axis[0], 400 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 400 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 400 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 13) {
+		VectorScale(legs.axis[0], 300 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 300 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 300 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 12) {
+		VectorScale(legs.axis[0], 200 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 200 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 200 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 11) {
+		VectorScale(legs.axis[0], 150 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 150 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 150 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 9) {
+		VectorScale(legs.axis[0], 90 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 90 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 90 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 8) {
+		VectorScale(legs.axis[0], 80 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 80 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 80 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 7) {
+		VectorScale(legs.axis[0], 70 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 70 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 70 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 6) {
+		VectorScale(legs.axis[0], 60 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 60 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 60 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 5) {
+		VectorScale(legs.axis[0], 50 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 50 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 50 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 4) {
+		VectorScale(legs.axis[0], 40 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 40 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 40 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 3) {
+		VectorScale(legs.axis[0], 30 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 30 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 30 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 2) {
+		VectorScale(legs.axis[0], 20 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 20 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 20 / 100, legs.axis[2]);
+	}
+
+	if (mod_zombiemode == 1) {
+		VectorScale(legs.axis[0], 10 / 100, legs.axis[0]);
+		VectorScale(legs.axis[1], 10 / 100, legs.axis[1]);
+		VectorScale(legs.axis[2], 10 / 100, legs.axis[2]);
+	}*/
+
 	legs.shadowPlane = shadowPlane;
 	legs.renderfx = renderfx;
 	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
+
+	if (cg_cameraEyes.integer){
+			legs.renderfx &= RF_FIRST_PERSON;
+		}
+
 
 	CG_AddRefEntityWithPowerups( &legs, &cent->currentState, ci->team, qfalse );
 
@@ -2339,6 +3272,475 @@ void CG_Player( centity_t *cent ) {
 	}
 
 	torso.customSkin = ci->torsoSkin;
+if(ci->totex == 1	){
+torso.customShader = cgs.media.ptex1Shader;
+}
+if(ci->totex == 2	){
+torso.customShader = cgs.media.ptex2Shader;
+}
+if(ci->totex == 3	){
+torso.customShader = cgs.media.ptex3Shader;
+}
+if(ci->totex == 4	){
+torso.customShader = cgs.media.ptex4Shader;
+}
+if(ci->totex == 5	){
+torso.customShader = cgs.media.ptex5Shader;
+}
+if(ci->totex == 6	){
+torso.customShader = cgs.media.ptex6Shader;
+}
+if(ci->totex == 7	){
+torso.customShader = cgs.media.ptex7Shader;
+}
+if(ci->totex == 8	){
+torso.customShader = cgs.media.ptex8Shader;
+}
+if(ci->totex == 9	){
+torso.customShader = cgs.media.ptex9Shader;
+}
+if(ci->totex == 10	){
+torso.customShader = cgs.media.ptex10Shader;
+}
+if(ci->totex == 11	){
+torso.customShader = cgs.media.ptex11Shader;
+}
+if(ci->totex == 12	){
+torso.customShader = cgs.media.ptex12Shader;
+}
+if(ci->totex == 13	){
+torso.customShader = cgs.media.ptex13Shader;
+}
+if(ci->totex == 14	){
+torso.customShader = cgs.media.ptex14Shader;
+}
+if(ci->totex == 15	){
+torso.customShader = cgs.media.ptex15Shader;
+}
+if(ci->totex == 16	){
+torso.customShader = cgs.media.ptex16Shader;
+}
+if(ci->totex == 17	){
+torso.customShader = cgs.media.ptex17Shader;
+}
+if(ci->totex == 18	){
+torso.customShader = cgs.media.ptex18Shader;
+}
+if(ci->totex == 19	){
+torso.customShader = cgs.media.ptex19Shader;
+}
+if(ci->totex == 20	){
+torso.customShader = cgs.media.ptex20Shader;
+}
+if(ci->totex == 21	){
+torso.customShader = cgs.media.ptex21Shader;
+}
+if(ci->totex == 22	){
+torso.customShader = cgs.media.ptex22Shader;
+}
+if(ci->totex == 23	){
+torso.customShader = cgs.media.ptex23Shader;
+}
+if(ci->totex == 24	){
+torso.customShader = cgs.media.ptex24Shader;
+}
+if(ci->totex == 25	){
+torso.customShader = cgs.media.ptex25Shader;
+}
+if(ci->totex == 26	){
+torso.customShader = cgs.media.ptex26Shader;
+}
+if(ci->totex == 27	){
+torso.customShader = cgs.media.ptex27Shader;
+}
+if(ci->totex == 28	){
+torso.customShader = cgs.media.ptex28Shader;
+}
+if(ci->totex == 29	){
+torso.customShader = cgs.media.ptex29Shader;
+}
+if(ci->totex == 30	){
+torso.customShader = cgs.media.ptex30Shader;
+}
+if(ci->totex == 31	){
+torso.customShader = cgs.media.ptex31Shader;
+}
+if(ci->totex == 32	){
+torso.customShader = cgs.media.ptex32Shader;
+}
+if(ci->totex == 33	){
+torso.customShader = cgs.media.ptex33Shader;
+}
+if(ci->totex == 34	){
+torso.customShader = cgs.media.ptex34Shader;
+}
+if(ci->totex == 35	){
+torso.customShader = cgs.media.ptex35Shader;
+}
+if(ci->totex == 36	){
+torso.customShader = cgs.media.ptex36Shader;
+}
+if(ci->totex == 37	){
+torso.customShader = cgs.media.ptex37Shader;
+}
+if(ci->totex == 38	){
+torso.customShader = cgs.media.ptex38Shader;
+}
+if(ci->totex == 39	){
+torso.customShader = cgs.media.ptex39Shader;
+}
+if(ci->totex == 40	){
+torso.customShader = cgs.media.ptex40Shader;
+}
+if(ci->totex == 41	){
+torso.customShader = cgs.media.ptex41Shader;
+}
+if(ci->totex == 42	){
+torso.customShader = cgs.media.ptex42Shader;
+}
+if(ci->totex == 43	){
+torso.customShader = cgs.media.ptex43Shader;
+}
+if(ci->totex == 44	){
+torso.customShader = cgs.media.ptex44Shader;
+}
+if(ci->totex == 45	){
+torso.customShader = cgs.media.ptex45Shader;
+}
+if(ci->totex == 46	){
+torso.customShader = cgs.media.ptex46Shader;
+}
+if(ci->totex == 47	){
+torso.customShader = cgs.media.ptex47Shader;
+}
+if(ci->totex == 48	){
+torso.customShader = cgs.media.ptex48Shader;
+}
+if(ci->totex == 49	){
+torso.customShader = cgs.media.ptex49Shader;
+}
+if(ci->totex == 50	){
+torso.customShader = cgs.media.ptex50Shader;
+}
+if(ci->totex == 51	){
+torso.customShader = cgs.media.ptex51Shader;
+}
+if(ci->totex == 52	){
+torso.customShader = cgs.media.ptex52Shader;
+}
+if(ci->totex == 53	){
+torso.customShader = cgs.media.ptex53Shader;
+}
+if(ci->totex == 54	){
+torso.customShader = cgs.media.ptex54Shader;
+}
+if(ci->totex == 55	){
+torso.customShader = cgs.media.ptex55Shader;
+}
+if(ci->totex == 56	){
+torso.customShader = cgs.media.ptex56Shader;
+}
+if(ci->totex == 57	){
+torso.customShader = cgs.media.ptex57Shader;
+}
+if(ci->totex == 58	){
+torso.customShader = cgs.media.ptex58Shader;
+}
+if(ci->totex == 59	){
+torso.customShader = cgs.media.ptex59Shader;
+}
+if(ci->totex == 60	){
+torso.customShader = cgs.media.ptex60Shader;
+}
+if(ci->totex == 61	){
+torso.customShader = cgs.media.ptex61Shader;
+}
+if(ci->totex == 62	){
+torso.customShader = cgs.media.ptex62Shader;
+}
+if(ci->totex == 63	){
+torso.customShader = cgs.media.ptex63Shader;
+}
+if(ci->totex == 64	){
+torso.customShader = cgs.media.ptex64Shader;
+}
+if(ci->totex == 65	){
+torso.customShader = cgs.media.ptex65Shader;
+}
+if(ci->totex == 66	){
+torso.customShader = cgs.media.ptex66Shader;
+}
+if(ci->totex == 67	){
+torso.customShader = cgs.media.ptex67Shader;
+}
+if(ci->totex == 68	){
+torso.customShader = cgs.media.ptex68Shader;
+}
+if(ci->totex == 69	){
+torso.customShader = cgs.media.ptex69Shader;
+}
+if(ci->totex == 70	){
+torso.customShader = cgs.media.ptex70Shader;
+}
+if(ci->totex == 71	){
+torso.customShader = cgs.media.ptex71Shader;
+}
+if(ci->totex == 72	){
+torso.customShader = cgs.media.ptex72Shader;
+}
+if(ci->totex == 73	){
+torso.customShader = cgs.media.ptex73Shader;
+}
+if(ci->totex == 74	){
+torso.customShader = cgs.media.ptex74Shader;
+}
+if(ci->totex == 75	){
+torso.customShader = cgs.media.ptex75Shader;
+}
+if(ci->totex == 76	){
+torso.customShader = cgs.media.ptex76Shader;
+}
+if(ci->totex == 77	){
+torso.customShader = cgs.media.ptex77Shader;
+}
+if(ci->totex == 78	){
+torso.customShader = cgs.media.ptex78Shader;
+}
+if(ci->totex == 79	){
+torso.customShader = cgs.media.ptex79Shader;
+}
+if(ci->totex == 80	){
+torso.customShader = cgs.media.ptex80Shader;
+}
+if(ci->totex == 81	){
+torso.customShader = cgs.media.ptex81Shader;
+}
+if(ci->totex == 82	){
+torso.customShader = cgs.media.ptex82Shader;
+}
+if(ci->totex == 83	){
+torso.customShader = cgs.media.ptex83Shader;
+}
+if(ci->totex == 84	){
+torso.customShader = cgs.media.ptex84Shader;
+}
+if(ci->totex == 85	){
+torso.customShader = cgs.media.ptex85Shader;
+}
+if(ci->totex == 86	){
+torso.customShader = cgs.media.ptex86Shader;
+}
+if(ci->totex == 87	){
+torso.customShader = cgs.media.ptex87Shader;
+}
+if(ci->totex == 88	){
+torso.customShader = cgs.media.ptex88Shader;
+}
+if(ci->totex == 89	){
+torso.customShader = cgs.media.ptex89Shader;
+}
+if(ci->totex == 90	){
+torso.customShader = cgs.media.ptex90Shader;
+}
+if(ci->totex == 91	){
+torso.customShader = cgs.media.ptex91Shader;
+}
+if(ci->totex == 92	){
+torso.customShader = cgs.media.ptex92Shader;
+}
+if(ci->totex == 93	){
+torso.customShader = cgs.media.ptex93Shader;
+}
+if(ci->totex == 94	){
+torso.customShader = cgs.media.ptex94Shader;
+}
+if(ci->totex == 95	){
+torso.customShader = cgs.media.ptex95Shader;
+}
+if(ci->totex == 96	){
+torso.customShader = cgs.media.ptex96Shader;
+}
+if(ci->totex == 97	){
+torso.customShader = cgs.media.ptex97Shader;
+}
+if(ci->totex == 98	){
+torso.customShader = cgs.media.ptex98Shader;
+}
+if(ci->totex == 99	){
+torso.customShader = cgs.media.ptex99Shader;
+}
+if(ci->totex == 100	){
+torso.customShader = cgs.media.ptex100Shader;
+}
+if(ci->totex == 101	){
+torso.customShader = cgs.media.ptex101Shader;
+}
+if(ci->totex == 102	){
+torso.customShader = cgs.media.ptex102Shader;
+}
+if(ci->totex == 103	){
+torso.customShader = cgs.media.ptex103Shader;
+}
+if(ci->totex == 104	){
+torso.customShader = cgs.media.ptex104Shader;
+}
+if(ci->totex == 105	){
+torso.customShader = cgs.media.ptex105Shader;
+}
+if(ci->totex == 106	){
+torso.customShader = cgs.media.ptex106Shader;
+}
+if(ci->totex == 107	){
+torso.customShader = cgs.media.ptex107Shader;
+}
+if(ci->totex == 108	){
+torso.customShader = cgs.media.ptex108Shader;
+}
+if(ci->totex == 109	){
+torso.customShader = cgs.media.ptex109Shader;
+}
+if(ci->totex == 110	){
+torso.customShader = cgs.media.ptex110Shader;
+}
+if(ci->totex == 111	){
+torso.customShader = cgs.media.ptex111Shader;
+}
+if(ci->totex == 112	){
+torso.customShader = cgs.media.ptex112Shader;
+}
+if(ci->totex == 113	){
+torso.customShader = cgs.media.ptex113Shader;
+}
+if(ci->totex == 114	){
+torso.customShader = cgs.media.ptex114Shader;
+}
+if(ci->totex == 115	){
+torso.customShader = cgs.media.ptex115Shader;
+}
+if(ci->totex == 116	){
+torso.customShader = cgs.media.ptex116Shader;
+}
+if(ci->totex == 117	){
+torso.customShader = cgs.media.ptex117Shader;
+}
+if(ci->totex == 118	){
+torso.customShader = cgs.media.ptex118Shader;
+}
+if(ci->totex == 119	){
+torso.customShader = cgs.media.ptex119Shader;
+}
+if(ci->totex == 120	){
+torso.customShader = cgs.media.ptex120Shader;
+}
+if(ci->totex == 121	){
+torso.customShader = cgs.media.ptex121Shader;
+}
+if(ci->totex == 122	){
+torso.customShader = cgs.media.ptex122Shader;
+}
+if(ci->totex == 123	){
+torso.customShader = cgs.media.ptex123Shader;
+}
+if(ci->totex == 124	){
+torso.customShader = cgs.media.ptex124Shader;
+}
+if(ci->totex == 125	){
+torso.customShader = cgs.media.ptex125Shader;
+}
+if(ci->totex == 126	){
+torso.customShader = cgs.media.ptex126Shader;
+}
+if(ci->totex == 127	){
+torso.customShader = cgs.media.ptex127Shader;
+}
+if(ci->totex == 128	){
+torso.customShader = cgs.media.ptex128Shader;
+}
+if(ci->totex == 129	){
+torso.customShader = cgs.media.ptex129Shader;
+}
+if(ci->totex == 130	){
+torso.customShader = cgs.media.ptex130Shader;
+}
+if(ci->totex == 131	){
+torso.customShader = cgs.media.ptex131Shader;
+}
+if(ci->totex == 132	){
+torso.customShader = cgs.media.ptex132Shader;
+}
+if(ci->totex == 133	){
+torso.customShader = cgs.media.ptex133Shader;
+}
+if(ci->totex == 134	){
+torso.customShader = cgs.media.ptex134Shader;
+}
+if(ci->totex == 135	){
+torso.customShader = cgs.media.ptex135Shader;
+}
+if(ci->totex == 136	){
+torso.customShader = cgs.media.ptex136Shader;
+}
+if(ci->totex == 137	){
+torso.customShader = cgs.media.ptex137Shader;
+}
+if(ci->totex == 138	){
+torso.customShader = cgs.media.ptex138Shader;
+}
+if(ci->totex == 139	){
+torso.customShader = cgs.media.ptex139Shader;
+}
+if(ci->totex == 140	){
+torso.customShader = cgs.media.ptex140Shader;
+}
+if(ci->totex == 141	){
+torso.customShader = cgs.media.ptex141Shader;
+}
+if(ci->totex == 142	){
+torso.customShader = cgs.media.ptex142Shader;
+}
+if(ci->totex == 143	){
+torso.customShader = cgs.media.ptex143Shader;
+}
+if(ci->totex == 144	){
+torso.customShader = cgs.media.ptex144Shader;
+}
+if(ci->totex == 145	){
+torso.customShader = cgs.media.ptex145Shader;
+}
+if(ci->totex == 146	){
+torso.customShader = cgs.media.ptex146Shader;
+}
+if(ci->totex == 147	){
+torso.customShader = cgs.media.ptex147Shader;
+}
+if(ci->totex == 148	){
+torso.customShader = cgs.media.ptex148Shader;
+}
+if(ci->totex == 149	){
+torso.customShader = cgs.media.ptex149Shader;
+}
+if(ci->totex == 150	){
+torso.customShader = cgs.media.ptex150Shader;
+}
+if(ci->totex == 151	){
+torso.customShader = cgs.media.ptex151Shader;
+}
+if(ci->totex == 152	){
+torso.customShader = cgs.media.ptex152Shader;
+}
+if(ci->totex == 153	){
+torso.customShader = cgs.media.ptex153Shader;
+}
+	torso.shaderRGBA[0] = ci->tolred;
+	torso.shaderRGBA[1] = ci->tolgreen;
+	torso.shaderRGBA[2] = ci->tolblue;
+	torso.shaderRGBA[3] = 255;
+	if(cg_forceModel.integer == 1){
+	torso.shaderRGBA[0] = cg_tolightred.integer;
+	torso.shaderRGBA[1] = cg_tolightgreen.integer;
+	torso.shaderRGBA[2] = cg_tolightblue.integer;
+	torso.shaderRGBA[3] = 255;
+	}
 
 	VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
 
@@ -2346,9 +3748,39 @@ void CG_Player( centity_t *cent ) {
 
 	torso.shadowPlane = shadowPlane;
 	torso.renderfx = renderfx;
+	if (cg_cameraEyes.integer){
+			torso.renderfx &= RF_FIRST_PERSON;
+		}
+
+	if (chibifactortorso) {
+		VectorScale(torso.axis[0], chibifactortorso, torso.axis[0]);
+		VectorScale(torso.axis[1], chibifactortorso, torso.axis[1]);
+		VectorScale(torso.axis[2], chibifactortorso, torso.axis[2]);
+	}
+
+	if ( ci->plradius ) {
+	if ( ci->plradius > 100 ) {
+	return;
+	}
+	if ( ci->plradius < 0 ) {
+	return;
+	}
+		trap_R_AddLightToScene( cent->lerpOrigin, ci->plradius, ci->plred / 255, ci->plgreen / 255, ci->plblue / 255 );
+		trap_R_AddLightToScene( cent->lerpOrigin, ci->plradius, ci->plred / 255, ci->plgreen / 255, ci->plblue / 255 );
+		trap_R_AddLightToScene( cent->lerpOrigin, ci->plradius, ci->plred / 255, ci->plgreen / 255, ci->plblue / 255 );
+	}
+
+
+
+
+
+
 
 	CG_AddRefEntityWithPowerups( &torso, &cent->currentState, ci->team, qfalse );
 
+	if ( cent->currentState.number == cg.snap->ps.clientNum) {
+//	CG_PlayerSprites( cent );
+	} else {
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
 
 		memset( &skull, 0, sizeof(skull) );
@@ -2367,7 +3799,7 @@ void CG_Player( centity_t *cent ) {
 			angle = ((cg.time / 4) & 255) * (M_PI * 2) / 255;
 			dir[2] = 15 + sin(angle) * 8;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			dir[2] = 0;
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
@@ -2445,7 +3877,7 @@ void CG_Player( centity_t *cent ) {
 			dir[1] = cos(angle) * 20;
 			dir[2] = 0;
 			VectorAdd(torso.origin, dir, skull.origin);
-			
+
 			VectorCopy(dir, skull.axis[1]);
 			VectorNormalize(skull.axis[1]);
 			VectorSet(skull.axis[2], 0, 0, 1);
@@ -2457,7 +3889,13 @@ void CG_Player( centity_t *cent ) {
 			trap_R_AddRefEntityToScene( &skull );
 		}
 	}
+	}
 
+
+
+	if ( cent->currentState.number == cg.snap->ps.clientNum) {
+//	CG_PlayerSprites( cent );
+	} else {
 	if ( cent->currentState.powerups & ( 1 << PW_GUARD ) ) {
 		memcpy(&powerup, &torso, sizeof(torso));
 		powerup.hModel = cgs.media.guardPowerupModel;
@@ -2490,6 +3928,10 @@ void CG_Player( centity_t *cent ) {
 		powerup.customSkin = 0;
 		trap_R_AddRefEntityToScene( &powerup );
 	}
+	}
+
+
+
 	if ( cent->currentState.powerups & ( 1 << PW_INVULNERABILITY ) ) {
 		if ( !ci->invulnerabilityStartTime ) {
 			ci->invulnerabilityStartTime = cg.time;
@@ -2559,13 +4001,540 @@ void CG_Player( centity_t *cent ) {
 		return;
 	}
 	head.customSkin = ci->headSkin;
+if(ci->hetex == 1	){
+head.customShader = cgs.media.ptex1Shader;
+}
+if(ci->hetex == 2	){
+head.customShader = cgs.media.ptex2Shader;
+}
+if(ci->hetex == 3	){
+head.customShader = cgs.media.ptex3Shader;
+}
+if(ci->hetex == 4	){
+head.customShader = cgs.media.ptex4Shader;
+}
+if(ci->hetex == 5	){
+head.customShader = cgs.media.ptex5Shader;
+}
+if(ci->hetex == 6	){
+head.customShader = cgs.media.ptex6Shader;
+}
+if(ci->hetex == 7	){
+head.customShader = cgs.media.ptex7Shader;
+}
+if(ci->hetex == 8	){
+head.customShader = cgs.media.ptex8Shader;
+}
+if(ci->hetex == 9	){
+head.customShader = cgs.media.ptex9Shader;
+}
+if(ci->hetex == 10	){
+head.customShader = cgs.media.ptex10Shader;
+}
+if(ci->hetex == 11	){
+head.customShader = cgs.media.ptex11Shader;
+}
+if(ci->hetex == 12	){
+head.customShader = cgs.media.ptex12Shader;
+}
+if(ci->hetex == 13	){
+head.customShader = cgs.media.ptex13Shader;
+}
+if(ci->hetex == 14	){
+head.customShader = cgs.media.ptex14Shader;
+}
+if(ci->hetex == 15	){
+head.customShader = cgs.media.ptex15Shader;
+}
+if(ci->hetex == 16	){
+head.customShader = cgs.media.ptex16Shader;
+}
+if(ci->hetex == 17	){
+head.customShader = cgs.media.ptex17Shader;
+}
+if(ci->hetex == 18	){
+head.customShader = cgs.media.ptex18Shader;
+}
+if(ci->hetex == 19	){
+head.customShader = cgs.media.ptex19Shader;
+}
+if(ci->hetex == 20	){
+head.customShader = cgs.media.ptex20Shader;
+}
+if(ci->hetex == 21	){
+head.customShader = cgs.media.ptex21Shader;
+}
+if(ci->hetex == 22	){
+head.customShader = cgs.media.ptex22Shader;
+}
+if(ci->hetex == 23	){
+head.customShader = cgs.media.ptex23Shader;
+}
+if(ci->hetex == 24	){
+head.customShader = cgs.media.ptex24Shader;
+}
+if(ci->hetex == 25	){
+head.customShader = cgs.media.ptex25Shader;
+}
+if(ci->hetex == 26	){
+head.customShader = cgs.media.ptex26Shader;
+}
+if(ci->hetex == 27	){
+head.customShader = cgs.media.ptex27Shader;
+}
+if(ci->hetex == 28	){
+head.customShader = cgs.media.ptex28Shader;
+}
+if(ci->hetex == 29	){
+head.customShader = cgs.media.ptex29Shader;
+}
+if(ci->hetex == 30	){
+head.customShader = cgs.media.ptex30Shader;
+}
+if(ci->hetex == 31	){
+head.customShader = cgs.media.ptex31Shader;
+}
+if(ci->hetex == 32	){
+head.customShader = cgs.media.ptex32Shader;
+}
+if(ci->hetex == 33	){
+head.customShader = cgs.media.ptex33Shader;
+}
+if(ci->hetex == 34	){
+head.customShader = cgs.media.ptex34Shader;
+}
+if(ci->hetex == 35	){
+head.customShader = cgs.media.ptex35Shader;
+}
+if(ci->hetex == 36	){
+head.customShader = cgs.media.ptex36Shader;
+}
+if(ci->hetex == 37	){
+head.customShader = cgs.media.ptex37Shader;
+}
+if(ci->hetex == 38	){
+head.customShader = cgs.media.ptex38Shader;
+}
+if(ci->hetex == 39	){
+head.customShader = cgs.media.ptex39Shader;
+}
+if(ci->hetex == 40	){
+head.customShader = cgs.media.ptex40Shader;
+}
+if(ci->hetex == 41	){
+head.customShader = cgs.media.ptex41Shader;
+}
+if(ci->hetex == 42	){
+head.customShader = cgs.media.ptex42Shader;
+}
+if(ci->hetex == 43	){
+head.customShader = cgs.media.ptex43Shader;
+}
+if(ci->hetex == 44	){
+head.customShader = cgs.media.ptex44Shader;
+}
+if(ci->hetex == 45	){
+head.customShader = cgs.media.ptex45Shader;
+}
+if(ci->hetex == 46	){
+head.customShader = cgs.media.ptex46Shader;
+}
+if(ci->hetex == 47	){
+head.customShader = cgs.media.ptex47Shader;
+}
+if(ci->hetex == 48	){
+head.customShader = cgs.media.ptex48Shader;
+}
+if(ci->hetex == 49	){
+head.customShader = cgs.media.ptex49Shader;
+}
+if(ci->hetex == 50	){
+head.customShader = cgs.media.ptex50Shader;
+}
+if(ci->hetex == 51	){
+head.customShader = cgs.media.ptex51Shader;
+}
+if(ci->hetex == 52	){
+head.customShader = cgs.media.ptex52Shader;
+}
+if(ci->hetex == 53	){
+head.customShader = cgs.media.ptex53Shader;
+}
+if(ci->hetex == 54	){
+head.customShader = cgs.media.ptex54Shader;
+}
+if(ci->hetex == 55	){
+head.customShader = cgs.media.ptex55Shader;
+}
+if(ci->hetex == 56	){
+head.customShader = cgs.media.ptex56Shader;
+}
+if(ci->hetex == 57	){
+head.customShader = cgs.media.ptex57Shader;
+}
+if(ci->hetex == 58	){
+head.customShader = cgs.media.ptex58Shader;
+}
+if(ci->hetex == 59	){
+head.customShader = cgs.media.ptex59Shader;
+}
+if(ci->hetex == 60	){
+head.customShader = cgs.media.ptex60Shader;
+}
+if(ci->hetex == 61	){
+head.customShader = cgs.media.ptex61Shader;
+}
+if(ci->hetex == 62	){
+head.customShader = cgs.media.ptex62Shader;
+}
+if(ci->hetex == 63	){
+head.customShader = cgs.media.ptex63Shader;
+}
+if(ci->hetex == 64	){
+head.customShader = cgs.media.ptex64Shader;
+}
+if(ci->hetex == 65	){
+head.customShader = cgs.media.ptex65Shader;
+}
+if(ci->hetex == 66	){
+head.customShader = cgs.media.ptex66Shader;
+}
+if(ci->hetex == 67	){
+head.customShader = cgs.media.ptex67Shader;
+}
+if(ci->hetex == 68	){
+head.customShader = cgs.media.ptex68Shader;
+}
+if(ci->hetex == 69	){
+head.customShader = cgs.media.ptex69Shader;
+}
+if(ci->hetex == 70	){
+head.customShader = cgs.media.ptex70Shader;
+}
+if(ci->hetex == 71	){
+head.customShader = cgs.media.ptex71Shader;
+}
+if(ci->hetex == 72	){
+head.customShader = cgs.media.ptex72Shader;
+}
+if(ci->hetex == 73	){
+head.customShader = cgs.media.ptex73Shader;
+}
+if(ci->hetex == 74	){
+head.customShader = cgs.media.ptex74Shader;
+}
+if(ci->hetex == 75	){
+head.customShader = cgs.media.ptex75Shader;
+}
+if(ci->hetex == 76	){
+head.customShader = cgs.media.ptex76Shader;
+}
+if(ci->hetex == 77	){
+head.customShader = cgs.media.ptex77Shader;
+}
+if(ci->hetex == 78	){
+head.customShader = cgs.media.ptex78Shader;
+}
+if(ci->hetex == 79	){
+head.customShader = cgs.media.ptex79Shader;
+}
+if(ci->hetex == 80	){
+head.customShader = cgs.media.ptex80Shader;
+}
+if(ci->hetex == 81	){
+head.customShader = cgs.media.ptex81Shader;
+}
+if(ci->hetex == 82	){
+head.customShader = cgs.media.ptex82Shader;
+}
+if(ci->hetex == 83	){
+head.customShader = cgs.media.ptex83Shader;
+}
+if(ci->hetex == 84	){
+head.customShader = cgs.media.ptex84Shader;
+}
+if(ci->hetex == 85	){
+head.customShader = cgs.media.ptex85Shader;
+}
+if(ci->hetex == 86	){
+head.customShader = cgs.media.ptex86Shader;
+}
+if(ci->hetex == 87	){
+head.customShader = cgs.media.ptex87Shader;
+}
+if(ci->hetex == 88	){
+head.customShader = cgs.media.ptex88Shader;
+}
+if(ci->hetex == 89	){
+head.customShader = cgs.media.ptex89Shader;
+}
+if(ci->hetex == 90	){
+head.customShader = cgs.media.ptex90Shader;
+}
+if(ci->hetex == 91	){
+head.customShader = cgs.media.ptex91Shader;
+}
+if(ci->hetex == 92	){
+head.customShader = cgs.media.ptex92Shader;
+}
+if(ci->hetex == 93	){
+head.customShader = cgs.media.ptex93Shader;
+}
+if(ci->hetex == 94	){
+head.customShader = cgs.media.ptex94Shader;
+}
+if(ci->hetex == 95	){
+head.customShader = cgs.media.ptex95Shader;
+}
+if(ci->hetex == 96	){
+head.customShader = cgs.media.ptex96Shader;
+}
+if(ci->hetex == 97	){
+head.customShader = cgs.media.ptex97Shader;
+}
+if(ci->hetex == 98	){
+head.customShader = cgs.media.ptex98Shader;
+}
+if(ci->hetex == 99	){
+head.customShader = cgs.media.ptex99Shader;
+}
+if(ci->hetex == 100	){
+head.customShader = cgs.media.ptex100Shader;
+}
+if(ci->hetex == 101	){
+head.customShader = cgs.media.ptex101Shader;
+}
+if(ci->hetex == 102	){
+head.customShader = cgs.media.ptex102Shader;
+}
+if(ci->hetex == 103	){
+head.customShader = cgs.media.ptex103Shader;
+}
+if(ci->hetex == 104	){
+head.customShader = cgs.media.ptex104Shader;
+}
+if(ci->hetex == 105	){
+head.customShader = cgs.media.ptex105Shader;
+}
+if(ci->hetex == 106	){
+head.customShader = cgs.media.ptex106Shader;
+}
+if(ci->hetex == 107	){
+head.customShader = cgs.media.ptex107Shader;
+}
+if(ci->hetex == 108	){
+head.customShader = cgs.media.ptex108Shader;
+}
+if(ci->hetex == 109	){
+head.customShader = cgs.media.ptex109Shader;
+}
+if(ci->hetex == 110	){
+head.customShader = cgs.media.ptex110Shader;
+}
+if(ci->hetex == 111	){
+head.customShader = cgs.media.ptex111Shader;
+}
+if(ci->hetex == 112	){
+head.customShader = cgs.media.ptex112Shader;
+}
+if(ci->hetex == 113	){
+head.customShader = cgs.media.ptex113Shader;
+}
+if(ci->hetex == 114	){
+head.customShader = cgs.media.ptex114Shader;
+}
+if(ci->hetex == 115	){
+head.customShader = cgs.media.ptex115Shader;
+}
+if(ci->hetex == 116	){
+head.customShader = cgs.media.ptex116Shader;
+}
+if(ci->hetex == 117	){
+head.customShader = cgs.media.ptex117Shader;
+}
+if(ci->hetex == 118	){
+head.customShader = cgs.media.ptex118Shader;
+}
+if(ci->hetex == 119	){
+head.customShader = cgs.media.ptex119Shader;
+}
+if(ci->hetex == 120	){
+head.customShader = cgs.media.ptex120Shader;
+}
+if(ci->hetex == 121	){
+head.customShader = cgs.media.ptex121Shader;
+}
+if(ci->hetex == 122	){
+head.customShader = cgs.media.ptex122Shader;
+}
+if(ci->hetex == 123	){
+head.customShader = cgs.media.ptex123Shader;
+}
+if(ci->hetex == 124	){
+head.customShader = cgs.media.ptex124Shader;
+}
+if(ci->hetex == 125	){
+head.customShader = cgs.media.ptex125Shader;
+}
+if(ci->hetex == 126	){
+head.customShader = cgs.media.ptex126Shader;
+}
+if(ci->hetex == 127	){
+head.customShader = cgs.media.ptex127Shader;
+}
+if(ci->hetex == 128	){
+head.customShader = cgs.media.ptex128Shader;
+}
+if(ci->hetex == 129	){
+head.customShader = cgs.media.ptex129Shader;
+}
+if(ci->hetex == 130	){
+head.customShader = cgs.media.ptex130Shader;
+}
+if(ci->hetex == 131	){
+head.customShader = cgs.media.ptex131Shader;
+}
+if(ci->hetex == 132	){
+head.customShader = cgs.media.ptex132Shader;
+}
+if(ci->hetex == 133	){
+head.customShader = cgs.media.ptex133Shader;
+}
+if(ci->hetex == 134	){
+head.customShader = cgs.media.ptex134Shader;
+}
+if(ci->hetex == 135	){
+head.customShader = cgs.media.ptex135Shader;
+}
+if(ci->hetex == 136	){
+head.customShader = cgs.media.ptex136Shader;
+}
+if(ci->hetex == 137	){
+head.customShader = cgs.media.ptex137Shader;
+}
+if(ci->hetex == 138	){
+head.customShader = cgs.media.ptex138Shader;
+}
+if(ci->hetex == 139	){
+head.customShader = cgs.media.ptex139Shader;
+}
+if(ci->hetex == 140	){
+head.customShader = cgs.media.ptex140Shader;
+}
+if(ci->hetex == 141	){
+head.customShader = cgs.media.ptex141Shader;
+}
+if(ci->hetex == 142	){
+head.customShader = cgs.media.ptex142Shader;
+}
+if(ci->hetex == 143	){
+head.customShader = cgs.media.ptex143Shader;
+}
+if(ci->hetex == 144	){
+head.customShader = cgs.media.ptex144Shader;
+}
+if(ci->hetex == 145	){
+head.customShader = cgs.media.ptex145Shader;
+}
+if(ci->hetex == 146	){
+head.customShader = cgs.media.ptex146Shader;
+}
+if(ci->hetex == 147	){
+head.customShader = cgs.media.ptex147Shader;
+}
+if(ci->hetex == 148	){
+head.customShader = cgs.media.ptex148Shader;
+}
+if(ci->hetex == 149	){
+head.customShader = cgs.media.ptex149Shader;
+}
+if(ci->hetex == 150	){
+head.customShader = cgs.media.ptex150Shader;
+}
+if(ci->hetex == 151	){
+head.customShader = cgs.media.ptex151Shader;
+}
+if(ci->hetex == 152	){
+head.customShader = cgs.media.ptex152Shader;
+}
+if(ci->hetex == 153	){
+head.customShader = cgs.media.ptex153Shader;
+}
+	head.shaderRGBA[0] = ci->helred;
+	head.shaderRGBA[1] = ci->helgreen;
+	head.shaderRGBA[2] = ci->helblue;
+	head.shaderRGBA[3] = 255;
+	if(cg_forceModel.integer == 1){
+	head.shaderRGBA[0] = cg_helightred.integer;
+	head.shaderRGBA[1] = cg_helightgreen.integer;
+	head.shaderRGBA[2] = cg_helightblue.integer;
+	head.shaderRGBA[3] = 255;
+	}
+
 
 	VectorCopy( cent->lerpOrigin, head.lightingOrigin );
 
 	CG_PositionRotatedEntityOnTag( &head, &torso, ci->torsoModel, "tag_head");
 
+	//
+	// add the eyes
+	//
+
+
+
+	if (camereyes){
+	cent->eyesOrigin[0] = head.origin[0];
+	cent->eyesOrigin[1] = head.origin[1];
+	cent->eyesOrigin[2] = head.origin[2];
+	if (cg_cameraEyes.integer == 2){
+	vectoangles( head.axis[0], headang);
+	}
+	else
+	{
+
+	VectorCopy(cent->lerpAngles, headang);
+	}
+
+
+
+
+	if (cg_cameraEyes.integer){
+	VectorCopy(head.origin, cent->eyesOrigin);
+
+	VectorSubtract(cent->eyesOrigin, cent->lerpOrigin, cent->eyesOrigin);
+	VectorCopy(cent->eyesOrigin, headpos);
+	}
+	}
+
+	VectorCopy(cent->pe.eyepos, head.eyepos[0]);				// Copy it to our refdef for the renderer
+
+	// HMM
+	{
+	vec3_t v, forwaad;
+	vec3_t	angles;
+	vec3_t	dir;
+	float len;
+	vec3_t orrg;
+	vec3_t av[3];
+	trace_t trace;
+	VectorCopy(cent->lerpAngles, v);
+	AngleVectors( v, forwaad, NULL, NULL );
+	VectorMA(cent->lerpOrigin, 1024, forwaad, v );
+	VectorCopy(head.origin, orrg);
+	CG_Trace (&trace, orrg, NULL, NULL, v, -1, CONTENTS_SOLID);
+			if (trace.fraction < 1)
+				VectorCopy(trace.endpos, v);				// look closer
+	VectorCopy(v, head.eyelook);				// Copy it to our refdef for the renderer
+	}
+
 	head.shadowPlane = shadowPlane;
 	head.renderfx = renderfx;
+
+	if (chibifactorhead) {
+		VectorScale(head.axis[0], chibifactorhead, head.axis[0]);
+		VectorScale(head.axis[1], chibifactorhead, head.axis[1]);
+		VectorScale(head.axis[2], chibifactorhead, head.axis[2]);
+	}
 
 	CG_AddRefEntityWithPowerups( &head, &cent->currentState, ci->team, qfalse );
 
@@ -2594,7 +4563,7 @@ A player just came into view or teleported, so reset all animation info
 */
 void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->errorTime = -99999;		// guarantee no error decay added
-	cent->extrapolated = qfalse;	
+	cent->extrapolated = qfalse;
 
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.legs, cent->currentState.legsAnim );
 	CG_ClearLerpFrame( &cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.torso, cent->currentState.torsoAnim );
@@ -2617,8 +4586,15 @@ void CG_ResetPlayerEntity( centity_t *cent ) {
 	cent->pe.torso.pitchAngle = cent->rawAngles[PITCH];
 	cent->pe.torso.pitching = qfalse;
 
+	memset( &cent->pe.head, 0, sizeof( cent->pe.head ) );
+	cent->pe.head.yawAngle = cent->rawAngles[YAW];
+	cent->pe.head.yawing = qfalse;
+	cent->pe.head.pitchAngle = cent->rawAngles[PITCH];
+	cent->pe.head.pitching = qfalse;
+
+
+
 	if ( cg_debugPosition.integer ) {
 		CG_Printf("%i ResetPlayerEntity yaw=%i\n", cent->currentState.number, cent->pe.torso.yawAngle );
 	}
 }
-

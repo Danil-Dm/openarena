@@ -106,7 +106,7 @@ static void CG_ParseScores( void ) {
 		cg.scores[i].perfect = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 13));
 		cg.scores[i].captures = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 14));
 		cg.scores[i].isDead = atoi(CG_Argv(i * NUM_DATA + FIRST_DATA + 15));
-		//cgs.roundStartTime = 
+		//cgs.roundStartTime =
 
 		if ( cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS ) {
 			cg.scores[i].client = 0;
@@ -251,6 +251,10 @@ CG_ParseChallenge
 
 static void CG_ParseChallenge( void ) {
 	addChallenge(atoi( CG_Argv(1) ) );
+ if(atoi( CG_Argv(1) ) == 3){
+addChallenge( 3 );
+addChallenge( 3 );
+ }
 }
 
 static void CG_ParseObeliskHealth( void ) {
@@ -368,6 +372,11 @@ static void CG_ParseWeaponProperties(void) {
 	mod_portalinf     = atoi(CG_Argv(34));
 	mod_kamikazeinf     = atoi(CG_Argv(35));
 	mod_invulinf     = atoi(CG_Argv(36));
+	mod_accelerate     = atoi(CG_Argv(37));
+	mod_jumpmode     = atoi(CG_Argv(38));
+	mod_overlay     = atoi(CG_Argv(39));
+	mod_zombiemode     = atoi(CG_Argv(40));
+	mod_zround     = atoi(CG_Argv(41));
 }
 
 
@@ -388,7 +397,7 @@ void CG_ParseServerinfo( void ) {
 	//By default do as normal:
 	cgs.ffa_gt = 0;
 	//See if ffa gametype
-	if(cgs.gametype == GT_LMS)	
+	if(cgs.gametype == GT_LMS)
 		cgs.ffa_gt = 1;
 	trap_Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
@@ -475,6 +484,10 @@ void CG_SetConfigValues( void ) {
 	}
 //#endif
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
+    //freaky - atmospheric effects
+    if ( cg_atmosphericEffects.integer )
+  	  	CG_EffectParse( CG_ConfigString( CS_ATMOSEFFECT ) );
+    //end
 }
 
 /*
@@ -538,7 +551,7 @@ static void CG_ConfigStringModified( void ) {
 
 	// do something with it if necessary
 	if ( num == CS_MUSIC ) {
-		CG_StartMusic();	
+		CG_StartMusic();
 	} else if ( num == CS_SERVERINFO ) {
 		CG_ParseServerinfo();
 	} else if ( num == CS_WARMUP ) {
@@ -576,7 +589,7 @@ static void CG_ConfigStringModified( void ) {
 		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
 #ifdef MISSIONPACK
 		trap_S_StartLocalSound( cgs.media.voteNow, CHAN_ANNOUNCER );
-#endif	
+#endif
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
@@ -593,7 +606,10 @@ static void CG_ConfigStringModified( void ) {
 			// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
 			cgs.redflag = str[0] - '0';
 			cgs.blueflag = str[1] - '0';
-		}
+	//freaky - Atmosphere effects
+    } else if( num == CS_ATMOSEFFECT ) {
+  	  	CG_EffectParse( str );
+	}
 //#ifdef MISSIONPACK
 		else if( cgs.gametype == GT_1FCTF ) {
 			cgs.flagStatus = str[0] - '0';
@@ -603,7 +619,7 @@ static void CG_ConfigStringModified( void ) {
 	else if ( num == CS_SHADERSTATE ) {
 		CG_ShaderStateChanged();
 	}
-		
+
 }
 
 
@@ -730,11 +746,12 @@ static void CG_MapRestart( void ) {
 		}
 	}
 #endif
-	trap_Cvar_Set("cg_thirdPerson", "0");
+//	trap_Cvar_Set("cg_thirdPerson", "0");
+	trap_SendConsoleCommand("levelstartcmds \n");
 }
 
 #define MAX_VOICEFILESIZE	16384
-#define MAX_VOICEFILES		8
+#define MAX_VOICEFILES		64
 #define MAX_VOICECHATS		64
 #define MAX_VOICESOUNDS		64
 #define MAX_CHATSIZE		64
@@ -883,7 +900,17 @@ void CG_LoadVoiceChats( void ) {
 	CG_ParseVoiceChats( "scripts/male3.voice", &voiceChatLists[5], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/male4.voice", &voiceChatLists[6], MAX_VOICECHATS );
 	CG_ParseVoiceChats( "scripts/male5.voice", &voiceChatLists[7], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/female1rus.voice", &voiceChatLists[8], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/female2rus.voice", &voiceChatLists[9], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/female3rus.voice", &voiceChatLists[10], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/male1rus.voice", &voiceChatLists[11], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/male2rus.voice", &voiceChatLists[12], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/male3rus.voice", &voiceChatLists[13], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/male4rus.voice", &voiceChatLists[14], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/male5rus.voice", &voiceChatLists[15], MAX_VOICECHATS );
+	CG_ParseVoiceChats( "scripts/bandit.voice", &voiceChatLists[16], MAX_VOICECHATS );
 	CG_Printf("voice chat memory size = %d\n", size - trap_MemoryRemaining());
+	CG_Printf("voice chat rus memory size = %d\n", size - trap_MemoryRemaining());
 }
 
 /*
@@ -1249,6 +1276,50 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "cmusic" ) ) {
+		trap_SendConsoleCommand(va( "music %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "csound" ) ) {
+		trap_SendConsoleCommand(va( "play %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "cmodel" ) ) {
+		trap_SendConsoleCommand(va( "set model %s \n", CG_Argv(1)) );
+		trap_SendConsoleCommand(va( "set headmodel %s \n", CG_Argv(1)) );
+		trap_SendConsoleCommand(va( "set team_model %s \n", CG_Argv(1)) );
+		trap_SendConsoleCommand(va( "set team_headmodel %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "ctorso" ) ) {
+		trap_SendConsoleCommand(va( "play %s \n", CG_Argv(1)) );
+		trap_SendConsoleCommand(va( "set ui_msmodel %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "ctorsoskin" ) ) {
+		trap_SendConsoleCommand(va( "set ui_msskin %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "chead" ) ) {
+		trap_SendConsoleCommand(va( "set headmodel %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "cheadskin" ) ) {
+		trap_SendConsoleCommand(va( "set headmodel %s \n", CG_Argv(1)) );
+		return;
+	}
+
+	if ( !strcmp( cmd, "clegs" ) ) {
+		trap_SendConsoleCommand(va( "set ui_mslegsskin %s \n", CG_Argv(1)) );
+		return;
+	}
+
 	if ( !strcmp( cmd, "cs" ) ) {
 		CG_ConfigStringModified();
 		return;
@@ -1369,7 +1440,7 @@ static void CG_ServerCommand( void ) {
 
 			trap_R_RemapShader(shader1, shader2, shader3);
 		}
-		
+
 		return;
 	}
 
@@ -1391,7 +1462,7 @@ static void CG_ServerCommand( void ) {
 		CG_ParseChallenge();
 		return;
 	}
-        
+
         if ( !strcmp (cmd, "oh") ) {
             CG_ParseObeliskHealth();
             return;
@@ -1406,7 +1477,7 @@ static void CG_ServerCommand( void ) {
 		CG_ParseTeam();
 		return;
 	}
-	
+
 		if ( !strcmp( cmd, "weaponProperties" ) ) {
         CG_ParseWeaponProperties();
         return;

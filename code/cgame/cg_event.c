@@ -49,7 +49,7 @@ const char	*CG_PlaceString( int rank ) {
 	}
 
 	if ( rank == 1 ) {
-		s = S_COLOR_BLUE "1st" S_COLOR_WHITE;		// draw in blue
+		s = S_COLOR_GREEN "1st" S_COLOR_WHITE;		// draw in GREEN
 	} else if ( rank == 2 ) {
 		s = S_COLOR_RED "2nd" S_COLOR_WHITE;		// draw in red
 	} else if ( rank == 3 ) {
@@ -231,22 +231,36 @@ static void CG_Obituary( entityState_t *ent ) {
 	if ( attacker == cg.snap->ps.clientNum ) {
 		char	*s;
 
+if(!rus.integer){
 		if ( cgs.gametype < GT_TEAM ) {
-			s = va("You fragged %s\n%s place with %i", targetName, 
+			s = va("You killed %s\n%s place with %i", targetName, 
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
 				cg.snap->ps.persistant[PERS_SCORE] );
 		} else {
                     if(ent->generic1)
-                        s = va("You fragged your ^1TEAMMATE^7 %s", targetName );
+                        s = va("You killed your ^2TEAMMATE^7 %s", targetName );
                     else
-			s = va("You fragged %s", targetName );
+			s = va("You killed %s", targetName );
 		}
-#ifdef MISSIONPACK
+}
+if(rus.integer){
+		if ( cgs.gametype < GT_TEAM ) {
+			s = va("Вы убили %s\n %s место с %i фрагами", targetName, 
+				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
+				cg.snap->ps.persistant[PERS_SCORE] );
+		} else {
+                    if(ent->generic1)
+                        s = va("Вы убили своего ^2ДРУГА^7 %s", targetName );
+                    else
+			s = va("Вы убили %s", targetName );
+		}
+}
+#ifndef MISSIONPACK
 		if (!(cg_singlePlayerActive.integer && cg_cameraOrbit.integer)) {
-			CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, (int)(BIGCHAR_WIDTH * cg_fragmsgsize.value) );
+			CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, (int)(BIGCHAR_WIDTH * 0.6) );
 		} 
 #else
-		CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, (int)(BIGCHAR_WIDTH * cg_fragmsgsize.value) );
+		CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, (int)(BIGCHAR_WIDTH * 0.6) );
 #endif
 
 		// print the text message as well
@@ -268,7 +282,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	if ( attacker != ENTITYNUM_WORLD ) {
 
                 if(ent->generic1) {
-                    message = "was killed by ^1TEAMMATE^7";
+                    message = "was killed by ^2TEAMMATE^7";
                 }
                 else
 		switch (mod) {
@@ -361,16 +375,19 @@ static void CG_Obituary( entityState_t *ent ) {
 			message = "was killed by";
 			break;
 		}
-
+if(mod_zombiemode == 0){
 		if (message) {
 			CG_Printf( "%s %s %s%s\n", 
 				targetName, message, attackerName, message2);
 			return;
 		}
+}
 	}
 
 	// we don't know what it was
+if(mod_zombiemode == 0){
 	CG_Printf( "%s died.\n", targetName );
+}
 }
 
 //==========================================================================
@@ -396,10 +413,20 @@ static void CG_UseItem( centity_t *cent ) {
 	// print a message if the local player
 	if ( es->number == cg.snap->ps.clientNum ) {
 		if ( !itemNum ) {
+if(!rus.integer){
 			CG_CenterPrint( "No item to use", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+}
+if(rus.integer){
+			CG_CenterPrint( "Нет предмета", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+}
 		} else {
 			item = BG_FindItemForHoldable( itemNum );
+if(!rus.integer){
 			CG_CenterPrint( va("Use %s", item->pickup_name), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+}
+if(rus.integer){
+			CG_CenterPrint( va("Использован %s", item->pickup_name), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
+}
 		}
 	}
 

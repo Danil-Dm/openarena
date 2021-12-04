@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CG_FONT_THRESHOLD 0.1
 #endif
 
-#define	POWERUP_BLINKS		5
+#define	POWERUP_BLINKS		10
 
 #define	POWERUP_BLINK_TIME	1000
 #define	FADE_TIME			200
@@ -51,15 +51,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DUCK_TIME			100
 #define	PAIN_TWITCH_TIME	200
 #define	WEAPON_SELECT_TIME	1400
-#define	ITEM_SCALEUP_TIME	1000
-#define	ZOOM_TIME			150
+#define	ITEM_SCALEUP_TIME	2000
+#define	ZOOM_TIME			500
 #define	ITEM_BLOB_TIME		200
 #define	MUZZLE_FLASH_TIME	20
 #define	SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define	ATTACKER_HEAD_TIME	10000
 #define	REWARD_TIME			3000
 
-#define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
+#define	PULSE_SCALE			2			// amount to scale up the icons when activating
 
 #define	MAX_STEP_CHANGE		32
 
@@ -68,10 +68,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define STAT_MINUS			10	// num frame for '-' stats digit
 
+/*
 #define	ICON_SIZE			48
 #define	CHAR_WIDTH			32
 #define	CHAR_HEIGHT			48
-#define	TEXT_ICON_SPACE		4
+#define	TEXT_ICON_SPACE		4*/
+
+
+#define	ICON_SIZE			36
+#define	CHAR_WIDTH			24
+#define	CHAR_HEIGHT			36
+#define	TEXT_ICON_SPACE		3
 
 #define	TEAMCHAT_WIDTH		80
 #define TEAMCHAT_HEIGHT		8
@@ -160,6 +167,12 @@ typedef struct {
 	float			barrelAngle;
 	int				barrelTime;
 	qboolean		barrelSpinning;
+
+	// eye stuff...
+
+	vec3_t			eyepos;		// where our eyes at
+	vec3_t			eyelookat;	// what we seein'
+	lerpFrame_t		head;
 } playerEntity_t;
 
 //=================================================
@@ -189,7 +202,7 @@ typedef struct centity_s {
 	int				errorTime;		// decay the error from this time
 	vec3_t			errorOrigin;
 	vec3_t			errorAngles;
-	
+
 	qboolean		extrapolated;	// false if origin / angles is an interpolation
 	vec3_t			rawOrigin;
 	vec3_t			rawAngles;
@@ -199,6 +212,17 @@ typedef struct centity_s {
 	// exact interpolated position of entity on this frame
 	vec3_t			lerpOrigin;
 	vec3_t			lerpAngles;
+
+	int		newcamrunning;	// leilei - determines if we should look in a direction for running
+	vec3_t			eyesOrigin;
+	vec3_t			eyesAngles;
+
+	vec3_t			eyepos;		// where our eyes at
+	vec3_t			eyepos2;	// where our other eyes at
+	vec3_t			eyelookat;	// what we seein'
+
+	vec3_t			weapOrigin;	// leilei - for lazy bob
+	vec3_t			weapAngles;
 } centity_t;
 
 
@@ -281,7 +305,7 @@ typedef struct localEntity_s {
 	leMarkType_t		leMarkType;		// mark to leave on fragment impact
 	leBounceSoundType_t	leBounceSoundType;
 
-	refEntity_t		refEntity;		
+	refEntity_t		refEntity;
 } localEntity_t;
 
 //======================================================================
@@ -323,6 +347,20 @@ typedef struct {
 
 	vec3_t			color1;
 	vec3_t			color2;
+
+	int			helred;
+	int			helgreen;
+	int			helblue;
+	int			tolred;
+	int			tolgreen;
+	int			tolblue;
+	int			plred;
+	int			plgreen;
+	int			plblue;
+	int			ptex;
+	int			totex;
+	int			hetex;
+	int			plradius;
 
 	int				score;			// updated by score servercmds
 	int				location;		// location index for team mode
@@ -379,6 +417,8 @@ typedef struct {
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
 
 	int		isDead;
+	vec3_t			eyepos;		// leilei - eye positions loaded from anim cfg
+	int		onepiece;		// leilei - g_enableFS meshes
 } clientInfo_t;
 
 
@@ -459,12 +499,12 @@ typedef struct {
 //unlagged - optimized prediction
 #define NUM_SAVED_STATES (CMD_BACKUP + 2)
 //unlagged - optimized prediction
- 
+
 typedef struct {
 	int			clientFrame;		// incremented each frame
 
 	int			clientNum;
-	
+
 	qboolean	demoPlayback;
 	qboolean	levelShot;			// taking a level menu screenshot
 	int			deferredPlayerLoading;
@@ -671,7 +711,7 @@ typedef struct {
 
         //time that the client will respawn. If 0 = the player is alive.
         int respawnTime;
-        
+
         int redObeliskHealth;
         int blueObeliskHealth;
 } cg_t;
@@ -811,7 +851,7 @@ typedef struct {
 
 	qhandle_t	shadowMarkShader;
 
-	qhandle_t	botSkillShaders[5];
+	qhandle_t	botSkillShaders[14];
 
 	// wall mark shaders
 	qhandle_t	wakeMarkShader;
@@ -832,8 +872,175 @@ typedef struct {
 	qhandle_t	hastePuffShader;
 	qhandle_t	redKamikazeShader;
 	qhandle_t	blueKamikazeShader;
-        
-        // player overlays 
+
+qhandle_t	ptex1Shader;
+qhandle_t	ptex2Shader;
+qhandle_t	ptex3Shader;
+qhandle_t	ptex4Shader;
+qhandle_t	ptex5Shader;
+qhandle_t	ptex6Shader;
+qhandle_t	ptex7Shader;
+qhandle_t	ptex8Shader;
+qhandle_t	ptex9Shader;
+qhandle_t	ptex10Shader;
+qhandle_t	ptex11Shader;
+qhandle_t	ptex12Shader;
+qhandle_t	ptex13Shader;
+qhandle_t	ptex14Shader;
+qhandle_t	ptex15Shader;
+qhandle_t	ptex16Shader;
+qhandle_t	ptex17Shader;
+qhandle_t	ptex18Shader;
+qhandle_t	ptex19Shader;
+qhandle_t	ptex20Shader;
+qhandle_t	ptex21Shader;
+qhandle_t	ptex22Shader;
+qhandle_t	ptex23Shader;
+qhandle_t	ptex24Shader;
+qhandle_t	ptex25Shader;
+qhandle_t	ptex26Shader;
+qhandle_t	ptex27Shader;
+qhandle_t	ptex28Shader;
+qhandle_t	ptex29Shader;
+qhandle_t	ptex30Shader;
+qhandle_t	ptex31Shader;
+qhandle_t	ptex32Shader;
+qhandle_t	ptex33Shader;
+qhandle_t	ptex34Shader;
+qhandle_t	ptex35Shader;
+qhandle_t	ptex36Shader;
+qhandle_t	ptex37Shader;
+qhandle_t	ptex38Shader;
+qhandle_t	ptex39Shader;
+qhandle_t	ptex40Shader;
+qhandle_t	ptex41Shader;
+qhandle_t	ptex42Shader;
+qhandle_t	ptex43Shader;
+qhandle_t	ptex44Shader;
+qhandle_t	ptex45Shader;
+qhandle_t	ptex46Shader;
+qhandle_t	ptex47Shader;
+qhandle_t	ptex48Shader;
+qhandle_t	ptex49Shader;
+qhandle_t	ptex50Shader;
+qhandle_t	ptex51Shader;
+qhandle_t	ptex52Shader;
+qhandle_t	ptex53Shader;
+qhandle_t	ptex54Shader;
+qhandle_t	ptex55Shader;
+qhandle_t	ptex56Shader;
+qhandle_t	ptex57Shader;
+qhandle_t	ptex58Shader;
+qhandle_t	ptex59Shader;
+qhandle_t	ptex60Shader;
+qhandle_t	ptex61Shader;
+qhandle_t	ptex62Shader;
+qhandle_t	ptex63Shader;
+qhandle_t	ptex64Shader;
+qhandle_t	ptex65Shader;
+qhandle_t	ptex66Shader;
+qhandle_t	ptex67Shader;
+qhandle_t	ptex68Shader;
+qhandle_t	ptex69Shader;
+qhandle_t	ptex70Shader;
+qhandle_t	ptex71Shader;
+qhandle_t	ptex72Shader;
+qhandle_t	ptex73Shader;
+qhandle_t	ptex74Shader;
+qhandle_t	ptex75Shader;
+qhandle_t	ptex76Shader;
+qhandle_t	ptex77Shader;
+qhandle_t	ptex78Shader;
+qhandle_t	ptex79Shader;
+qhandle_t	ptex80Shader;
+qhandle_t	ptex81Shader;
+qhandle_t	ptex82Shader;
+qhandle_t	ptex83Shader;
+qhandle_t	ptex84Shader;
+qhandle_t	ptex85Shader;
+qhandle_t	ptex86Shader;
+qhandle_t	ptex87Shader;
+qhandle_t	ptex88Shader;
+qhandle_t	ptex89Shader;
+qhandle_t	ptex90Shader;
+qhandle_t	ptex91Shader;
+qhandle_t	ptex92Shader;
+qhandle_t	ptex93Shader;
+qhandle_t	ptex94Shader;
+qhandle_t	ptex95Shader;
+qhandle_t	ptex96Shader;
+qhandle_t	ptex97Shader;
+qhandle_t	ptex98Shader;
+qhandle_t	ptex99Shader;
+qhandle_t	ptex100Shader;
+qhandle_t	ptex101Shader;
+qhandle_t	ptex102Shader;
+qhandle_t	ptex103Shader;
+qhandle_t	ptex104Shader;
+qhandle_t	ptex105Shader;
+qhandle_t	ptex106Shader;
+qhandle_t	ptex107Shader;
+qhandle_t	ptex108Shader;
+qhandle_t	ptex109Shader;
+qhandle_t	ptex110Shader;
+qhandle_t	ptex111Shader;
+qhandle_t	ptex112Shader;
+qhandle_t	ptex113Shader;
+qhandle_t	ptex114Shader;
+qhandle_t	ptex115Shader;
+qhandle_t	ptex116Shader;
+qhandle_t	ptex117Shader;
+qhandle_t	ptex118Shader;
+qhandle_t	ptex119Shader;
+qhandle_t	ptex120Shader;
+qhandle_t	ptex121Shader;
+qhandle_t	ptex122Shader;
+qhandle_t	ptex123Shader;
+qhandle_t	ptex124Shader;
+qhandle_t	ptex125Shader;
+qhandle_t	ptex126Shader;
+qhandle_t	ptex127Shader;
+qhandle_t	ptex128Shader;
+qhandle_t	ptex129Shader;
+qhandle_t	ptex130Shader;
+qhandle_t	ptex131Shader;
+qhandle_t	ptex132Shader;
+qhandle_t	ptex133Shader;
+qhandle_t	ptex134Shader;
+qhandle_t	ptex135Shader;
+qhandle_t	ptex136Shader;
+qhandle_t	ptex137Shader;
+qhandle_t	ptex138Shader;
+qhandle_t	ptex139Shader;
+qhandle_t	ptex140Shader;
+qhandle_t	ptex141Shader;
+qhandle_t	ptex142Shader;
+qhandle_t	ptex143Shader;
+qhandle_t	ptex144Shader;
+qhandle_t	ptex145Shader;
+qhandle_t	ptex146Shader;
+qhandle_t	ptex147Shader;
+qhandle_t	ptex148Shader;
+qhandle_t	ptex149Shader;
+qhandle_t	ptex150Shader;
+qhandle_t	ptex151Shader;
+qhandle_t	ptex152Shader;
+qhandle_t	ptex153Shader;
+
+	qhandle_t   HudLineBar;           //freaky new hud lines
+	qhandle_t   medalFrags;           //freaky - hud medals
+	qhandle_t   medalVictory;         //freaky - hud medals
+	qhandle_t   healthModel;          //freaky - hud model
+	qhandle_t   healthSphereModel;    //freaky - hud sphere model
+	qhandle_t   healthIcon;           //freaky - hud health icon
+	qhandle_t   weaponSelectShader;   //freaky - weapon select shader
+	qhandle_t   medalAccuracy;        //freaky - hud medals
+	qhandle_t   medalThaws;           //freaky - hud medals
+	qhandle_t   medalDeath;           //freaky - hud medals
+	qhandle_t   medalSpawn;           //freaky - hud medals
+//	qhandle_t   sparkShader;          //freaky - explosion particles
+
+        // player overlays
         qhandle_t       neutralOverlay;
         qhandle_t       redOverlay;
         qhandle_t       blueOverlay;
@@ -1112,7 +1319,7 @@ typedef struct {
 	int			ffa_gt;
 
 //Elimination
-	int				roundStartTime;	
+	int				roundStartTime;
 	int				roundtime;
 
 //CTF Elimination
@@ -1182,7 +1389,7 @@ typedef struct {
 	// this will be set to the server's g_delagHitscan
 	int				delagHitscan;
 //unlagged - client options
-//KK-OAX For storing whether or not the server has multikills enabled. 
+//KK-OAX For storing whether or not the server has multikills enabled.
     int             altExcellent;
 } cgs_t;
 
@@ -1231,6 +1438,58 @@ extern	int 	mod_teleporterinf;
 extern	int 	mod_portalinf;
 extern	int 	mod_kamikazeinf;
 extern	int 	mod_invulinf;
+extern	int 	mod_accelerate;
+extern	int 	mod_jumpmode;
+extern	int 	mod_overlay;
+extern	int 	mod_zombiemode;
+extern	int 	mod_zround;
+
+//NextArenaSandBox Set
+extern	vmCvar_t	wallhack;
+extern	vmCvar_t	oasb_angle0;
+extern	vmCvar_t	oasb_angle1;
+extern	vmCvar_t	oasb_angle2;
+extern	vmCvar_t	oasb_text;
+extern	vmCvar_t	oasb_clientid;
+extern	vmCvar_t	oasb_itemid;
+extern	vmCvar_t	oasb_z;
+extern	vmCvar_t	oasb_y;
+extern	vmCvar_t	oasb_x;
+extern	vmCvar_t	oasb_idi;
+extern	vmCvar_t	oasb_height;
+extern	vmCvar_t	oasb_hp;
+extern	vmCvar_t	oasb_noclip;
+extern	vmCvar_t	oasb_phys;
+extern	vmCvar_t	oasb_physbounce;
+
+extern	vmCvar_t	onnextarena;
+extern  vmCvar_t    cg_helightred;
+extern  vmCvar_t    cg_helightgreen;
+extern  vmCvar_t    cg_helightblue;
+extern  vmCvar_t    cg_ptex;
+extern  vmCvar_t    cg_totex;
+extern  vmCvar_t    cg_hetex;
+extern  vmCvar_t    cg_tolightred;
+extern  vmCvar_t    cg_tolightgreen;
+extern  vmCvar_t    cg_tolightblue;
+extern  vmCvar_t    gender;
+extern  vmCvar_t    ui_msmodel;
+extern  vmCvar_t    cg_plightred;
+extern  vmCvar_t    cg_plightgreen;
+extern  vmCvar_t    cg_plightblue;
+extern  vmCvar_t    cg_plightradius;
+extern  vmCvar_t 	cg_leiChibi;
+extern  vmCvar_t    cg_cameraeyes;
+extern  vmCvar_t    cg_hudcord;
+extern  vmCvar_t    ui_backcolor;
+extern  vmCvar_t  	  	cg_useCarnageHud;
+extern  vmCvar_t  	  	cg_atmosphericEffects;
+extern	vmCvar_t	ui_mslegsmodel;
+extern	vmCvar_t	ui_mslegsskin;
+extern	vmCvar_t		cg_oldscoreboard;
+extern	vmCvar_t		cg_thirdPersongta;
+extern	vmCvar_t		cg_itemstyle;
+extern	vmCvar_t		rus;
 extern	vmCvar_t		cg_gibtime;
 extern	vmCvar_t		cg_centertime;
 extern	vmCvar_t		cg_runpitch;
@@ -1331,6 +1590,10 @@ extern	vmCvar_t		cg_leiEnhancement;			// LEILEI'S LINE!
 extern	vmCvar_t		cg_leiGoreNoise;			// LEILEI'S LINE!
 extern	vmCvar_t		cg_leiBrassNoise;			// LEILEI'S LINE!
 extern	vmCvar_t		cg_leiSuperGoreyAwesome;	// LEILEI'S LINE!
+extern	vmCvar_t		cg_cameramode;
+extern	vmCvar_t		cg_cameraEyes;
+extern	vmCvar_t		cg_cameraEyes_Fwd;
+extern	vmCvar_t		cg_cameraEyes_Up;
 extern	vmCvar_t		cg_oldPlasma;
 extern	vmCvar_t		cg_trueLightning;
 extern	vmCvar_t		cg_music;
@@ -1396,6 +1659,7 @@ extern	vmCvar_t		cg_ch8;
 extern	vmCvar_t		cg_ch8size;
 extern	vmCvar_t		cg_ch9;
 extern	vmCvar_t		cg_ch9size;
+extern	vmCvar_t		cg_ch9slze;
 extern	vmCvar_t		cg_ch10;
 extern	vmCvar_t		cg_ch10size;
 extern	vmCvar_t		cg_ch11;
@@ -1451,6 +1715,13 @@ void SnapVectorTowards( vec3_t v, vec3_t to );
 void CG_FairCvars( void );
 
 //
+// cg_atmospheric.c
+//
+void CG_EffectParse( const char *effectstr );
+void CG_AddAtmosphericEffects();
+qboolean CG_AtmosphericKludge();
+
+//
 // cg_view.c
 //
 void CG_TestModel_f (void);
@@ -1472,11 +1743,11 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_FillRect( float x, float y, float width, float height, const float *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
-void CG_DrawString( float x, float y, const char *string, 
+void CG_DrawString( float x, float y, const char *string,
 				   float charWidth, float charHeight, const float *modulate );
 
 
-void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
+void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars );
 void CG_DrawBigString( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
@@ -1553,7 +1824,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 //
 void CG_BuildSolidList( void );
 int	CG_PointContents( const vec3_t point, int passEntityNum );
-void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, 
+void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 					 int skipNumber, int mask );
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
@@ -1576,9 +1847,9 @@ void CG_AddPacketEntities( void );
 void CG_Beam( centity_t *cent );
 void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out );
 
-void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName );
-void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName );
 
 
@@ -1621,11 +1892,11 @@ void CG_OutOfAmmoChange( void );	// should this be in pmove?
 //
 void	CG_InitMarkPolys( void );
 void	CG_AddMarks( void );
-void	CG_ImpactMark( qhandle_t markShader, 
-				    const vec3_t origin, const vec3_t dir, 
-					float orientation, 
-				    float r, float g, float b, float a, 
-					qboolean alphaFade, 
+void	CG_ImpactMark( qhandle_t markShader,
+				    const vec3_t origin, const vec3_t dir,
+					float orientation,
+				    float r, float g, float b, float a,
+					qboolean alphaFade,
 					float radius, qboolean temporary );
 void    CG_LeiSparks (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
 void    CG_LeiSparks2 (vec3_t org, vec3_t vel, int duration, float x, float y, float speed);
@@ -1642,8 +1913,8 @@ void	CG_AddLocalEntities( void );
 //
 // cg_effects.c
 //
-localEntity_t *CG_SmokePuff( const vec3_t p, 
-				   const vec3_t vel, 
+localEntity_t *CG_SmokePuff( const vec3_t p,
+				   const vec3_t vel,
 				   float radius,
 				   float r, float g, float b, float a,
 				   float duration,
@@ -1689,6 +1960,7 @@ void CG_LoadingString( const char *s );
 void CG_LoadingItem( int itemNum );
 void CG_LoadingClient( int clientNum );
 void CG_DrawInformation( void );
+void CG_DrawInformationRus( void );
 
 //
 // cg_scoreboard.c
@@ -1700,6 +1972,8 @@ void CG_DrawOldTourneyScoreboard( void );
 // cg_challenges.c
 //
 void challenges_init(void);
+void challenges_reset(void);
+void challenges_buymenu(void);
 void challenges_save(void);
 unsigned int getChallenge(int challenge);
 void addChallenge(int challenge);
@@ -1727,7 +2001,7 @@ void CG_PlayBufferedVoiceChats( void );
 void CG_Respawn( void );
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 void CG_CheckChangedPredictableEvents( playerState_t *ps );
-
+extern float teamcolormodels[TEAM_NUM_TEAMS][3];
 
 //===============================================
 
@@ -1797,7 +2071,7 @@ void		trap_CM_TransformedBoxTrace( trace_t *results, const vec3_t start, const v
 					  const vec3_t origin, const vec3_t angles );
 
 // Returns the projection of a polygon onto the solid brushes in the world
-int			trap_CM_MarkFragments( int numPoints, const vec3_t *points, 
+int			trap_CM_MarkFragments( int numPoints, const vec3_t *points,
 			const vec3_t projection,
 			int maxPoints, vec3_t pointBuffer,
 			int maxFragments, markFragment_t *fragmentBuffer );
@@ -1844,10 +2118,10 @@ void		trap_R_AddLightToScene( const vec3_t org, float intensity, float r, float 
 int			trap_R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 void		trap_R_RenderScene( const refdef_t *fd );
 void		trap_R_SetColor( const float *rgba );	// NULL = 1,1,1,1
-void		trap_R_DrawStretchPic( float x, float y, float w, float h, 
+void		trap_R_DrawStretchPic( float x, float y, float w, float h,
 			float s1, float t1, float s2, float t2, qhandle_t hShader );
 void		trap_R_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs );
-int			trap_R_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, 
+int			trap_R_LerpTag( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame,
 					   float frac, const char *tagName );
 void		trap_R_RemapShader( const char *oldShader, const char *newShader, const char *timeOffset );
 
@@ -1879,7 +2153,7 @@ qboolean	trap_GetServerCommand( int serverCommandNumber );
 // this will always be at least one higher than the number in the current
 // snapshot, and it may be quite a few higher if it is a fast computer on
 // a lagged connection
-int			trap_GetCurrentCmdNumber( void );	
+int			trap_GetCurrentCmdNumber( void );
 
 qboolean	trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd );
 
@@ -1932,7 +2206,7 @@ void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, 
 void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 extern qboolean		initparticles;
 int CG_NewParticleArea ( int num );
+extern int wideAdjustX;
 
 
 // LEILEI ENHANCEMENT
-

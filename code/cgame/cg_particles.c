@@ -1717,7 +1717,7 @@ void CG_BloodPool (localEntity_t *le, qhandle_t pshader, trace_t *tr)
 	active_particles = p;
 	p->time = cg.time;
 	
-	p->endtime = cg.time + 3000;
+	p->endtime = cg.time + 3000000;
 	p->startfade = p->endtime;
 
 	p->alpha = 1.0;
@@ -1800,7 +1800,7 @@ void CG_ParticleBloodCloud (centity_t *cent, vec3_t origin, vec3_t dir)
 
 		p->pshader = cgs.media.smokePuffShader;
 
-		p->endtime = cg.time + 350 + (crandom() * 100);
+		p->endtime = cg.time + 30050 + (crandom() * 100);
 		
 		p->startfade = cg.time;
 		

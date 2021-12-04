@@ -37,8 +37,11 @@ void CG_AdjustFrom640( float *x, float *y, float *w, float *h ) {
 		*x += 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * 640 / 480 ) );
 	}
 #endif
+
+
 	// scale for screen sizes
-	*x *= cgs.screenXScale;
+	//*x *= cgs.screenXScale;
+	*x = *x * cgs.screenXScale + cgs.screenXBias;	// leilei - widescreen adjust
 	*y *= cgs.screenYScale;
 	*w *= cgs.screenXScale;
 	*h *= cgs.screenYScale;
@@ -82,7 +85,7 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 }
 /*
 ================
-UI_DrawRect
+CG_DrawRect
 
 Coordinates are 640*480 virtual values
 =================
@@ -90,8 +93,8 @@ Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
 	trap_R_SetColor( color );
 
-  CG_DrawTopBottom(x, y, width, height, size);
-  CG_DrawSides(x, y, width, height, size);
+	CG_DrawTopBottom(x, y, width, height, size);
+	CG_DrawSides(x, y + size, width, height - size * 2, size);
 
 	trap_R_SetColor( NULL );
 }
@@ -161,12 +164,14 @@ to a fixed color.
 Coordinates are at 640 by 480 virtual resolution
 ==================
 */
-void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
+void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 		qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars ) {
 	vec4_t		color;
 	const char	*s;
-	int			xx;
-	int			cnt;
+	int		xx;
+	int		cnt;
+        char	        ch;
+        int prev_unicode = 0;
 
 	if (maxChars <= 0)
 		maxChars = 32767; // do them all!
@@ -184,7 +189,33 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 				s += 2;
 				continue;
 			}
-			CG_DrawChar( xx + 2, y + 2, charWidth, charHeight, *s );
+                        ////////////////////////////////////
+                        ch = *s & 255;
+                        // unicode russian stuff support
+                        //Com_Printf("UI_letter: is %d\n", *s);
+                        if (ch < 0) {
+                           if ((ch == -48) || (ch == -47)) {
+                              prev_unicode = ch;
+                              s++;
+                              cnt++;
+                              continue;
+                           }
+                           if (ch >= -112) {
+                              if ((ch == -111) && (prev_unicode == -47)) {
+                                 ch = ch - 13;
+                              } else {
+                                 ch = ch + 48;
+                              }
+                           } else {
+                              if ((ch == -127) && (prev_unicode == -48)) {
+                                 // ch = ch +
+                              } else {
+                                 ch = ch + 112; // +64 offset of damn unicode
+                              }
+                           }
+                        }
+                        //////////////////////////////////////////
+			CG_DrawChar( xx + 2, y + 2, charWidth, charHeight, ch );
 			cnt++;
 			xx += charWidth;
 			s++;
@@ -206,7 +237,33 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor,
 			s += 2;
 			continue;
 		}
-		CG_DrawChar( xx, y, charWidth, charHeight, *s );
+                        ////////////////////////////////////
+                        ch = *s & 255;
+                        // unicode russian stuff support
+                        //Com_Printf("UI_letter: is %d\n", *s);
+                        if (ch < 0) {
+                           if ((ch == -48) || (ch == -47)) {
+                              prev_unicode = ch;
+                              s++;
+                              cnt++;
+                              continue;
+                           }
+                           if (ch >= -112) {
+                              if ((ch == -111) && (prev_unicode == -47)) {
+                                 ch = ch - 13;
+                              } else {
+                                 ch = ch + 48;
+                              }
+                           } else {
+                              if ((ch == -127) && (prev_unicode == -48)) {
+                                 // ch = ch +
+                              } else {
+                                 ch = ch + 112; // +64 offset of damn unicode
+                              }
+                           }
+                        }
+                        //////////////////////////////////////////
+		CG_DrawChar( xx, y, charWidth, charHeight, ch );
 		xx += charWidth;
 		cnt++;
 		s++;
@@ -253,8 +310,12 @@ int CG_DrawStrlen( const char *str ) {
 		if ( Q_IsColorString( s ) ) {
 			s += 2;
 		} else {
-			count++;
-			s++;
+                        if ((*s == -48) || (*s == -47)) {
+                           s++;
+                        } else {
+                           count++;
+			   s++;
+                        }
 		}
 	}
 
@@ -819,3 +880,23 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 
 	UI_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
 }
+
+
+/*float teamcolormodels[TEAM_NUM_TEAMS][3] = {
+	{ 0.5f, 0.5f, 0.5f },	// free
+	{ 0.5f, 0.075f, 0 },	// red
+	{ 0, 0.075f, 0.5f },	// blue
+	{ 0.075f, 0.5f, 0 },	// green
+	{ 0.5f, 0.5f, 0.05f },	// gold
+	{ 0.075f, 0.5f, 0.5f },	// cyan
+	{ 0.5f, 0.05f, 0.5f },	// magenta
+	{ 0.5f, 0.5f, 0.5f }	// spectator
+};*/
+
+float teamcolormodels[TEAM_NUM_TEAMS][3] = {
+	{ 0.5f, 0.5f, 0.5f },	// free
+	{ 0.5f, 0.075f, 0 },	// red
+	{ 0.5f, 0.05f, 0.5f },	// magenta
+};
+
+

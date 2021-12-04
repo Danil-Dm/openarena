@@ -619,4 +619,13 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
 	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
+	trap_AddCommand ("addprop");
+	trap_AddCommand ("additem");
+	trap_AddCommand ("sendcmd");
+	trap_AddCommand ("sendmusic");
+	trap_AddCommand ("sendsound");
+	trap_AddCommand ("sendmodel");
+	trap_AddCommand ("sendlegs");
+	trap_AddCommand ("sendhead");
+	trap_AddCommand ("replacetex");
 }

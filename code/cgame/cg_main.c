@@ -35,6 +35,10 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
 void CG_Shutdown( void );
 
 
+int realVidWidth;
+int realVidHeight;		// leilei - global video hack
+
+
 /*
 ================
 vmMain
@@ -89,6 +93,54 @@ centity_t			cg_entities[MAX_GENTITIES];
 weaponInfo_t		cg_weapons[MAX_WEAPONS];
 itemInfo_t			cg_items[MAX_ITEMS];
 
+
+//NextArenaSandBox Set
+vmCvar_t	oasb_angle0;
+vmCvar_t	oasb_angle1;
+vmCvar_t	oasb_angle2;
+vmCvar_t	oasb_text;
+vmCvar_t	oasb_clientid;
+vmCvar_t	oasb_itemid;
+vmCvar_t	oasb_z;
+vmCvar_t	oasb_y;
+vmCvar_t	oasb_x;
+vmCvar_t	oasb_idi;
+vmCvar_t	oasb_height;
+vmCvar_t	oasb_hp;
+vmCvar_t	oasb_noclip;
+vmCvar_t	oasb_phys;
+vmCvar_t	oasb_physbounce;
+
+vmCvar_t	wallhack;
+vmCvar_t	onnextarena;
+vmCvar_t	ui_msmodel;
+vmCvar_t    gender;
+vmCvar_t 	cg_leiChibi; // LEILEI THANK YOU!!!
+vmCvar_t    cg_cameraeyes;
+vmCvar_t    cg_ptex;
+vmCvar_t    cg_totex;
+vmCvar_t    cg_hetex;
+vmCvar_t    cg_helightred;
+vmCvar_t    cg_helightgreen;
+vmCvar_t    cg_helightblue;
+vmCvar_t    cg_tolightred;
+vmCvar_t    cg_tolightgreen;
+vmCvar_t    cg_tolightblue;
+vmCvar_t    cg_plightred;
+vmCvar_t    cg_plightgreen;
+vmCvar_t    cg_plightblue;
+vmCvar_t    cg_plightradius;
+vmCvar_t    cg_hudcord;
+vmCvar_t    ui_backcolor;
+vmCvar_t    cg_useCarnageHud;
+vmCvar_t	cg_atmosphericEffects;
+vmCvar_t	ui_mslegsmodel;
+vmCvar_t	ui_mslegsskin;
+vmCvar_t	cg_oldscoreboard;
+vmCvar_t	cg_thirdPersongta;
+vmCvar_t	cg_itemstyle;
+vmCvar_t	rus;
+vmCvar_t	cg_hudfullscreen;
 vmCvar_t	cg_gibtime;
 vmCvar_t	cg_railTrailTime;
 vmCvar_t	cg_centertime;
@@ -175,6 +227,8 @@ vmCvar_t	pmove_msec;
 vmCvar_t        pmove_float;
 vmCvar_t	cg_pmove_msec;
 vmCvar_t	cg_cameraMode;
+vmCvar_t	cg_cameraEyes_Fwd;
+vmCvar_t	cg_cameraEyes_Up;
 vmCvar_t	cg_cameraOrbit;
 vmCvar_t	cg_cameraOrbitDelay;
 vmCvar_t	cg_timescaleFadeEnd;
@@ -194,6 +248,10 @@ vmCvar_t	cg_oldPlasma;
 vmCvar_t	cg_trueLightning;
 vmCvar_t        cg_music;
 vmCvar_t        cg_weaponOrder;
+
+vmCvar_t        cg_cameramode;			// ANOTHER LEILEI LINE!!!
+vmCvar_t        cg_cameraEyes;			// ANOTHER LEILEI LINE!!!
+
 
 
 #ifdef MISSIONPACK
@@ -256,6 +314,7 @@ vmCvar_t	cg_ch8;
 vmCvar_t	cg_ch8size;
 vmCvar_t	cg_ch9;
 vmCvar_t	cg_ch9size;
+vmCvar_t	cg_ch9slze;
 vmCvar_t	cg_ch10;
 vmCvar_t	cg_ch10size;
 vmCvar_t	cg_ch11;
@@ -309,6 +368,11 @@ int mod_teleporterinf;
 int mod_portalinf;
 int mod_kamikazeinf;
 int mod_invulinf;
+int mod_accelerate;
+int mod_jumpmode;
+int mod_overlay;
+int mod_zombiemode;
+int mod_zround;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -320,8 +384,56 @@ typedef struct {
 
 
 static cvarTable_t cvarTable[] = { // bk001129
+
+	//NextArenaSandBox Set
+	{ &oasb_angle0, "oasb_angle0", "0", CVAR_USERINFO},
+	{ &oasb_angle1, "oasb_angle1", "0", CVAR_USERINFO},
+	{ &oasb_angle2, "oasb_angle2", "0", CVAR_USERINFO},
+	{ &oasb_clientid, "oasb_clientid", "0", CVAR_USERINFO},
+	{ &oasb_text, "oasb_text", "say ok", CVAR_USERINFO},
+	{ &oasb_itemid, "oasb_itemid", "railgun", CVAR_USERINFO},
+	{ &oasb_z, "oasb_z", "0", CVAR_USERINFO},
+	{ &oasb_y, "oasb_y", "0", CVAR_USERINFO},
+	{ &oasb_x, "oasb_x", "0", CVAR_USERINFO},
+	{ &oasb_idi, "oasb_idi", "1", CVAR_USERINFO},
+	{ &oasb_height, "oasb_height", "50", CVAR_USERINFO},
+	{ &oasb_hp, "oasb_hp", "1500", CVAR_USERINFO},
+	{ &oasb_noclip, "oasb_noclip", "0", CVAR_USERINFO},
+	{ &oasb_phys, "oasb_phys", "0", CVAR_USERINFO},
+	{ &oasb_physbounce, "oasb_physbounce", "0", CVAR_USERINFO},
+
 	{ &cg_ignore, "cg_ignore", "0", 0 },	// used for debugging
+    { &cg_useCarnageHud, "cg_useCarnageHud", "0", CVAR_ARCHIVE },
+    { &ui_backcolor, "ui_backcolor", "0", CVAR_ARCHIVE },
+    { &onnextarena, "onnextarena", "0", 0 },
+    { &wallhack, "wallhack", "0", 0 },
+	{ &cg_leiChibi, "cg_leiChibi", "0", CVAR_CHEAT}, // LEILEI
+    { &cg_cameraeyes, "cg_cameraeyes", "0", CVAR_ARCHIVE },
+    { &ui_msmodel, "ui_msmodel", "sarge", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &gender, "gender", "1", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_helightred, "cg_helightred", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_helightgreen, "cg_helightgreen", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_helightblue, "cg_helightblue", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_ptex, "cg_ptex", "0", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_totex, "cg_totex", "0", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_hetex, "cg_hetex", "0", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_tolightred, "cg_tolightred", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_tolightgreen, "cg_tolightgreen", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_tolightblue, "cg_tolightblue", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_plightred, "cg_plightred", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_plightgreen, "cg_plightgreen", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_plightblue, "cg_plightblue", "100", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_plightradius, "cg_plightradius", "0", CVAR_USERINFO | CVAR_ARCHIVE },
+    { &cg_hudcord, "cg_hudcord", "0", CVAR_ARCHIVE },
+    { &cg_atmosphericEffects, "cg_atmosphericEffects", "1", CVAR_ARCHIVE },
+	{ &cg_itemstyle, "cg_itemstyle", "3", CVAR_ARCHIVE },
+	{ &ui_mslegsmodel, "ui_mslegsmodel", "sarge", CVAR_ARCHIVE },
+	{ &ui_mslegsskin, "ui_mslegsskin", "default", CVAR_USERINFO | CVAR_ARCHIVE },
+	{ &cg_thirdPersongta, "cg_thirdPersongta", "0", CVAR_ARCHIVE },
+	{ &cg_oldscoreboard, "cg_oldscoreboard", "0", CVAR_ARCHIVE },
+	{ &rus, "rus", "0", CVAR_ARCHIVE },
 	{ &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE },
+	{ &cg_hudfullscreen, "cg_hudfullscreen", "0", CVAR_ARCHIVE },
 	{ &cg_gibtime, "cg_gibtime", "5", CVAR_ARCHIVE },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
 	{ &cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE },
@@ -444,9 +556,13 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_oldRail, "cg_oldRail", "0", CVAR_ARCHIVE},
 	{ &cg_oldRocket, "cg_oldRocket", "1", CVAR_ARCHIVE},
 	{ &cg_leiEnhancement, "cg_leiEnhancement", "0", CVAR_ARCHIVE},				// LEILEI default off (in case of whiner)
-	{ &cg_leiGoreNoise, "cg_leiGoreNoise", "0", CVAR_ARCHIVE},					// LEILEI 
-	{ &cg_leiBrassNoise, "cg_leiBrassNoise", "0", CVAR_ARCHIVE},				// LEILEI 
-	{ &cg_leiSuperGoreyAwesome, "cg_leiSuperGoreyAwesome", "0", CVAR_ARCHIVE},	// LEILEI 
+	{ &cg_leiGoreNoise, "cg_leiGoreNoise", "0", CVAR_ARCHIVE},					// LEILEI
+	{ &cg_leiBrassNoise, "cg_leiBrassNoise", "0", CVAR_ARCHIVE},				// LEILEI
+	{ &cg_leiSuperGoreyAwesome, "cg_leiSuperGoreyAwesome", "0", CVAR_ARCHIVE},	// LEILEI
+	{ &cg_cameramode, "cg_cameramode", "0", CVAR_ARCHIVE},				// LEILEI
+	{ &cg_cameraEyes, "cg_cameraEyes", "0", CVAR_ARCHIVE},				// LEILEI
+	{ &cg_cameraEyes_Fwd, "cg_cameraEyes_Fwd", "3", CVAR_ARCHIVE},				// LEILEI
+	{ &cg_cameraEyes_Up, "cg_cameraEyes_Up", "3", CVAR_ARCHIVE},				// LEILEI
 	{ &cg_oldPlasma, "cg_oldPlasma", "1", CVAR_ARCHIVE},
 //unlagged - client options
 	{ &cg_delag, "cg_delag", "1", CVAR_ARCHIVE | CVAR_USERINFO },
@@ -468,7 +584,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 
 	{ &cg_fragmsgsize, "cg_fragmsgsize", "1.0", CVAR_ARCHIVE},
 	{ &cg_crosshairPulse, "cg_crosshairPulse", "1", CVAR_ARCHIVE},
-	
+
 	{ &cg_differentCrosshairs, "cg_differentCrosshairs", "0", CVAR_ARCHIVE},
 	{ &cg_ch1, "cg_ch1", "1", CVAR_ARCHIVE},
 	{ &cg_ch1size, "cg_ch1size", "24", CVAR_ARCHIVE},
@@ -488,6 +604,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_ch8size, "cg_ch8size", "24", CVAR_ARCHIVE},
 	{ &cg_ch9, "cg_ch9", "1", CVAR_ARCHIVE},
 	{ &cg_ch9size, "cg_ch9size", "24", CVAR_ARCHIVE},
+	{ &cg_ch9slze, "cg_ch9slze", "0", 0},
 	{ &cg_ch10, "cg_ch10", "1", CVAR_ARCHIVE},
 	{ &cg_ch10size, "cg_ch10size", "24", CVAR_ARCHIVE},
 	{ &cg_ch11, "cg_ch11", "1", CVAR_ARCHIVE},
@@ -536,7 +653,7 @@ void CG_RegisterCvars( void ) {
 	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE );
 }
 
-/*																																			
+/*
 ===================
 CG_ForceModelChange
 ===================
@@ -725,7 +842,7 @@ static void CG_RegisterItemSounds( int itemNum ) {
 
 		len = s-start;
 		if (len >= MAX_QPATH || len < 5) {
-			CG_Error( "PrecacheItem: %s has bad precache string", 
+			CG_Error( "PrecacheItem: %s has bad precache string",
 				item->classname);
 			return;
 		}
@@ -872,10 +989,10 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.landSound = trap_S_RegisterSound( "sound/player/land1.wav", qfalse);
 
         switch(cg_hitsound.integer) {
-            
+
             case 0:
             default:
-            cgs.media.hitSound = trap_S_RegisterSound( "sound/feedback/hit.wav", qfalse );
+            cgs.media.hitSound = trap_S_RegisterSound( "sound/feedback/hitde.wav", qfalse );
         };
 
 #ifdef MISSIONPACK
@@ -1068,6 +1185,15 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.botSkillShaders[2] = trap_R_RegisterShader( "menu/art/skill3.tga" );
 	cgs.media.botSkillShaders[3] = trap_R_RegisterShader( "menu/art/skill4.tga" );
 	cgs.media.botSkillShaders[4] = trap_R_RegisterShader( "menu/art/skill5.tga" );
+	cgs.media.botSkillShaders[5] = trap_R_RegisterShader( "menu/art/skill6.tga" );
+	cgs.media.botSkillShaders[6] = trap_R_RegisterShader( "menu/art/skill7.tga" );
+	cgs.media.botSkillShaders[7] = trap_R_RegisterShader( "menu/art/skill8.tga" );
+	cgs.media.botSkillShaders[8] = trap_R_RegisterShader( "menu/art/skill9.tga" );
+	cgs.media.botSkillShaders[9] = trap_R_RegisterShader( "menu/art/skill10.tga" );
+	cgs.media.botSkillShaders[10] = trap_R_RegisterShader( "menu/art/skill11.tga" );
+	cgs.media.botSkillShaders[11] = trap_R_RegisterShader( "menu/art/skill12.tga" );
+	cgs.media.botSkillShaders[12] = trap_R_RegisterShader( "menu/art/skill13.tga" );
+	cgs.media.botSkillShaders[13] = trap_R_RegisterShader( "menu/art/skill14.tga" );
 
 	cgs.media.viewBloodShader = trap_R_RegisterShader( "viewBloodBlend" );
 
@@ -1114,18 +1240,172 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen" );
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff" );
 
+cgs.media.ptex1Shader = trap_R_RegisterShader("ptex1");
+cgs.media.ptex2Shader = trap_R_RegisterShader("ptex2");
+cgs.media.ptex3Shader = trap_R_RegisterShader("ptex3");
+cgs.media.ptex4Shader = trap_R_RegisterShader("ptex4");
+cgs.media.ptex5Shader = trap_R_RegisterShader("ptex5");
+cgs.media.ptex6Shader = trap_R_RegisterShader("ptex6");
+cgs.media.ptex7Shader = trap_R_RegisterShader("ptex7");
+cgs.media.ptex8Shader = trap_R_RegisterShader("ptex8");
+cgs.media.ptex9Shader = trap_R_RegisterShader("ptex9");
+cgs.media.ptex10Shader = trap_R_RegisterShader("ptex10");
+cgs.media.ptex11Shader = trap_R_RegisterShader("ptex11");
+cgs.media.ptex12Shader = trap_R_RegisterShader("ptex12");
+cgs.media.ptex13Shader = trap_R_RegisterShader("ptex13");
+cgs.media.ptex14Shader = trap_R_RegisterShader("ptex14");
+cgs.media.ptex15Shader = trap_R_RegisterShader("ptex15");
+cgs.media.ptex16Shader = trap_R_RegisterShader("ptex16");
+cgs.media.ptex17Shader = trap_R_RegisterShader("ptex17");
+cgs.media.ptex18Shader = trap_R_RegisterShader("ptex18");
+cgs.media.ptex19Shader = trap_R_RegisterShader("ptex19");
+cgs.media.ptex20Shader = trap_R_RegisterShader("ptex20");
+cgs.media.ptex21Shader = trap_R_RegisterShader("ptex21");
+cgs.media.ptex22Shader = trap_R_RegisterShader("ptex22");
+cgs.media.ptex23Shader = trap_R_RegisterShader("ptex23");
+cgs.media.ptex24Shader = trap_R_RegisterShader("ptex24");
+cgs.media.ptex25Shader = trap_R_RegisterShader("ptex25");
+cgs.media.ptex26Shader = trap_R_RegisterShader("ptex26");
+cgs.media.ptex27Shader = trap_R_RegisterShader("ptex27");
+cgs.media.ptex28Shader = trap_R_RegisterShader("ptex28");
+cgs.media.ptex29Shader = trap_R_RegisterShader("ptex29");
+cgs.media.ptex30Shader = trap_R_RegisterShader("ptex30");
+cgs.media.ptex31Shader = trap_R_RegisterShader("ptex31");
+cgs.media.ptex32Shader = trap_R_RegisterShader("ptex32");
+cgs.media.ptex33Shader = trap_R_RegisterShader("ptex33");
+cgs.media.ptex34Shader = trap_R_RegisterShader("ptex34");
+cgs.media.ptex35Shader = trap_R_RegisterShader("ptex35");
+cgs.media.ptex36Shader = trap_R_RegisterShader("ptex36");
+cgs.media.ptex37Shader = trap_R_RegisterShader("ptex37");
+cgs.media.ptex38Shader = trap_R_RegisterShader("ptex38");
+cgs.media.ptex39Shader = trap_R_RegisterShader("ptex39");
+cgs.media.ptex40Shader = trap_R_RegisterShader("ptex40");
+cgs.media.ptex41Shader = trap_R_RegisterShader("ptex41");
+cgs.media.ptex42Shader = trap_R_RegisterShader("ptex42");
+cgs.media.ptex43Shader = trap_R_RegisterShader("ptex43");
+cgs.media.ptex44Shader = trap_R_RegisterShader("ptex44");
+cgs.media.ptex45Shader = trap_R_RegisterShader("ptex45");
+cgs.media.ptex46Shader = trap_R_RegisterShader("ptex46");
+cgs.media.ptex47Shader = trap_R_RegisterShader("ptex47");
+cgs.media.ptex48Shader = trap_R_RegisterShader("ptex48");
+cgs.media.ptex49Shader = trap_R_RegisterShader("ptex49");
+cgs.media.ptex50Shader = trap_R_RegisterShader("ptex50");
+cgs.media.ptex51Shader = trap_R_RegisterShader("ptex51");
+cgs.media.ptex52Shader = trap_R_RegisterShader("ptex52");
+cgs.media.ptex53Shader = trap_R_RegisterShader("ptex53");
+cgs.media.ptex54Shader = trap_R_RegisterShader("ptex54");
+cgs.media.ptex55Shader = trap_R_RegisterShader("ptex55");
+cgs.media.ptex56Shader = trap_R_RegisterShader("ptex56");
+cgs.media.ptex57Shader = trap_R_RegisterShader("ptex57");
+cgs.media.ptex58Shader = trap_R_RegisterShader("ptex58");
+cgs.media.ptex59Shader = trap_R_RegisterShader("ptex59");
+cgs.media.ptex60Shader = trap_R_RegisterShader("ptex60");
+cgs.media.ptex61Shader = trap_R_RegisterShader("ptex61");
+cgs.media.ptex62Shader = trap_R_RegisterShader("ptex62");
+cgs.media.ptex63Shader = trap_R_RegisterShader("ptex63");
+cgs.media.ptex64Shader = trap_R_RegisterShader("ptex64");
+cgs.media.ptex65Shader = trap_R_RegisterShader("ptex65");
+cgs.media.ptex66Shader = trap_R_RegisterShader("ptex66");
+cgs.media.ptex67Shader = trap_R_RegisterShader("ptex67");
+cgs.media.ptex68Shader = trap_R_RegisterShader("ptex68");
+cgs.media.ptex69Shader = trap_R_RegisterShader("ptex69");
+cgs.media.ptex70Shader = trap_R_RegisterShader("ptex70");
+cgs.media.ptex71Shader = trap_R_RegisterShader("ptex71");
+cgs.media.ptex72Shader = trap_R_RegisterShader("ptex72");
+cgs.media.ptex73Shader = trap_R_RegisterShader("ptex73");
+cgs.media.ptex74Shader = trap_R_RegisterShader("ptex74");
+cgs.media.ptex75Shader = trap_R_RegisterShader("ptex75");
+cgs.media.ptex76Shader = trap_R_RegisterShader("ptex76");
+cgs.media.ptex77Shader = trap_R_RegisterShader("ptex77");
+cgs.media.ptex78Shader = trap_R_RegisterShader("ptex78");
+cgs.media.ptex79Shader = trap_R_RegisterShader("ptex79");
+cgs.media.ptex80Shader = trap_R_RegisterShader("ptex80");
+cgs.media.ptex81Shader = trap_R_RegisterShader("ptex81");
+cgs.media.ptex82Shader = trap_R_RegisterShader("ptex82");
+cgs.media.ptex83Shader = trap_R_RegisterShader("ptex83");
+cgs.media.ptex84Shader = trap_R_RegisterShader("ptex84");
+cgs.media.ptex85Shader = trap_R_RegisterShader("ptex85");
+cgs.media.ptex86Shader = trap_R_RegisterShader("ptex86");
+cgs.media.ptex87Shader = trap_R_RegisterShader("ptex87");
+cgs.media.ptex88Shader = trap_R_RegisterShader("ptex88");
+cgs.media.ptex89Shader = trap_R_RegisterShader("ptex89");
+cgs.media.ptex90Shader = trap_R_RegisterShader("ptex90");
+cgs.media.ptex91Shader = trap_R_RegisterShader("ptex91");
+cgs.media.ptex92Shader = trap_R_RegisterShader("ptex92");
+cgs.media.ptex93Shader = trap_R_RegisterShader("ptex93");
+cgs.media.ptex94Shader = trap_R_RegisterShader("ptex94");
+cgs.media.ptex95Shader = trap_R_RegisterShader("ptex95");
+cgs.media.ptex96Shader = trap_R_RegisterShader("ptex96");
+cgs.media.ptex97Shader = trap_R_RegisterShader("ptex97");
+cgs.media.ptex98Shader = trap_R_RegisterShader("ptex98");
+cgs.media.ptex99Shader = trap_R_RegisterShader("ptex99");
+cgs.media.ptex100Shader = trap_R_RegisterShader("ptex100");
+cgs.media.ptex101Shader = trap_R_RegisterShader("ptex101");
+cgs.media.ptex102Shader = trap_R_RegisterShader("ptex102");
+cgs.media.ptex103Shader = trap_R_RegisterShader("ptex103");
+cgs.media.ptex104Shader = trap_R_RegisterShader("ptex104");
+cgs.media.ptex105Shader = trap_R_RegisterShader("ptex105");
+cgs.media.ptex106Shader = trap_R_RegisterShader("ptex106");
+cgs.media.ptex107Shader = trap_R_RegisterShader("ptex107");
+cgs.media.ptex108Shader = trap_R_RegisterShader("ptex108");
+cgs.media.ptex109Shader = trap_R_RegisterShader("ptex109");
+cgs.media.ptex110Shader = trap_R_RegisterShader("ptex110");
+cgs.media.ptex111Shader = trap_R_RegisterShader("ptex111");
+cgs.media.ptex112Shader = trap_R_RegisterShader("ptex112");
+cgs.media.ptex113Shader = trap_R_RegisterShader("ptex113");
+cgs.media.ptex114Shader = trap_R_RegisterShader("ptex114");
+cgs.media.ptex115Shader = trap_R_RegisterShader("ptex115");
+cgs.media.ptex116Shader = trap_R_RegisterShader("ptex116");
+cgs.media.ptex117Shader = trap_R_RegisterShader("ptex117");
+cgs.media.ptex118Shader = trap_R_RegisterShader("ptex118");
+cgs.media.ptex119Shader = trap_R_RegisterShader("ptex119");
+cgs.media.ptex120Shader = trap_R_RegisterShader("ptex120");
+cgs.media.ptex121Shader = trap_R_RegisterShader("ptex121");
+cgs.media.ptex122Shader = trap_R_RegisterShader("ptex122");
+cgs.media.ptex123Shader = trap_R_RegisterShader("ptex123");
+cgs.media.ptex124Shader = trap_R_RegisterShader("ptex124");
+cgs.media.ptex125Shader = trap_R_RegisterShader("ptex125");
+cgs.media.ptex126Shader = trap_R_RegisterShader("ptex126");
+cgs.media.ptex127Shader = trap_R_RegisterShader("ptex127");
+cgs.media.ptex128Shader = trap_R_RegisterShader("ptex128");
+cgs.media.ptex129Shader = trap_R_RegisterShader("ptex129");
+cgs.media.ptex130Shader = trap_R_RegisterShader("ptex130");
+cgs.media.ptex131Shader = trap_R_RegisterShader("ptex131");
+cgs.media.ptex132Shader = trap_R_RegisterShader("ptex132");
+cgs.media.ptex133Shader = trap_R_RegisterShader("ptex133");
+cgs.media.ptex134Shader = trap_R_RegisterShader("ptex134");
+cgs.media.ptex135Shader = trap_R_RegisterShader("ptex135");
+cgs.media.ptex136Shader = trap_R_RegisterShader("ptex136");
+cgs.media.ptex137Shader = trap_R_RegisterShader("ptex137");
+cgs.media.ptex138Shader = trap_R_RegisterShader("ptex138");
+cgs.media.ptex139Shader = trap_R_RegisterShader("ptex139");
+cgs.media.ptex140Shader = trap_R_RegisterShader("ptex140");
+cgs.media.ptex141Shader = trap_R_RegisterShader("ptex141");
+cgs.media.ptex142Shader = trap_R_RegisterShader("ptex142");
+cgs.media.ptex143Shader = trap_R_RegisterShader("ptex143");
+cgs.media.ptex144Shader = trap_R_RegisterShader("ptex144");
+cgs.media.ptex145Shader = trap_R_RegisterShader("ptex145");
+cgs.media.ptex146Shader = trap_R_RegisterShader("ptex146");
+cgs.media.ptex147Shader = trap_R_RegisterShader("ptex147");
+cgs.media.ptex148Shader = trap_R_RegisterShader("ptex148");
+cgs.media.ptex149Shader = trap_R_RegisterShader("ptex149");
+cgs.media.ptex150Shader = trap_R_RegisterShader("ptex150");
+cgs.media.ptex151Shader = trap_R_RegisterShader("ptex151");
+cgs.media.ptex152Shader = trap_R_RegisterShader("powerups/quad");
+cgs.media.ptex153Shader = trap_R_RegisterShader("powerups/battleSuit");
+
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_CTF_ELIMINATION|| cgs.gametype == GT_1FCTF || cgs.gametype == GT_HARVESTER || cg_buildScript.integer ) {
 		cgs.media.redCubeModel = trap_R_RegisterModel( "models/powerups/orb/r_orb.md3" );
 		cgs.media.blueCubeModel = trap_R_RegisterModel( "models/powerups/orb/b_orb.md3" );
 		cgs.media.redCubeIcon = trap_R_RegisterShader( "icons/skull_red" );
 		cgs.media.blueCubeIcon = trap_R_RegisterShader( "icons/skull_blue" );
 	}
-        
+
         if( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) {
-                cgs.media.redOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Red");
-                cgs.media.blueOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Blue");
+                cgs.media.redOverlay = trap_R_RegisterShader( "overlay/Red");
+                cgs.media.blueOverlay = trap_R_RegisterShader( "overlay/Blue");
         } else {
-                cgs.media.neutralOverlay = trap_R_RegisterShader( "playeroverlays/playerSuit1_Neutral");
+                cgs.media.neutralOverlay = trap_R_RegisterShader( "overlay/Neutral");
         }
 
 //For Double Domination:
@@ -1134,7 +1414,7 @@ static void CG_RegisterGraphics( void ) {
                 cgs.media.ddPointSkinA[TEAM_BLUE] = trap_R_RegisterShaderNoMip( "icons/icona_blue" );
                 cgs.media.ddPointSkinA[TEAM_FREE] = trap_R_RegisterShaderNoMip( "icons/icona_white" );
                 cgs.media.ddPointSkinA[TEAM_NONE] = trap_R_RegisterShaderNoMip( "icons/noammo" );
-                
+
                 cgs.media.ddPointSkinB[TEAM_RED] = trap_R_RegisterShaderNoMip( "icons/iconb_red" );
                 cgs.media.ddPointSkinB[TEAM_BLUE] = trap_R_RegisterShaderNoMip( "icons/iconb_blue" );
                 cgs.media.ddPointSkinB[TEAM_FREE] = trap_R_RegisterShaderNoMip( "icons/iconb_white" );
@@ -1192,7 +1472,7 @@ static void CG_RegisterGraphics( void ) {
 	if ( ( ( cgs.gametype >= GT_TEAM ) && ( cgs.ffa_gt != 1 ) ) ||
 		cg_buildScript.integer ) {
 
-		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe" );
+		cgs.media.friendShader = trap_R_RegisterShader( "sprites/foe3" );
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag" );
 		//cgs.media.teamStatusBar = trap_R_RegisterShader( "gfx/2d/colorbar.tga" ); - moved outside, used by accuracy
 		cgs.media.blueKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikblu" );
@@ -1265,18 +1545,18 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.lbumShader1 = trap_R_RegisterShader("leiboom1" );
 	cgs.media.lfblShader1 = trap_R_RegisterShader("leifball" );
 
-	cgs.media.lbldShader1 = trap_R_RegisterShader("leiblood1" );	
+	cgs.media.lbldShader1 = trap_R_RegisterShader("leiblood1" );
 	cgs.media.lbldShader2 = trap_R_RegisterShader("leiblood2" );	// this is a mark, by the way
 
 	// New Bullet Marks
-	cgs.media.lmarkmetal1 = trap_R_RegisterShader("leimetalmark1" );	
-	cgs.media.lmarkmetal2 = trap_R_RegisterShader("leimetalmark2" );	
-	cgs.media.lmarkmetal3 = trap_R_RegisterShader("leimetalmark3" );	
-	cgs.media.lmarkmetal4 = trap_R_RegisterShader("leimetalmark4" );	
-	cgs.media.lmarkbullet1 = trap_R_RegisterShader("leibulletmark1" );	
-	cgs.media.lmarkbullet2 = trap_R_RegisterShader("leibulletmark2" );	
-	cgs.media.lmarkbullet3 = trap_R_RegisterShader("leibulletmark3" );	
-	cgs.media.lmarkbullet4 = trap_R_RegisterShader("leibulletmark4" );	
+	cgs.media.lmarkmetal1 = trap_R_RegisterShader("leimetalmark1" );
+	cgs.media.lmarkmetal2 = trap_R_RegisterShader("leimetalmark2" );
+	cgs.media.lmarkmetal3 = trap_R_RegisterShader("leimetalmark3" );
+	cgs.media.lmarkmetal4 = trap_R_RegisterShader("leimetalmark4" );
+	cgs.media.lmarkbullet1 = trap_R_RegisterShader("leibulletmark1" );
+	cgs.media.lmarkbullet2 = trap_R_RegisterShader("leibulletmark2" );
+	cgs.media.lmarkbullet3 = trap_R_RegisterShader("leibulletmark3" );
+	cgs.media.lmarkbullet4 = trap_R_RegisterShader("leibulletmark4" );
 
 
 	memset( cg_items, 0, sizeof( cg_items ) );
@@ -1354,6 +1634,67 @@ static void CG_RegisterGraphics( void ) {
 	trap_R_RegisterModel( "models/players/kyonshi/upper.md3" );
 	trap_R_RegisterModel( "models/players/kyonshi/head.md3" );
 
+	CG_RegisterItemVisuals( 1 );
+	CG_RegisterItemVisuals( 2 );
+	CG_RegisterItemVisuals( 3 );
+	CG_RegisterItemVisuals( 4 );
+	CG_RegisterItemVisuals( 5 );
+	CG_RegisterItemVisuals( 6 );
+	CG_RegisterItemVisuals( 7 );
+	CG_RegisterItemVisuals( 8 );
+	CG_RegisterItemVisuals( 9 );
+	CG_RegisterItemVisuals( 10 );
+	CG_RegisterItemVisuals( 11 );
+	CG_RegisterItemVisuals( 12 );
+	CG_RegisterItemVisuals( 13 );
+	CG_RegisterItemVisuals( 14 );
+	CG_RegisterItemVisuals( 15 );
+	CG_RegisterItemVisuals( 16 );
+	CG_RegisterItemVisuals( 17 );
+	CG_RegisterItemVisuals( 18 );
+	CG_RegisterItemVisuals( 19 );
+	CG_RegisterItemVisuals( 20 );
+	CG_RegisterItemVisuals( 21 );
+	CG_RegisterItemVisuals( 22 );
+	CG_RegisterItemVisuals( 23 );
+	CG_RegisterItemVisuals( 24 );
+	CG_RegisterItemVisuals( 25 );
+	CG_RegisterItemVisuals( 26 );
+	CG_RegisterItemVisuals( 27 );
+	CG_RegisterItemVisuals( 28 );
+	CG_RegisterItemVisuals( 29 );
+	CG_RegisterItemVisuals( 30 );
+	CG_RegisterItemVisuals( 31 );
+	CG_RegisterItemVisuals( 32 );
+	CG_RegisterItemVisuals( 33 );
+	CG_RegisterItemVisuals( 34 );
+	CG_RegisterItemVisuals( 35 );
+	CG_RegisterItemVisuals( 36 );
+	CG_RegisterItemVisuals( 37 );
+	CG_RegisterItemVisuals( 38 );
+	CG_RegisterItemVisuals( 39 );
+	CG_RegisterItemVisuals( 40 );
+	CG_RegisterItemVisuals( 41 );
+	CG_RegisterItemVisuals( 42 );
+	CG_RegisterItemVisuals( 43 );
+	CG_RegisterItemVisuals( 44 );
+	CG_RegisterItemVisuals( 45 );
+	CG_RegisterItemVisuals( 46 );
+	CG_RegisterItemVisuals( 47 );
+	CG_RegisterItemVisuals( 48 );
+	CG_RegisterItemVisuals( 49 );
+	CG_RegisterItemVisuals( 50 );
+	CG_RegisterItemVisuals( 51 );
+	CG_RegisterItemVisuals( 52 );
+	CG_RegisterItemVisuals( 53 );
+	CG_RegisterItemVisuals( 54 );
+	CG_RegisterItemVisuals( 55 );
+	CG_RegisterItemVisuals( 56 );
+	CG_RegisterItemVisuals( 57 );
+	CG_RegisterItemVisuals( 58 );
+
+
+
 #endif
 	CG_ClearParticles ();
 /*
@@ -1372,7 +1713,7 @@ static void CG_RegisterGraphics( void ) {
 
 
 
-/*																																			
+/*
 =======================
 CG_BuildSpectatorString
 
@@ -1394,7 +1735,7 @@ void CG_BuildSpectatorString(void) {
 }
 
 
-/*																																			
+/*
 ===================
 CG_RegisterClients
 ===================
@@ -1497,7 +1838,7 @@ qboolean CG_Asset_Parse(int handle) {
 	if (Q_stricmp(token.string, "{") != 0) {
 		return qfalse;
 	}
-    
+
 	while ( 1 ) {
 		if (!trap_PC_ReadToken(handle, &token))
 			return qfalse;
@@ -1693,7 +2034,7 @@ qboolean CG_Load_Menu(char **p) {
 	while ( 1 ) {
 
 		token = COM_ParseExt(p, qtrue);
-    
+
 		if (Q_stricmp(token, "}") == 0) {
 			return qtrue;
 		}
@@ -1702,7 +2043,7 @@ qboolean CG_Load_Menu(char **p) {
 			return qfalse;
 		}
 
-		CG_ParseMenu(token); 
+		CG_ParseMenu(token);
 	}
 	return qfalse;
 }
@@ -1736,7 +2077,7 @@ void CG_LoadMenus(const char *menuFile) {
 	trap_FS_Read( buf, len, f );
 	buf[len] = 0;
 	trap_FS_FCloseFile( f );
-	
+
 	COM_Compress(buf);
 
 	Menu_Reset();
@@ -1889,10 +2230,18 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 					item = BG_FindItemForPowerup( PW_BLUEFLAG );
 					*handle = cg_items[ ITEM_INDEX(item) ].icon;
 				} else {
-					if ( info->botSkill > 0 && info->botSkill <= 5 ) {
+					if ( info->botSkill > 0 && info->botSkill <= 14 ) {
 						*handle = cgs.media.botSkillShaders[ info->botSkill - 1 ];
-					} else if ( info->handicap < 100 ) {
+					} else if ( info->handicap < 999 ) {
+				if ( info->handicap == 80 ) {
+					return "Girl";
+				}
+				if ( info->handicap == 125 ) {
+					return "Boy";
+				}
+				if ( info->handicap != 125 && info->handicap != 80 ) {
 					return va("%i", info->handicap );
+				}
 					}
 				}
 			break;
@@ -1919,7 +2268,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 					}
 				} else {
 					if (info->teamLeader) {
-						return "Leader";
+						return " ";
 					}
 				}
 			break;
@@ -1935,7 +2284,7 @@ static const char *CG_FeederItemText(float feederID, int index, int column, qhan
 			case 6:
 				if ( sp->ping == -1 ) {
 					return "connecting";
-				} 
+				}
 				return va("%4i", sp->ping);
 			break;
 		}
@@ -2040,7 +2389,7 @@ void CG_LoadHudMenu( void ) {
 	cgDC.registerModel = &trap_R_RegisterModel;
 	cgDC.modelBounds = &trap_R_ModelBounds;
 	cgDC.fillRect = &CG_FillRect;
-	cgDC.drawRect = &CG_DrawRect;   
+	cgDC.drawRect = &CG_DrawRect;
 	cgDC.drawSides = &CG_DrawSides;
 	cgDC.drawTopBottom = &CG_DrawTopBottom;
 	cgDC.clearScene = &trap_R_ClearScene;
@@ -2068,8 +2417,8 @@ void CG_LoadHudMenu( void ) {
 	//cgDC.getBindingBuf = &trap_Key_GetBindingBuf;
 	//cgDC.keynumToStringBuf = &trap_Key_KeynumToStringBuf;
 	//cgDC.executeText = &trap_Cmd_ExecuteText;
-	cgDC.Error = &Com_Error; 
-	cgDC.Print = &Com_Printf; 
+	cgDC.Error = &Com_Error;
+	cgDC.Print = &Com_Printf;
 	cgDC.ownerDrawWidth = &CG_OwnerDrawWidth;
 	//cgDC.Pause = &CG_Pause;
 	cgDC.registerSound = &trap_S_RegisterSound;
@@ -2079,11 +2428,11 @@ void CG_LoadHudMenu( void ) {
 	cgDC.stopCinematic = &CG_StopCinematic;
 	cgDC.drawCinematic = &CG_DrawCinematic;
 	cgDC.runCinematicFrame = &CG_RunCinematicFrame;
-	
+
 	Init_Display(&cgDC);
 
 	Menu_Reset();
-	
+
 	trap_Cvar_VariableStringBuffer("cg_hudFiles", buff, sizeof(buff));
 	hudSet = buff;
 	if (hudSet[0] == '\0') {
@@ -2118,6 +2467,9 @@ void CG_AssetCache( void ) {
 	cgDC.Assets.sliderThumb = trap_R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
 #endif
+
+int wideAdjustX; // leilei - dirty widescreen hack
+
 /*
 =================
 CG_Init
@@ -2158,23 +2510,70 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	cgs.flagStatus = -1;
 	// old servers
 
+	if(cg_hudfullscreen.integer == 0){
 	// get the rendering configuration from the client system
 	trap_GetGlconfig( &cgs.glconfig );
 	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
 	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+
+	realVidWidth = cgs.glconfig.vidWidth;
+	realVidHeight = cgs.glconfig.vidHeight;
+
+			// leilei - widescreen correction
+
+	{
+		float resbias, resbiasy;
+		float rex, rey, rias;
+		int newresx, newresy;
+		float adjustx, adjusty;
+
+		rex = 640.0f / realVidWidth;
+		rey = 480.0f / realVidHeight;
+
+		newresx = 640.0f * (rex);
+		newresy = 480.0f * (rey);
+
+		newresx = realVidWidth * rey;
+		newresy = realVidHeight * rey;
+
+		resbias  = 0.5 * ( newresx -  ( newresy * (640.0/480.0) ) );
+		resbiasy = 0.5 * ( newresy -  ( newresx * (640.0/480.0) ) );
+
+
+		wideAdjustX = resbias;
+
+	}
+	if ( cgs.glconfig.vidWidth * 480 > cgs.glconfig.vidHeight * 640 ) {
+		// wide screen
+		cgs.screenXBias = 0.5 * ( cgs.glconfig.vidWidth - ( cgs.glconfig.vidHeight * (640.0/480.0) ) );
+		cgs.screenXScale = cgs.screenYScale;
+	}
+	else {
+		// no wide screen
+		cgs.screenXBias = 0;
+	}
+	}
+	if(cg_hudfullscreen.integer == 1){
+	// get the rendering configuration from the client system
+	trap_GetGlconfig( &cgs.glconfig );
+	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
+	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+	}
+
+
 
 	// get the gamestate from the client system
 	trap_GetGameState( &cgs.gameState );
 
 	// check version
 	s = CG_ConfigString( CS_GAME_VERSION );
-	if ( strcmp( s, GAME_VERSION ) ) {
-		CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
-	}
+//	if ( strcmp( s, GAME_VERSION ) ) {
+//		CG_Error( "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
+//	}
 
 	s = CG_ConfigString( CS_LEVEL_START_TIME );
 	cgs.levelStartTime = atoi( s );
-    
+
 	CG_ParseServerinfo();
 
 	// load the new map
@@ -2199,6 +2598,8 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	CG_LoadingString( "clients" );
 
 	CG_RegisterClients();		// if low on memory, some clients will be deferred
+
+	trap_SendConsoleCommand("levelstartcmds \n");
 
 #ifdef MISSIONPACK
 	CG_AssetCache();
@@ -2231,6 +2632,64 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum ) {
 	challenges_init();
 
 	addChallenge(GENERAL_TEST);
+
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+	addChallenge(GENERAL_MONEY);
+
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+		addChallenge(GENERAL_MONEY);
+
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+			addChallenge(GENERAL_MONEY);
+
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+				addChallenge(GENERAL_MONEY);
+
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+					addChallenge(GENERAL_MONEY);
+
+
+
 
 	trap_S_ClearLoopingSounds( qtrue );
 }
@@ -2279,7 +2738,7 @@ SnapVectorTowards
 
 Round a vector to integers for more efficient network
 transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating 
+rather than blindly truncating.  This prevents it from truncating
 into a wall.
 ======================
 */
@@ -2368,7 +2827,7 @@ void CG_FairCvars() {
             trap_Cvar_Set("r_overbrightbits","0");
             vid_restart_required = qtrue;
         }
-    } 
+    }
 
     if(cgs.videoflags & VF_LOCK_VERTEX) {
         trap_Cvar_VariableStringBuffer("r_vertexlight",rendererinfos,sizeof(rendererinfos) );
@@ -2388,7 +2847,7 @@ void CG_FairCvars() {
         trap_SendConsoleCommand("vid_restart");
 
     do_vid_restart = qtrue;
-	
+
 }
 
 void CG_SetDefaultWeaponProperties(void) {
@@ -2428,5 +2887,9 @@ void CG_SetDefaultWeaponProperties(void) {
 	mod_portalinf = 0;
 	mod_kamikazeinf = 0;
 	mod_invulinf = 0;
+	mod_accelerate = 1;
+	mod_jumpmode = 1;
+	mod_overlay = 0;
+	mod_zombiemode = 0;
+	mod_zround = 0;
 }
-

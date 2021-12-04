@@ -839,6 +839,7 @@ void CG_RegisterWeapon( int weaponNum ) {
 
 	switch ( weaponNum ) {
 	case WP_GAUNTLET:
+		weaponInfo->readySound = trap_S_RegisterSound( "sound/weapons/bfg/bfg_humd.wav", qfalse );
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
 		weaponInfo->firingSound = trap_S_RegisterSound( "sound/weapons/melee/fstrun.wav", qfalse );
 		weaponInfo->flashSound[0] = trap_S_RegisterSound( "sound/weapons/melee/fstatck.wav", qfalse );
@@ -1597,6 +1598,18 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	vec3_t		angles;
 	weaponInfo_t	*weapon;
 
+	if(cg_cameraEyes.integer == 1){
+		return;
+	}
+	
+	if(cg_cameraEyes.integer == 2){
+		return;
+	}
+	
+	if(cg_cameraEyes.integer == 3){
+		return;
+	}
+	
 	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		return;
 	}
@@ -1716,7 +1729,7 @@ void CG_DrawWeaponSelect( void ) {
 	trap_R_SetColor( color );
 
 	// showing weapon select clears pickup item display, but not the blend blob
-	cg.itemPickupTime = 0;
+	//cg.itemPickupTime = 0;
 
 	// count the number of weapons owned
 	bits = cg.snap->ps.stats[ STAT_WEAPONS ];
@@ -1765,7 +1778,7 @@ CG_DrawWeaponBar0
 
 void CG_DrawWeaponBar0(int count, int bits){
 
-	int y = 380;
+	int y = 4;
 	int x = 320 - count * 20;
 	int i;
 	
@@ -2528,8 +2541,9 @@ void CG_NextWeapon_f( void ) {
 		if ( cg.weaponSelect == MAX_WEAPONS ) {
 			cg.weaponSelect = 0;
 		}
-		if ( cg.weaponSelect == WP_GAUNTLET ) {
-			continue;		// never cycle to gauntlet
+		if ( cg.weaponSelect == 1 ) {
+		cg.weaponSelect = WP_GAUNTLET;
+//			continue;		// never cycle to gauntlet
 		}
                 //Sago: Mad change of grapple order
                 if( cg.weaponSelect == WP_GRAPPLING_HOOK)  {
@@ -2579,8 +2593,9 @@ void CG_PrevWeapon_f( void ) {
 		if ( cg.weaponSelect == -1 ) {
 			cg.weaponSelect = MAX_WEAPONS - 1;
 		}
-		if ( cg.weaponSelect == WP_GAUNTLET ) {
-			continue;		// never cycle to gauntlet
+		if ( cg.weaponSelect == 1 ) {
+			cg.weaponSelect = WP_GAUNTLET;
+//			continue;		// never cycle to gauntlet
 		}
                 //Sago: Mad change of grapple order
                 if( cg.weaponSelect == WP_GRAPPLING_HOOK)  {

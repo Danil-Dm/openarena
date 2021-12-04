@@ -309,12 +309,12 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 		health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
 #ifdef MISSIONPACK
-		if (armor > 50 ) {
+		if (health > 100 ) {
 			trap_S_StartLocalSound( cgs.media.hitSoundHighArmor, CHAN_LOCAL_SOUND );
-		} else if (armor || health > 100) {
-			trap_S_StartLocalSound( cgs.media.hitSoundLowArmor, CHAN_LOCAL_SOUND );
-		} else {
+		} else if (health > 50 ) {
 			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+		} else {
+			trap_S_StartLocalSound( cgs.media.hitSoundLowArmor, CHAN_LOCAL_SOUND );
 		}
 #else
 		trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );

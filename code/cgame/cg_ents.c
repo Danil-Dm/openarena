@@ -259,8 +259,10 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	// items bob up and down continuously
+if(cg_itemstyle.integer == 3){
 	scale = 0.005 + cent->currentState.number * 0.00001;
 	cent->lerpOrigin[2] += 4 + cos( ( cg.time + 1000 ) *  scale ) * 4;
+}
 
 	memset (&ent, 0, sizeof(ent));
 
@@ -296,6 +298,9 @@ static void CG_Item( centity_t *cent ) {
 	}
 
 	ent.hModel = cg_items[es->modelindex].models[0];
+if(wallhack.integer == 666){
+    ent.customShader = trap_R_RegisterShader( "overlay/Green");
+}
 
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
@@ -1083,6 +1088,7 @@ void CG_AddPacketEntities( void ) {
 	}
 
 	// the auto-rotating items will all have the same axis
+if(cg_itemstyle.integer == 3){
 	cg.autoAngles[0] = 0;
 	cg.autoAngles[1] = ( cg.time & 2047 ) * 360 / 2048.0;
 	cg.autoAngles[2] = 0;
@@ -1090,6 +1096,27 @@ void CG_AddPacketEntities( void ) {
 	cg.autoAnglesFast[0] = 0;
 	cg.autoAnglesFast[1] = ( cg.time & 1023 ) * 360 / 1024.0f;
 	cg.autoAnglesFast[2] = 0;
+}
+
+if(cg_itemstyle.integer == 2){
+	cg.autoAngles[0] = 0;
+	cg.autoAngles[1] = ( cg.time & 4095 ) * 360 / 4096.0;
+	cg.autoAngles[2] = 0;
+
+	cg.autoAnglesFast[0] = 0;
+	cg.autoAnglesFast[1] = ( cg.time & 4095 ) * 360 / 4096.0f;
+	cg.autoAnglesFast[2] = 0;
+}
+	
+if(cg_itemstyle.integer == 1){	
+	cg.autoAngles[0] = 0;
+	cg.autoAngles[1] = 0;
+	cg.autoAngles[2] = 0;
+
+	cg.autoAnglesFast[0] = 0;
+	cg.autoAnglesFast[1] = 0;
+	cg.autoAnglesFast[2] = 0;
+}
 
 	AnglesToAxis( cg.autoAngles, cg.autoAxis );
 	AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast );
