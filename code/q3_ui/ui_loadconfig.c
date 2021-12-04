@@ -41,8 +41,8 @@ LOAD CONFIG MENU
 #define ART_ARROWLEFT		"menu/art_blueish/arrows_horz_left"
 #define ART_ARROWRIGHT		"menu/art_blueish/arrows_horz_right"
 
-#define MAX_CONFIGS			128
-#define NAMEBUFSIZE			( MAX_CONFIGS * 16 )
+#define MAX_MAPFILES		512
+#define MAPNAMEBUFSIZE			( MAX_MAPFILES * 16 )
 
 #define ID_BACK				10
 #define ID_GO				11
@@ -69,26 +69,27 @@ typedef struct {
 	menubitmap_s	back;
 	menubitmap_s	go;
 
-	char			names[NAMEBUFSIZE];
-	char*			configlist[MAX_CONFIGS];
-} configs_t;
+	char			names[MAPNAMEBUFSIZE];
+	char*			configlist[MAX_MAPFILES];
+} s_loadMapEd_t;
 
-static configs_t	s_configs;
+static s_loadMapEd_t	s_loadMapEd;
 
 
 /*
 ===============
-LoadConfig_MenuEvent
+loadMapEd_MenuEvent
 ===============
 */
-static void LoadConfig_MenuEvent( void *ptr, int event ) {
+static void loadMapEd_MenuEvent( void *ptr, int event ) {
+	
 	if( event != QM_ACTIVATED ) {
 		return;
 	}
 
 	switch ( ((menucommon_s*)ptr)->id ) {
 	case ID_GO:
-		trap_Cmd_ExecuteText( EXEC_APPEND, va( "exec %s\n", s_configs.list.itemnames[s_configs.list.curvalue] ) );
+		trap_Cmd_ExecuteText( EXEC_APPEND, va( "loadmapc maps/%s.ent\n", s_loadMapEd.list.itemnames[s_loadMapEd.list.curvalue] ) );
 		UI_PopMenu();
 		break;
 
@@ -97,11 +98,11 @@ static void LoadConfig_MenuEvent( void *ptr, int event ) {
 		break;
 
 	case ID_LEFT:
-		ScrollList_Key( &s_configs.list, K_LEFTARROW );
+		ScrollList_Key( &s_loadMapEd.list, K_LEFTARROW );
 		break;
 
 	case ID_RIGHT:
-		ScrollList_Key( &s_configs.list, K_RIGHTARROW );
+		ScrollList_Key( &s_loadMapEd.list, K_RIGHTARROW );
 		break;
 	}
 }
@@ -109,123 +110,133 @@ static void LoadConfig_MenuEvent( void *ptr, int event ) {
 
 /*
 ===============
-LoadConfig_MenuInit
+loadMapEd_MenuInit
 ===============
 */
-static void LoadConfig_MenuInit( void ) {
+static void loadMapEd_MenuInit( void ) {
 	int		i;
 	int		len;
 	char	*configname;
 
-	UI_LoadConfig_Cache();
+	UI_loadMapEd_Cache();
 
-	memset( &s_configs, 0 ,sizeof(configs_t) );
-	s_configs.menu.wrapAround = qtrue;
-	s_configs.menu.fullscreen = qtrue;
+	memset( &s_loadMapEd, 0 ,sizeof(s_loadMapEd_t) );
+	s_loadMapEd.menu.wrapAround = qtrue;
+	s_loadMapEd.menu.fullscreen = qtrue;
 
-	s_configs.banner.generic.type	= MTYPE_BTEXT;
-	s_configs.banner.generic.x		= 320;
-	s_configs.banner.generic.y		= 16;
-	s_configs.banner.string			= "LOAD CONFIG";
-	s_configs.banner.color			= color_white;
-	s_configs.banner.style			= UI_CENTER;
+	s_loadMapEd.banner.generic.type	= MTYPE_BTEXT;
+	s_loadMapEd.banner.generic.x		= 320;
+	s_loadMapEd.banner.generic.y		= 16;
+	if(!rus.integer){
+	s_loadMapEd.banner.string			= "Load Map";
+	}
+	if(rus.integer){
+	s_loadMapEd.banner.string			= "Загрузка карты";
+	}
+	s_loadMapEd.banner.color			= color_white;
+	s_loadMapEd.banner.style			= UI_CENTER;
 
-	s_configs.framel.generic.type	= MTYPE_BITMAP;
-	s_configs.framel.generic.name	= ART_FRAMEL;
-	s_configs.framel.generic.flags	= QMF_INACTIVE;
-	s_configs.framel.generic.x		= 0;  
-	s_configs.framel.generic.y		= 78;
-	s_configs.framel.width			= 256;
-	s_configs.framel.height			= 329;
+	s_loadMapEd.framel.generic.type	= MTYPE_BITMAP;
+	s_loadMapEd.framel.generic.name	= ART_FRAMEL;
+	s_loadMapEd.framel.generic.flags	= QMF_INACTIVE;
+	s_loadMapEd.framel.generic.x		= 0;  
+	s_loadMapEd.framel.generic.y		= 78;
+	s_loadMapEd.framel.width			= 256;
+	s_loadMapEd.framel.height			= 329;
 
-	s_configs.framer.generic.type	= MTYPE_BITMAP;
-	s_configs.framer.generic.name	= ART_FRAMER;
-	s_configs.framer.generic.flags	= QMF_INACTIVE;
-	s_configs.framer.generic.x		= 376;
-	s_configs.framer.generic.y		= 76;
-	s_configs.framer.width			= 256;
-	s_configs.framer.height			= 334;
+	s_loadMapEd.framer.generic.type	= MTYPE_BITMAP;
+	s_loadMapEd.framer.generic.name	= ART_FRAMER;
+	s_loadMapEd.framer.generic.flags	= QMF_INACTIVE;
+	s_loadMapEd.framer.generic.x		= 376;
+	s_loadMapEd.framer.generic.y		= 76;
+	s_loadMapEd.framer.width			= 256;
+	s_loadMapEd.framer.height			= 334;
 
-	s_configs.arrows.generic.type	= MTYPE_BITMAP;
-	s_configs.arrows.generic.name	= ART_ARROWS;
-	s_configs.arrows.generic.flags	= QMF_INACTIVE;
-	s_configs.arrows.generic.x		= 320-ARROWS_WIDTH/2;
-	s_configs.arrows.generic.y		= 400;
-	s_configs.arrows.width			= ARROWS_WIDTH;
-	s_configs.arrows.height			= ARROWS_HEIGHT;
+	s_loadMapEd.arrows.generic.type	= MTYPE_BITMAP;
+	s_loadMapEd.arrows.generic.name	= ART_ARROWS;
+	s_loadMapEd.arrows.generic.flags	= QMF_INACTIVE;
+	s_loadMapEd.arrows.generic.x		= 320-ARROWS_WIDTH/2;
+	s_loadMapEd.arrows.generic.y		= 400;
+	s_loadMapEd.arrows.width			= ARROWS_WIDTH;
+	s_loadMapEd.arrows.height			= ARROWS_HEIGHT;
 
-	s_configs.left.generic.type		= MTYPE_BITMAP;
-	s_configs.left.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
-	s_configs.left.generic.x		= 320-ARROWS_WIDTH/2;
-	s_configs.left.generic.y		= 400;
-	s_configs.left.generic.id		= ID_LEFT;
-	s_configs.left.generic.callback	= LoadConfig_MenuEvent;
-	s_configs.left.width			= ARROWS_WIDTH/2;
-	s_configs.left.height			= ARROWS_HEIGHT;
-	s_configs.left.focuspic			= ART_ARROWLEFT;
+	s_loadMapEd.left.generic.type		= MTYPE_BITMAP;
+	s_loadMapEd.left.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
+	s_loadMapEd.left.generic.x		= 320-ARROWS_WIDTH/2;
+	s_loadMapEd.left.generic.y		= 400;
+	s_loadMapEd.left.generic.id		= ID_LEFT;
+	s_loadMapEd.left.generic.callback	= loadMapEd_MenuEvent;
+	s_loadMapEd.left.width			= ARROWS_WIDTH/2;
+	s_loadMapEd.left.height			= ARROWS_HEIGHT;
+	s_loadMapEd.left.focuspic			= ART_ARROWLEFT;
 
-	s_configs.right.generic.type	= MTYPE_BITMAP;
-	s_configs.right.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
-	s_configs.right.generic.x		= 320;
-	s_configs.right.generic.y		= 400;
-	s_configs.right.generic.id		= ID_RIGHT;
-	s_configs.right.generic.callback = LoadConfig_MenuEvent;
-	s_configs.right.width			= ARROWS_WIDTH/2;
-	s_configs.right.height			= ARROWS_HEIGHT;
-	s_configs.right.focuspic		= ART_ARROWRIGHT;
+	s_loadMapEd.right.generic.type	= MTYPE_BITMAP;
+	s_loadMapEd.right.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
+	s_loadMapEd.right.generic.x		= 320;
+	s_loadMapEd.right.generic.y		= 400;
+	s_loadMapEd.right.generic.id		= ID_RIGHT;
+	s_loadMapEd.right.generic.callback = loadMapEd_MenuEvent;
+	s_loadMapEd.right.width			= ARROWS_WIDTH/2;
+	s_loadMapEd.right.height			= ARROWS_HEIGHT;
+	s_loadMapEd.right.focuspic		= ART_ARROWRIGHT;
 
-	s_configs.back.generic.type		= MTYPE_BITMAP;
-	s_configs.back.generic.name		= ART_BACK0;
-	s_configs.back.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
-	s_configs.back.generic.id		= ID_BACK;
-	s_configs.back.generic.callback	= LoadConfig_MenuEvent;
-	s_configs.back.generic.x		= 0;
-	s_configs.back.generic.y		= 480-64;
-	s_configs.back.width			= 128;
-	s_configs.back.height			= 64;
-	s_configs.back.focuspic			= ART_BACK1;
+	s_loadMapEd.back.generic.type		= MTYPE_BITMAP;
+	s_loadMapEd.back.generic.name		= ART_BACK0;
+	s_loadMapEd.back.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_loadMapEd.back.generic.id		= ID_BACK;
+	s_loadMapEd.back.generic.callback	= loadMapEd_MenuEvent;
+	s_loadMapEd.back.generic.x		= 0;
+	s_loadMapEd.back.generic.y		= 480-64;
+	s_loadMapEd.back.width			= 128;
+	s_loadMapEd.back.height			= 64;
+	s_loadMapEd.back.focuspic			= ART_BACK1;
 
-	s_configs.go.generic.type		= MTYPE_BITMAP;
-	s_configs.go.generic.name		= ART_FIGHT0;
-	s_configs.go.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
-	s_configs.go.generic.id			= ID_GO;
-	s_configs.go.generic.callback	= LoadConfig_MenuEvent;
-	s_configs.go.generic.x			= 640;
-	s_configs.go.generic.y			= 480-64;
-	s_configs.go.width				= 128;
-	s_configs.go.height				= 64;
-	s_configs.go.focuspic			= ART_FIGHT1;
+	s_loadMapEd.go.generic.type		= MTYPE_BITMAP;
+	s_loadMapEd.go.generic.name		= ART_FIGHT0;
+	s_loadMapEd.go.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_loadMapEd.go.generic.id			= ID_GO;
+	s_loadMapEd.go.generic.callback	= loadMapEd_MenuEvent;
+	s_loadMapEd.go.generic.x			= 640;
+	s_loadMapEd.go.generic.y			= 480-64;
+	s_loadMapEd.go.width				= 128;
+	s_loadMapEd.go.height				= 64;
+	s_loadMapEd.go.focuspic			= ART_FIGHT1;
 
 	// scan for configs
-	s_configs.list.generic.type		= MTYPE_SCROLLLIST;
-	s_configs.list.generic.flags	= QMF_PULSEIFFOCUS;
-	s_configs.list.generic.callback	= LoadConfig_MenuEvent;
-	s_configs.list.generic.id		= ID_LIST;
-	s_configs.list.generic.x		= 118;
-	s_configs.list.generic.y		= 130;
-	s_configs.list.width			= 16;
-	s_configs.list.height			= 14;
-	s_configs.list.numitems			= trap_FS_GetFileList( "", "cfg", s_configs.names, NAMEBUFSIZE );
-	s_configs.list.itemnames		= (const char **)s_configs.configlist;
-	s_configs.list.columns			= 3;
+	s_loadMapEd.list.generic.type		= MTYPE_SCROLLLIST;
+	s_loadMapEd.list.generic.flags	= QMF_PULSEIFFOCUS;
+	s_loadMapEd.list.generic.callback	= loadMapEd_MenuEvent;
+	s_loadMapEd.list.generic.id		= ID_LIST;
+	s_loadMapEd.list.generic.x		= 118;
+	s_loadMapEd.list.generic.y		= 130;
+	s_loadMapEd.list.width			= 16;
+	s_loadMapEd.list.height			= 14;
+	s_loadMapEd.list.numitems			= trap_FS_GetFileList( "maps", "ent", s_loadMapEd.names, MAPNAMEBUFSIZE );
+	s_loadMapEd.list.itemnames		= (const char **)s_loadMapEd.configlist;
+	s_loadMapEd.list.columns			= 3;
 
-	if (!s_configs.list.numitems) {
-		strcpy(s_configs.names,"No Files Found.");
-		s_configs.list.numitems = 1;
+	if (!s_loadMapEd.list.numitems) {
+	if(!rus.integer){
+		strcpy(s_loadMapEd.names,"No MapFiles Found.");
+	}
+	if(rus.integer){
+		strcpy(s_loadMapEd.names,"Нет сохраненных карт.");
+	}
+		s_loadMapEd.list.numitems = 1;
 
 		//degenerate case, not selectable
-		s_configs.go.generic.flags |= (QMF_INACTIVE|QMF_HIDDEN);
+		s_loadMapEd.go.generic.flags |= (QMF_INACTIVE|QMF_HIDDEN);
 	}
-	else if (s_configs.list.numitems > MAX_CONFIGS)
-		s_configs.list.numitems = MAX_CONFIGS;
+	else if (s_loadMapEd.list.numitems > MAX_MAPFILES)
+		s_loadMapEd.list.numitems = MAX_MAPFILES;
 	
-	configname = s_configs.names;
-	for ( i = 0; i < s_configs.list.numitems; i++ ) {
-		s_configs.list.itemnames[i] = configname;
+	configname = s_loadMapEd.names;
+	for ( i = 0; i < s_loadMapEd.list.numitems; i++ ) {
+		s_loadMapEd.list.itemnames[i] = configname;
 		
 		// strip extension
 		len = strlen( configname );
-		if (!Q_stricmp(configname +  len - 4,".cfg"))
+		if (!Q_stricmp(configname +  len - 4,".ent"))
 			configname[len-4] = '\0';
 
 		Q_strupr(configname);
@@ -233,23 +244,23 @@ static void LoadConfig_MenuInit( void ) {
 		configname += len + 1;
 	}
 
-	Menu_AddItem( &s_configs.menu, &s_configs.banner );
-	Menu_AddItem( &s_configs.menu, &s_configs.framel );
-	Menu_AddItem( &s_configs.menu, &s_configs.framer );
-	Menu_AddItem( &s_configs.menu, &s_configs.list );
-	Menu_AddItem( &s_configs.menu, &s_configs.arrows );
-	Menu_AddItem( &s_configs.menu, &s_configs.left );
-	Menu_AddItem( &s_configs.menu, &s_configs.right );
-	Menu_AddItem( &s_configs.menu, &s_configs.back );
-	Menu_AddItem( &s_configs.menu, &s_configs.go );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.banner );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.framel );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.framer );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.list );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.arrows );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.left );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.right );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.back );
+	Menu_AddItem( &s_loadMapEd.menu, &s_loadMapEd.go );
 }
 
 /*
 =================
-UI_LoadConfig_Cache
+UI_loadMapEd_Cache
 =================
 */
-void UI_LoadConfig_Cache( void ) {
+void UI_loadMapEd_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	trap_R_RegisterShaderNoMip( ART_FIGHT0 );
@@ -264,11 +275,11 @@ void UI_LoadConfig_Cache( void ) {
 
 /*
 ===============
-UI_LoadConfigMenu
+UI_loadMapEdMenu
 ===============
 */
-void UI_LoadConfigMenu( void ) {
-	LoadConfig_MenuInit();
-	UI_PushMenu( &s_configs.menu );
+void UI_loadMapEdMenu( void ) {
+	loadMapEd_MenuInit();
+	UI_PushMenu( &s_loadMapEd.menu );
 }
 

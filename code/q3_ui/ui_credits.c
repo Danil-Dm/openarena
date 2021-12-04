@@ -70,7 +70,13 @@ static void UI_CreditMenu_Draw( void ) {
 	y = 12;
 	UI_DrawProportionalString( 320, y, "Thank you for playing", UI_CENTER|UI_SMALLFONT, color_white );
 	y += PROP_HEIGHT * PROP_SMALL_SIZE_SCALE;
-	UI_DrawProportionalString( 320, y, "Open Arena", UI_CENTER|UI_SMALLFONT, color_white );
+if(onnextarena.integer == 0){
+	UI_DrawProportionalString( 320, y, "OpenArenaPlus", UI_CENTER|UI_SMALLFONT, color_white );
+}
+if(onnextarena.integer == 1){
+	UI_DrawProportionalString( 320, y, "NextArena", UI_CENTER|UI_SMALLFONT, color_white );
+}
+
 	
 	y += 228;
 	UI_DrawString( 320, y, "Terminating...", UI_CENTER|UI_SMALLFONT, color_red );
@@ -92,5 +98,5 @@ void UI_CreditMenu( void ) {
 	s_credits.menu.key = UI_CreditMenu_Key;
 	s_credits.menu.fullscreen = qtrue;
 	UI_PushMenu ( &s_credits.menu );
-        trap_Cmd_ExecuteText( EXEC_APPEND, "wait 2; quit\n" );
+        trap_Cmd_ExecuteText( EXEC_APPEND, "wait 15; quit\n" );
 }

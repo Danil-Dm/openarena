@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ART_FRAMEL			"menu/art_blueish/frame2_l"
 #define ART_FRAMER			"menu/art_blueish/frame1_r"
 
-#define MAX_MODS			64
+#define MAX_MODS			512
 #define NAMEBUFSIZE			( MAX_MODS * 48 )
 #define GAMEBUFSIZE			( MAX_MODS * 16 )
 
@@ -161,7 +161,12 @@ static void UI_Mods_LoadMods( void ) {
 
 	// always start off with baseoa
 	s_mods.list.numitems = 1;
-	s_mods.list.itemnames[0] = s_mods.descriptionList[0] = "OpenArena";
+if(onnextarena.integer == 0){
+	s_mods.list.itemnames[0] = s_mods.descriptionList[0] = "OALauncher";
+}
+if(onnextarena.integer == 1){
+	s_mods.list.itemnames[0] = s_mods.descriptionList[0] = "OALauncher";
+}
 	s_mods.fs_gameList[0] = "";
 
 	numdirs = trap_FS_GetFileList( "$modlist", "", dirlist, sizeof(dirlist) );
@@ -218,14 +223,19 @@ static void UI_Mods_MenuInit( void ) {
 	s_mods.banner.generic.type		= MTYPE_BTEXT;
 	s_mods.banner.generic.x			= 320;
 	s_mods.banner.generic.y			= 16;
+	if(!rus.integer){
 	s_mods.banner.string			= "MODS";
+	}
+	if(rus.integer){
+	s_mods.banner.string			= "МОДЫ";
+	}
 	s_mods.banner.color				= color_white;
 	s_mods.banner.style				= UI_CENTER;
 
 	s_mods.framel.generic.type		= MTYPE_BITMAP;
 	s_mods.framel.generic.name		= ART_FRAMEL;
 	s_mods.framel.generic.flags		= QMF_INACTIVE;
-	s_mods.framel.generic.x			= 0;  
+	s_mods.framel.generic.x			= 0;
 	s_mods.framel.generic.y			= 78;
 	s_mods.framel.width				= 256;
 	s_mods.framel.height			= 329;
@@ -266,9 +276,9 @@ static void UI_Mods_MenuInit( void ) {
 	s_mods.list.generic.callback	= UI_Mods_MenuEvent;
 	s_mods.list.generic.id			= ID_LIST;
 	s_mods.list.generic.x			= 320;
-	s_mods.list.generic.y			= 130;
+	s_mods.list.generic.y			= 40;
 	s_mods.list.width				= 48;
-	s_mods.list.height				= 14;
+	s_mods.list.height				= 25;
 
 	UI_Mods_LoadMods();
 

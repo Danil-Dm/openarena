@@ -304,6 +304,21 @@ void FirstConnect_MenuInit( void )
 	// zero set all our globals
 	memset( &s_firstconnect, 0 ,sizeof(firstconnect_t) );
 
+	challenges_reset();
+	challenges_plusmenu();
+	challenges_buymenu();
+	trap_Cvar_Set( "model", "crash/sport" );
+	trap_Cvar_Set( "headmodel", "crash/sport" );
+	trap_Cvar_Set( "team_model", "crash/sport" );
+	trap_Cvar_Set( "team_headmodel", "crash/sport" );
+	trap_Cvar_Set( "ui_mslegsskin", "SPORT" );
+	trap_Cvar_Set( "ui_msskin", "SPORT" );
+	trap_Cvar_Set( "ui_msheadskin", "SPORT" );
+	trap_Cvar_Set( "ui_mslegsmodel", "1" );
+	trap_Cvar_Set( "ui_msmodel", "CRASH" );
+	trap_Cvar_Set( "ui_msheadmodel", "CRASH" );
+	trap_Cvar_Set( "gender", "FEMALE" );
+
 	FirstConnect_Cache();
 
 	s_firstconnect.menu.wrapAround = qtrue;

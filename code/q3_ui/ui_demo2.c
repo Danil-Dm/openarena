@@ -158,7 +158,12 @@ static void Demos_MenuInit( void ) {
 	s_demos.banner.generic.type		= MTYPE_BTEXT;
 	s_demos.banner.generic.x		= 320;
 	s_demos.banner.generic.y		= 16;
+if(!rus.integer){
 	s_demos.banner.string			= "DEMOS";
+}
+if(rus.integer){
+	s_demos.banner.string			= "ЗАПИСИ";
+}
 	s_demos.banner.color			= color_white;
 	s_demos.banner.style			= UI_CENTER;
 
@@ -242,7 +247,12 @@ static void Demos_MenuInit( void ) {
 	//s_demos.list.columns			= 1;
 
 	if (!s_demos.list.numitems) {
+	if(!rus.integer){
 		strcpy( s_demos.names, "No Demos Found." );
+	}
+	if(!rus.integer){
+		strcpy( s_demos.names, "ЗАПИСИ НЕ НАЙДЕНЫ." );
+	}
 		s_demos.list.numitems = 1;
 
 		//degenerate case, not selectable

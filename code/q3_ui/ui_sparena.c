@@ -44,7 +44,14 @@ void UI_SPArena_Start( const char *arenaInfo ) {
 		}
 	}
 	trap_Cvar_SetValue( "ui_spSelection", level );
+	trap_Cvar_SetValue( "sv_pure", 0 );
+	trap_Cvar_SetValue( "g_gametype", 2 );
 
 	map = Info_ValueForKey( arenaInfo, "map" );
+if(ui_coop.integer == 0){
 	trap_Cmd_ExecuteText( EXEC_APPEND, va( "spmap %s\n", map ) );
+}
+if(ui_coop.integer == 1){
+	trap_Cmd_ExecuteText( EXEC_APPEND, va( "map %s\n", map ) );
+}
 }

@@ -40,6 +40,7 @@ ADD BOTS MENU
 #define ART_ARROWS			"menu/art_blueish/arrows_vert_0"
 #define ART_ARROWUP			"menu/art_blueish/arrows_vert_top"
 #define ART_ARROWDOWN		"menu/art_blueish/arrows_vert_bot"
+#define ART_SELECT			"menu/art/opponents_select"
 
 #define ID_BACK				10
 #define ID_GO				11
@@ -55,6 +56,7 @@ ADD BOTS MENU
 #define ID_BOTNAME4			24
 #define ID_BOTNAME5			25
 #define ID_BOTNAME6			26
+#define ID_SKILLSLIDER  	27
 
 
 typedef struct {
@@ -64,7 +66,11 @@ typedef struct {
 	menubitmap_s	down;
 	menutext_s		bots[7];
 	menulist_s		skill;
+   menuslider_s   skill_slider;
 	menulist_s		team;
+	menubitmap_s	icon;
+	menubitmap_s	icon_hilite;
+
 	menubitmap_s	go;
 	menubitmap_s	back;
 
@@ -74,10 +80,79 @@ typedef struct {
 	int				selectedBotNum;
 	int				sortedBotNums[MAX_BOTS];
 	char			botnames[7][32];
+	char			boticon[MAX_QPATH];
+   int 			gametype;
 } addBotsMenuInfo_t;
 
 static addBotsMenuInfo_t	addBotsMenuInfo;
 
+
+/*
+=================
+UI_ServerPlayerIcon
+=================
+*/
+void UI_ServerPlayerIcon( const char *modelAndSkin, char *iconName, int iconNameMaxSize ) {
+	char	*skin;
+	char	model[MAX_QPATH];
+
+	Q_strncpyz( model, modelAndSkin, sizeof(model));
+	skin = strrchr( model, '/' );
+	if ( skin ) {
+		*skin++ = '\0';
+	}
+	else {
+		skin = "default";
+	}
+
+	Com_sprintf(iconName, iconNameMaxSize, "models/players/%s/icon_%s.tga", model, skin );
+
+	if( !trap_R_RegisterShaderNoMip( iconName ) && Q_stricmp( skin, "default" ) != 0 ) {
+		Com_sprintf(iconName, iconNameMaxSize, "models/players/%s/icon_default.tga", model );
+	}
+}
+
+/*
+=================
+AddBots_SetBotIcon
+=================
+*/
+static void AddBots_SetBotIcon( void)
+{
+	char* info;
+
+	info = UI_GetBotInfoByNumber( addBotsMenuInfo.sortedBotNums[addBotsMenuInfo.baseBotNum + addBotsMenuInfo.selectedBotNum] );
+	UI_ServerPlayerIcon( Info_ValueForKey( info, "model" ), addBotsMenuInfo.boticon, MAX_QPATH );
+	addBotsMenuInfo.icon.shader = 0;
+}
+
+
+/*
+=================
+UI_AddBotsMenu_SkillChangeEvent
+=================
+*/
+static void UI_AddBotsMenu_SkillChangeEvent( void* ptr, int event) {
+   menucommon_s* common;
+   if (event != QM_ACTIVATED) {
+      return;
+   }
+
+   // ties the skill controls together
+   common = (menucommon_s*) ptr;
+   switch (common->id) {
+      case ID_SKILL: {
+         menulist_s* skill = (menulist_s*)ptr;
+         addBotsMenuInfo.skill_slider.curvalue = skill->curvalue;
+         break;
+      }
+      case ID_SKILLSLIDER: {
+         menuslider_s* skillslider = (menuslider_s*)ptr;
+         addBotsMenuInfo.skill.curvalue = (int)skillslider->curvalue;
+         break;
+      }
+   }
+}
 
 /*
 =================
@@ -86,16 +161,16 @@ UI_AddBotsMenu_FightEvent
 */
 static void UI_AddBotsMenu_FightEvent( void* ptr, int event ) {
 	const char	*team;
-	int			skill;
+	float			skill;
 
 	if (event != QM_ACTIVATED) {
 		return;
 	}
 
 	team = addBotsMenuInfo.team.itemnames[addBotsMenuInfo.team.curvalue];
-	skill = addBotsMenuInfo.skill.curvalue + 1;
+	skill = addBotsMenuInfo.skill_slider.curvalue + 1;
 
-	trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %i %s %i\n",
+	trap_Cmd_ExecuteText( EXEC_APPEND, va("addbot %s %4.2f %s %i\n",
 		addBotsMenuInfo.botnames[addBotsMenuInfo.selectedBotNum], skill, team, addBotsMenuInfo.delay) );
 
 	addBotsMenuInfo.delay += 1500;
@@ -115,7 +190,31 @@ static void UI_AddBotsMenu_BotEvent( void* ptr, int event ) {
 	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = color_orange;
 	addBotsMenuInfo.selectedBotNum = ((menucommon_s*)ptr)->id - ID_BOTNAME0;
 	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = color_white;
+
+	AddBots_SetBotIcon();
 }
+
+
+
+/*
+=================
+UI_AddBotsMenu_TeamEvent
+=================
+*/
+static void UI_AddBotsMenu_TeamEvent( void* ptr, int event ) {
+	if (event != QM_ACTIVATED) {
+		return;
+	}
+
+	if (addBotsMenuInfo.gametype < GT_TEAM)
+		return;
+
+	if (addBotsMenuInfo.team.curvalue == 1)
+		addBotsMenuInfo.icon_hilite.focuscolor			= color_blue;
+	else
+		addBotsMenuInfo.icon_hilite.focuscolor			= color_red;
+}
+
 
 
 /*
@@ -159,8 +258,11 @@ static void UI_AddBotsMenu_UpEvent( void* ptr, int event ) {
 	}
 
 	if( addBotsMenuInfo.baseBotNum > 0 ) {
-		addBotsMenuInfo.baseBotNum--;
+		addBotsMenuInfo.baseBotNum -= 7;
+		if (addBotsMenuInfo.baseBotNum < 0)
+			addBotsMenuInfo.baseBotNum = 0;
 		UI_AddBotsMenu_SetBotNames();
+		AddBots_SetBotIcon();
 	}
 }
 
@@ -171,14 +273,27 @@ UI_AddBotsMenu_DownEvent
 =================
 */
 static void UI_AddBotsMenu_DownEvent( void* ptr, int event ) {
+	int bot;
+
 	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	if( addBotsMenuInfo.baseBotNum + 7 < addBotsMenuInfo.numBots ) {
-		addBotsMenuInfo.baseBotNum++;
-		UI_AddBotsMenu_SetBotNames();
+	bot = addBotsMenuInfo.baseBotNum;
+	if (bot + 7 < addBotsMenuInfo.numBots)
+		bot += 7;
+	else
+		return;
+
+	if ( bot + 7 >= addBotsMenuInfo.numBots ) {
+		bot = addBotsMenuInfo.numBots - 7;
+		if (bot < 0)
+			bot = 0;
 	}
+
+	addBotsMenuInfo.baseBotNum = bot;
+		UI_AddBotsMenu_SetBotNames();
+	AddBots_SetBotIcon();
 }
 
 
@@ -222,25 +337,95 @@ UI_AddBotsMenu_Draw
 =================
 */
 static void UI_AddBotsMenu_Draw( void ) {
+	qhandle_t hpic;
+	menubitmap_s* b;
+	int x, y, w, h;
+	int skill;
+   float f_skill;
+
 	UI_DrawBannerString( 320, 16, "ADD BOTS", UI_CENTER, color_white );
-	UI_DrawNamedPic( -10000000, 0, 46600000, 33200000, ART_BACKGROUND );
+	UI_DrawNamedPic( -10000000, -1000, 46600000, 33200000, ART_BACKGROUND );
 
 	// standard menu drawing
 	Menu_Draw( &addBotsMenuInfo.menu );
+
+	if (addBotsMenuInfo.boticon[0])
+	{
+		skill = addBotsMenuInfo.skill.curvalue + 1;
+		hpic = trap_R_RegisterShaderNoMip( va("menu/art/skill%i", skill));
+		if (!hpic)
+			return;
+
+		// put icon in bottom right corner of pic
+		b = &addBotsMenuInfo.icon;
+		w = b->width;
+		h = b->height;
+		x = b->generic.x + w;
+		y = b->generic.y + h;
+
+		w /= 3;
+		h /= 3;
+		x -= w;
+		y -= h;
+
+		trap_R_SetColor(color_black);
+		UI_DrawHandlePic( x, y, w, h, hpic);
+		trap_R_SetColor(NULL);
+
+		UI_DrawHandlePic( x - 2, y - 2, w, h, hpic);
+
+      // write bot skill as float
+      x = b->generic.x + b->width - 4 * SMALLCHAR_WIDTH;
+      y = b->generic.y + b->height + 2;
+      f_skill = addBotsMenuInfo.skill_slider.curvalue + 1;
+	   UI_DrawString(x, y, va("%4.2f", f_skill), UI_SMALLFONT, color_orange);
+	}
 }
 
-	
+
+
+
+
+
+
 /*
 =================
 UI_AddBotsMenu_Init
 =================
 */
 static const char *skillNames[] = {
-	"I Can Win",
-	"Bring It On",
-	"Hurt Me Plenty",
+	"Training",
+	"Eazy",
+	"Medium",
 	"Hardcore",
 	"Nightmare!",
+	"NightmarePlus!",
+	"Hell!",
+	"Monster!",
+	"Mutant!",
+	"Crazy!",
+	"Very-crazy!",
+	"Devil!",
+	"Satana!",
+	"Impossible!",
+	NULL
+};
+
+static const char *skillNamesrus[] = {
+	"Обучение",
+	"Легкий",
+	"Средний",
+	"Сложный",
+	"Кошмар!",
+	"КошмарПлюс!",
+	"Ад!",
+	"Монстр!",
+	"Мутант!",
+	"Псих!",
+	"Супер-псих!",
+	"Дьявол!",
+	"Сатана!",
+	"Невозможно!",
 	NULL
 };
 
@@ -255,6 +440,17 @@ static const char *teamNames2[] = {
 	NULL
 };
 
+static const char *teamNames1rus[] = {
+	"Свободный",
+	NULL
+};
+
+static const char *teamNames2rus[] = {
+	"Red",
+	"Blue",
+	NULL
+};
+
 static void UI_AddBotsMenu_Init( void ) {
 	int		n;
 	int		y;
@@ -262,7 +458,7 @@ static void UI_AddBotsMenu_Init( void ) {
 	int		count;
 	char	info[MAX_INFO_STRING];
 
-	trap_GetConfigString(CS_SERVERINFO, info, MAX_INFO_STRING);   
+	trap_GetConfigString(CS_SERVERINFO, info, MAX_INFO_STRING);
 	gametype = atoi( Info_ValueForKey( info,"g_gametype" ) );
 
 	memset( &addBotsMenuInfo, 0 ,sizeof(addBotsMenuInfo) );
@@ -317,27 +513,55 @@ static void UI_AddBotsMenu_Init( void ) {
 	}
 
 	y += 12;
+	addBotsMenuInfo.skill_slider.generic.type		= MTYPE_SLIDER;
+	addBotsMenuInfo.skill_slider.generic.x			= 320;
+	addBotsMenuInfo.skill_slider.generic.y			= y;
+	addBotsMenuInfo.skill_slider.generic.name		= "Skill:";
+if(rus.integer){
+	addBotsMenuInfo.skill_slider.generic.name		= "Сложность:";
+}
+	addBotsMenuInfo.skill_slider.generic.callback = UI_AddBotsMenu_SkillChangeEvent;
+	addBotsMenuInfo.skill_slider.generic.id		= ID_SKILLSLIDER;
+	addBotsMenuInfo.skill_slider.minvalue			= 0.0;
+	addBotsMenuInfo.skill_slider.maxvalue			= 13.0;
+	addBotsMenuInfo.skill_slider.curvalue			= Com_Clamp( 0, 13, (int)trap_Cvar_VariableValue( "g_spSkill" ) - 1 );
+
+   y += SMALLCHAR_HEIGHT;
 	addBotsMenuInfo.skill.generic.type		= MTYPE_SPINCONTROL;
 	addBotsMenuInfo.skill.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	addBotsMenuInfo.skill.generic.callback = UI_AddBotsMenu_SkillChangeEvent;
 	addBotsMenuInfo.skill.generic.x			= 320;
 	addBotsMenuInfo.skill.generic.y			= y;
 	addBotsMenuInfo.skill.generic.name		= "Skill:";
+if(rus.integer){
+	addBotsMenuInfo.skill.generic.name		= "Сложность:";
+}
 	addBotsMenuInfo.skill.generic.id		= ID_SKILL;
 	addBotsMenuInfo.skill.itemnames			= skillNames;
-	addBotsMenuInfo.skill.curvalue			= Com_Clamp( 0, 4, (int)trap_Cvar_VariableValue( "g_spSkill" ) - 1 );
+	addBotsMenuInfo.skill.curvalue			= (int)addBotsMenuInfo.skill_slider.curvalue;
 
 	y += SMALLCHAR_HEIGHT;
 	addBotsMenuInfo.team.generic.type		= MTYPE_SPINCONTROL;
 	addBotsMenuInfo.team.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	addBotsMenuInfo.team.generic.callback		= UI_AddBotsMenu_TeamEvent;
 	addBotsMenuInfo.team.generic.x			= 320;
 	addBotsMenuInfo.team.generic.y			= y;
 	addBotsMenuInfo.team.generic.name		= "Team: ";
+if(rus.integer){
+	addBotsMenuInfo.team.generic.name		= "Команда: ";
+}
 	addBotsMenuInfo.team.generic.id			= ID_TEAM;
 	if( gametype >= GT_TEAM && gametype!=GT_LMS) {
 		addBotsMenuInfo.team.itemnames		= teamNames2;
+		if(rus.integer){
+		addBotsMenuInfo.team.itemnames		= teamNames2rus;
+		}
 	}
 	else {
 		addBotsMenuInfo.team.itemnames		= teamNames1;
+		if(rus.integer){
+		addBotsMenuInfo.team.itemnames		= teamNames1rus;
+		}
 		addBotsMenuInfo.team.generic.flags	= QMF_GRAYED;
 	}
 
@@ -363,12 +587,30 @@ static void UI_AddBotsMenu_Init( void ) {
 	addBotsMenuInfo.back.height				= 64;
 	addBotsMenuInfo.back.focuspic			= ART_BACK1;
 
+	addBotsMenuInfo.icon_hilite.generic.type		= MTYPE_BITMAP;
+	addBotsMenuInfo.icon_hilite.generic.flags		= QMF_LEFT_JUSTIFY|QMF_INACTIVE|QMF_HIGHLIGHT;
+	addBotsMenuInfo.icon_hilite.generic.x			= 190 - 64 - 15; //320 + 128 - 15;
+	addBotsMenuInfo.icon_hilite.generic.y			= 240 - 32 - 16;
+	addBotsMenuInfo.icon_hilite.width				= 128;
+	addBotsMenuInfo.icon_hilite.height				= 128;
+	addBotsMenuInfo.icon_hilite.focuspic			= ART_SELECT;
+	addBotsMenuInfo.icon_hilite.focuscolor			= color_red;
+
+	addBotsMenuInfo.icon.generic.type		= MTYPE_BITMAP;
+	addBotsMenuInfo.icon.generic.flags		= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
+	addBotsMenuInfo.icon.generic.name		= addBotsMenuInfo.boticon;
+	addBotsMenuInfo.icon.generic.x			= 190 - 64; //320 + 128;
+	addBotsMenuInfo.icon.generic.y			= 240 - 32;
+	addBotsMenuInfo.icon.width				= 64;
+	addBotsMenuInfo.icon.height				= 64;
+
 	addBotsMenuInfo.baseBotNum = 0;
 	addBotsMenuInfo.selectedBotNum = 0;
 	addBotsMenuInfo.bots[0].color = color_white;
 
 	UI_AddBotsMenu_GetSortedBotNums();
 	UI_AddBotsMenu_SetBotNames();
+	AddBots_SetBotIcon();
 
 	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.arrows );
 
@@ -378,9 +620,12 @@ static void UI_AddBotsMenu_Init( void ) {
 		Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.bots[n] );
 	}
 	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.skill );
+	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.skill_slider );
 	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.team );
 	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.go );
 	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.back );
+	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.icon_hilite );
+	Menu_AddItem( &addBotsMenuInfo.menu, &addBotsMenuInfo.icon );
 }
 
 
@@ -398,6 +643,7 @@ void UI_AddBots_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_ARROWS );
 	trap_R_RegisterShaderNoMip( ART_ARROWUP );
 	trap_R_RegisterShaderNoMip( ART_ARROWDOWN );
+	trap_R_RegisterShaderNoMip( ART_SELECT);
 }
 
 

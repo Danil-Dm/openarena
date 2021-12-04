@@ -113,7 +113,12 @@ void SpecifyServer_MenuInit( void )
 	s_specifyserver.banner.generic.type	 = MTYPE_BTEXT;
 	s_specifyserver.banner.generic.x     = 320;
 	s_specifyserver.banner.generic.y     = 16;
+if(!rus.integer){
 	s_specifyserver.banner.string		 = "SPECIFY SERVER";
+}
+if(rus.integer){
+	s_specifyserver.banner.string		 = "Подключение к серверу";
+}
 	s_specifyserver.banner.color  		 = color_white;
 	s_specifyserver.banner.style  		 = UI_CENTER;
 

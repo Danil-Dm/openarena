@@ -50,17 +50,17 @@ typedef struct {
 	menufield_s		savename;
 	menubitmap_s	back;
 	menubitmap_s	save;
-} saveConfig_t;
+} saveMapEd_t;
 
-static saveConfig_t		saveConfig;
+static saveMapEd_t		saveMapEd;
 
 
 /*
 ===============
-UI_SaveConfigMenu_BackEvent
+UI_saveMapEdMenu_BackEvent
 ===============
 */
-static void UI_SaveConfigMenu_BackEvent( void *ptr, int event ) {
+static void UI_saveMapEdMenu_BackEvent( void *ptr, int event ) {
 	if( event != QM_ACTIVATED ) {
 		return;
 	}
@@ -71,39 +71,38 @@ static void UI_SaveConfigMenu_BackEvent( void *ptr, int event ) {
 
 /*
 ===============
-UI_SaveConfigMenu_SaveEvent
+UI_saveMapEdMenu_SaveEvent
 ===============
 */
-static void UI_SaveConfigMenu_SaveEvent( void *ptr, int event ) {
+static void UI_saveMapEdMenu_SaveEvent( void *ptr, int event ) {
 	char	configname[MAX_QPATH];
 
 	if( event != QM_ACTIVATED ) {
 		return;
 	}
 
-	if( !saveConfig.savename.field.buffer[0] ) {
+	if( !saveMapEd.savename.field.buffer[0] ) {
 		return;
 	}
-
-	COM_StripExtension(saveConfig.savename.field.buffer, configname, sizeof(configname));
-	trap_Cmd_ExecuteText( EXEC_APPEND, va( "writeconfig %s.cfg\n", configname ) );
+	COM_StripExtension(saveMapEd.savename.field.buffer, configname, sizeof(configname));
+	trap_Cmd_ExecuteText( EXEC_APPEND, va( "savemap maps/%s.ent\n", configname ) );
 	UI_PopMenu();
 }
 
 
 /*
 ===============
-UI_SaveConfigMenu_SavenameDraw
+UI_saveMapEdMenu_SavenameDraw
 ===============
 */
-static void UI_SaveConfigMenu_SavenameDraw( void *self ) {
+static void UI_saveMapEdMenu_SavenameDraw( void *self ) {
 	menufield_s		*f;
 	int				style;
 	float			*color;
 
 	f = (menufield_s *)self;
 
-	if( f == Menu_ItemAtCursor( &saveConfig.menu ) ) {
+	if( f == Menu_ItemAtCursor( &saveMapEd.menu ) ) {
 		style = UI_LEFT|UI_PULSE|UI_SMALLFONT;
 		color = text_color_highlight;
 	}
@@ -111,8 +110,12 @@ static void UI_SaveConfigMenu_SavenameDraw( void *self ) {
 		style = UI_LEFT|UI_SMALLFONT;
 		color = colorRed;
 	}
-
+	if(!rus.integer){
 	UI_DrawProportionalString( 320, 192, "Enter filename:", UI_CENTER|UI_SMALLFONT, color_orange );
+	}
+	if(rus.integer){
+	UI_DrawProportionalString( 320, 192, "Введите название файла:", UI_CENTER|UI_SMALLFONT, color_orange );	
+	}
 	UI_FillRect( f->generic.x, f->generic.y, f->field.widthInChars*SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, colorBlack );
 	MField_Draw( &f->field, f->generic.x, f->generic.y, style, color );
 }
@@ -120,79 +123,84 @@ static void UI_SaveConfigMenu_SavenameDraw( void *self ) {
 
 /*
 =================
-UI_SaveConfigMenu_Init
+UI_saveMapEdMenu_Init
 =================
 */
-static void UI_SaveConfigMenu_Init( void ) {
-	memset( &saveConfig, 0, sizeof(saveConfig) );
+static void UI_saveMapEdMenu_Init( void ) {
+	memset( &saveMapEd, 0, sizeof(saveMapEd) );
 
-	UI_SaveConfigMenu_Cache();
-	saveConfig.menu.wrapAround = qtrue;
-	saveConfig.menu.fullscreen = qtrue;
+	UI_saveMapEdMenu_Cache();
+	saveMapEd.menu.wrapAround = qtrue;
+	saveMapEd.menu.fullscreen = qtrue;
 
-	saveConfig.banner.generic.type		= MTYPE_BTEXT;
-	saveConfig.banner.generic.x			= 320;
-	saveConfig.banner.generic.y			= 16;
-	saveConfig.banner.string			= "SAVE CONFIG";
-	saveConfig.banner.color				= color_white;
-	saveConfig.banner.style				= UI_CENTER;
+	saveMapEd.banner.generic.type		= MTYPE_BTEXT;
+	saveMapEd.banner.generic.x			= 320;
+	saveMapEd.banner.generic.y			= 16;
+	if(!rus.integer){
+	saveMapEd.banner.string			= "Save Map";
+	}
+	if(rus.integer){
+	saveMapEd.banner.string			= "Сохранение карты";		
+	}
+	saveMapEd.banner.color				= color_white;
+	saveMapEd.banner.style				= UI_CENTER;
 
-	saveConfig.background.generic.type		= MTYPE_BITMAP;
-	saveConfig.background.generic.name		= ART_BACKGROUND;
-	saveConfig.background.generic.flags		= QMF_INACTIVE;
-	saveConfig.background.generic.x			= -10000000;
-	saveConfig.background.generic.y			= 0;
-	saveConfig.background.width				= 46600000;
-	saveConfig.background.height			= 33200000;
+	saveMapEd.background.generic.type		= MTYPE_BITMAP;
+	saveMapEd.background.generic.name		= ART_BACKGROUND;
+	saveMapEd.background.generic.flags		= QMF_INACTIVE;
+	saveMapEd.background.generic.x			= -10000000;
+	saveMapEd.background.generic.y			= -1000;
+	saveMapEd.background.width				= 46600000;
+	saveMapEd.background.height			= 33200000;
 
-	saveConfig.savename.generic.type		= MTYPE_FIELD;
-	saveConfig.savename.generic.flags		= QMF_NODEFAULTINIT|QMF_UPPERCASE;
-	saveConfig.savename.generic.ownerdraw	= UI_SaveConfigMenu_SavenameDraw;
-	saveConfig.savename.field.widthInChars	= 20;
-	saveConfig.savename.field.maxchars		= 20;
-	saveConfig.savename.generic.x			= 240;
-	saveConfig.savename.generic.y			= 155+72;
-	saveConfig.savename.generic.left		= 240;
-	saveConfig.savename.generic.top			= 155+72;
-	saveConfig.savename.generic.right		= 233 + 20*SMALLCHAR_WIDTH;
-	saveConfig.savename.generic.bottom		= 155+72 + SMALLCHAR_HEIGHT+2;
+	saveMapEd.savename.generic.type		= MTYPE_FIELD;
+	saveMapEd.savename.generic.flags		= QMF_NODEFAULTINIT|QMF_UPPERCASE;
+	saveMapEd.savename.generic.ownerdraw	= UI_saveMapEdMenu_SavenameDraw;
+	saveMapEd.savename.field.widthInChars	= 20;
+	saveMapEd.savename.field.maxchars		= 20;
+	saveMapEd.savename.generic.x			= 240;
+	saveMapEd.savename.generic.y			= 155+72;
+	saveMapEd.savename.generic.left		= 240;
+	saveMapEd.savename.generic.top			= 155+72;
+	saveMapEd.savename.generic.right		= 233 + 20*SMALLCHAR_WIDTH;
+	saveMapEd.savename.generic.bottom		= 155+72 + SMALLCHAR_HEIGHT+2;
 
-	saveConfig.back.generic.type		= MTYPE_BITMAP;
-	saveConfig.back.generic.name		= ART_BACK0;
-	saveConfig.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
-	saveConfig.back.generic.id			= ID_BACK;
-	saveConfig.back.generic.callback	= UI_SaveConfigMenu_BackEvent;
-	saveConfig.back.generic.x			= 0;
-	saveConfig.back.generic.y			= 480-64;
-	saveConfig.back.width				= 128;
-	saveConfig.back.height				= 64;
-	saveConfig.back.focuspic			= ART_BACK1;
+	saveMapEd.back.generic.type		= MTYPE_BITMAP;
+	saveMapEd.back.generic.name		= ART_BACK0;
+	saveMapEd.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	saveMapEd.back.generic.id			= ID_BACK;
+	saveMapEd.back.generic.callback	= UI_saveMapEdMenu_BackEvent;
+	saveMapEd.back.generic.x			= 0;
+	saveMapEd.back.generic.y			= 480-64;
+	saveMapEd.back.width				= 128;
+	saveMapEd.back.height				= 64;
+	saveMapEd.back.focuspic			= ART_BACK1;
 
-	saveConfig.save.generic.type		= MTYPE_BITMAP;
-	saveConfig.save.generic.name		= ART_SAVE0;
-	saveConfig.save.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
-	saveConfig.save.generic.id			= ID_SAVE;
-	saveConfig.save.generic.callback	= UI_SaveConfigMenu_SaveEvent;
-	saveConfig.save.generic.x			= 640;
-	saveConfig.save.generic.y			= 480-64;
-	saveConfig.save.width  				= 128;
-	saveConfig.save.height  		    = 64;
-	saveConfig.save.focuspic			= ART_SAVE1;
+	saveMapEd.save.generic.type		= MTYPE_BITMAP;
+	saveMapEd.save.generic.name		= ART_SAVE0;
+	saveMapEd.save.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
+	saveMapEd.save.generic.id			= ID_SAVE;
+	saveMapEd.save.generic.callback	= UI_saveMapEdMenu_SaveEvent;
+	saveMapEd.save.generic.x			= 640;
+	saveMapEd.save.generic.y			= 480-64;
+	saveMapEd.save.width  				= 128;
+	saveMapEd.save.height  		    = 64;
+	saveMapEd.save.focuspic			= ART_SAVE1;
 
-	Menu_AddItem( &saveConfig.menu, &saveConfig.banner );
-	Menu_AddItem( &saveConfig.menu, &saveConfig.background );
-	Menu_AddItem( &saveConfig.menu, &saveConfig.savename );
-	Menu_AddItem( &saveConfig.menu, &saveConfig.back );
-	Menu_AddItem( &saveConfig.menu, &saveConfig.save );
+	Menu_AddItem( &saveMapEd.menu, &saveMapEd.banner );
+	Menu_AddItem( &saveMapEd.menu, &saveMapEd.background );
+	Menu_AddItem( &saveMapEd.menu, &saveMapEd.savename );
+	Menu_AddItem( &saveMapEd.menu, &saveMapEd.back );
+	Menu_AddItem( &saveMapEd.menu, &saveMapEd.save );
 }
 
 
 /*
 =================
-UI_SaveConfigMenu_Cache
+UI_saveMapEdMenu_Cache
 =================
 */
-void UI_SaveConfigMenu_Cache( void ) {
+void UI_saveMapEdMenu_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	trap_R_RegisterShaderNoMip( ART_SAVE0 );
@@ -203,10 +211,10 @@ void UI_SaveConfigMenu_Cache( void ) {
 
 /*
 ===============
-UI_SaveConfigMenu
+UI_saveMapEdMenu
 ===============
 */
-void UI_SaveConfigMenu( void ) {
-	UI_SaveConfigMenu_Init();
-	UI_PushMenu( &saveConfig.menu );
+void UI_saveMapEdMenu( void ) {
+	UI_saveMapEdMenu_Init();
+	UI_PushMenu( &saveMapEd.menu );
 }

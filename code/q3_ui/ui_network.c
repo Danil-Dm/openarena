@@ -42,6 +42,9 @@ NETWORK OPTIONS MENU
 #define ID_NETWORK			13
 #define ID_RATE				14
 #define ID_BACK				15
+#define ID_REALVIEW			16
+#define ID_REALVIEWF			17
+#define ID_REALVIEWU			18
 
 
 const char *rate_items[] = {
@@ -64,6 +67,10 @@ typedef struct {
 	menutext_s		display;
 	menutext_s		sound;
 	menutext_s		network;
+	
+	menuslider_s  rview;
+	menuslider_s  rviewf;
+	menuslider_s  rviewu;
 
 	menulist_s		rate;
 
@@ -119,6 +126,18 @@ static void UI_NetworkOptionsMenu_Event( void* ptr, int event ) {
 			trap_Cvar_SetValue( "rate", 25000 );
 		}
 		break;
+		
+	case ID_REALVIEW:
+		trap_Cvar_SetValue( "ui_mapiconsizeq", networkOptionsInfo.rview.curvalue  / 10);
+		break;
+		
+	case ID_REALVIEWF:
+		trap_Cvar_SetValue( "ui_maprowsq", networkOptionsInfo.rviewf.curvalue);
+		break;
+		
+	case ID_REALVIEWU:
+		trap_Cvar_SetValue( "ui_mapcolsq", networkOptionsInfo.rviewu.curvalue);
+		break;
 
 	case ID_BACK:
 		UI_PopMenu();
@@ -146,7 +165,6 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.banner.generic.flags		= QMF_CENTER_JUSTIFY;
 	networkOptionsInfo.banner.generic.x			= 320;
 	networkOptionsInfo.banner.generic.y			= 16;
-	networkOptionsInfo.banner.string			= "SYSTEM SETUP";
 	networkOptionsInfo.banner.color				= color_white;
 	networkOptionsInfo.banner.style				= UI_CENTER;
 
@@ -166,13 +184,13 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.framer.width				= 256;
 	networkOptionsInfo.framer.height			= 334;
 
+if(!rus.integer){
 	networkOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	networkOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
 	networkOptionsInfo.graphics.generic.id			= ID_GRAPHICS;
 	networkOptionsInfo.graphics.generic.callback	= UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.graphics.generic.x			= 216;
 	networkOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
-	networkOptionsInfo.graphics.string				= "GRAPHICS";
 	networkOptionsInfo.graphics.style				= UI_RIGHT;
 	networkOptionsInfo.graphics.color				= color_red;
 
@@ -182,7 +200,6 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.display.generic.callback		= UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.display.generic.x			= 216;
 	networkOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
-	networkOptionsInfo.display.string				= "DISPLAY";
 	networkOptionsInfo.display.style				= UI_RIGHT;
 	networkOptionsInfo.display.color				= color_red;
 
@@ -192,7 +209,6 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.sound.generic.callback		= UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.sound.generic.x				= 216;
 	networkOptionsInfo.sound.generic.y				= 240;
-	networkOptionsInfo.sound.string					= "SOUND";
 	networkOptionsInfo.sound.style					= UI_RIGHT;
 	networkOptionsInfo.sound.color					= color_red;
 
@@ -202,19 +218,85 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.network.generic.callback		= UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.network.generic.x			= 216;
 	networkOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
-	networkOptionsInfo.network.string				= "NETWORK";
 	networkOptionsInfo.network.style				= UI_RIGHT;
 	networkOptionsInfo.network.color				= color_red;
+}
+if(rus.integer){
+	networkOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
+	networkOptionsInfo.graphics.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	networkOptionsInfo.graphics.generic.id			= ID_GRAPHICS;
+	networkOptionsInfo.graphics.generic.callback	= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.graphics.generic.x			= 32;
+	networkOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
+//	networkOptionsInfo.graphics.style				= UI_RIGHT;
+	networkOptionsInfo.graphics.color				= color_red;
+
+	networkOptionsInfo.display.generic.type			= MTYPE_PTEXT;
+	networkOptionsInfo.display.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	networkOptionsInfo.display.generic.id			= ID_DISPLAY;
+	networkOptionsInfo.display.generic.callback		= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.display.generic.x			= 32;
+	networkOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
+//	networkOptionsInfo.display.style				= UI_RIGHT;
+	networkOptionsInfo.display.color				= color_red;
+
+	networkOptionsInfo.sound.generic.type			= MTYPE_PTEXT;
+	networkOptionsInfo.sound.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	networkOptionsInfo.sound.generic.id				= ID_SOUND;
+	networkOptionsInfo.sound.generic.callback		= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.sound.generic.x				= 32;
+	networkOptionsInfo.sound.generic.y				= 240;
+//	networkOptionsInfo.sound.style					= UI_RIGHT;
+	networkOptionsInfo.sound.color					= color_red;
+
+	networkOptionsInfo.network.generic.type			= MTYPE_PTEXT;
+	networkOptionsInfo.network.generic.flags		= QMF_CENTER_JUSTIFY;
+	networkOptionsInfo.network.generic.id			= ID_NETWORK;
+	networkOptionsInfo.network.generic.callback		= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.network.generic.x			= 32;
+	networkOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
+//	networkOptionsInfo.network.style				= UI_RIGHT;
+	networkOptionsInfo.network.color				= color_red;
+}
 
 	y = 240 - 1 * (BIGCHAR_HEIGHT+2);
 	networkOptionsInfo.rate.generic.type		= MTYPE_SPINCONTROL;
-	networkOptionsInfo.rate.generic.name		= "Data Rate:";
 	networkOptionsInfo.rate.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	networkOptionsInfo.rate.generic.callback	= UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.rate.generic.id			= ID_RATE;
 	networkOptionsInfo.rate.generic.x			= 400;
 	networkOptionsInfo.rate.generic.y			= y;
 	networkOptionsInfo.rate.itemnames			= rate_items;
+	
+	y += BIGCHAR_HEIGHT+2;
+	networkOptionsInfo.rview.generic.type     	= MTYPE_SLIDER;
+	networkOptionsInfo.rview.generic.flags	    = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	networkOptionsInfo.rview.generic.callback 	= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.rview.generic.id       	= ID_REALVIEW;
+	networkOptionsInfo.rview.generic.x	       	= 400;
+	networkOptionsInfo.rview.generic.y	        = y;
+	networkOptionsInfo.rview.minvalue			= 1;
+    networkOptionsInfo.rview.maxvalue			= 20;
+	
+	y += BIGCHAR_HEIGHT+2;
+	networkOptionsInfo.rviewf.generic.type     	= MTYPE_SLIDER;
+	networkOptionsInfo.rviewf.generic.flags	    = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	networkOptionsInfo.rviewf.generic.callback 	= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.rviewf.generic.id       	= ID_REALVIEWF;
+	networkOptionsInfo.rviewf.generic.x	       	= 400;
+	networkOptionsInfo.rviewf.generic.y	        = y;
+	networkOptionsInfo.rviewf.minvalue			= 1;
+    networkOptionsInfo.rviewf.maxvalue			= 13;
+	
+	y += BIGCHAR_HEIGHT+2;
+	networkOptionsInfo.rviewu.generic.type     	= MTYPE_SLIDER;
+	networkOptionsInfo.rviewu.generic.flags	    = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	networkOptionsInfo.rviewu.generic.callback 	= UI_NetworkOptionsMenu_Event;
+	networkOptionsInfo.rviewu.generic.id       	= ID_REALVIEWU;
+	networkOptionsInfo.rviewu.generic.x	       	= 400;
+	networkOptionsInfo.rviewu.generic.y	        = y;
+	networkOptionsInfo.rviewu.minvalue			= 1;
+    networkOptionsInfo.rviewu.maxvalue			= 3;
 
 	networkOptionsInfo.back.generic.type		= MTYPE_BITMAP;
 	networkOptionsInfo.back.generic.name		= ART_BACK0;
@@ -226,6 +308,29 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.back.width				= 128;
 	networkOptionsInfo.back.height				= 64;
 	networkOptionsInfo.back.focuspic			= ART_BACK1;
+	
+if(!rus.integer){
+networkOptionsInfo.banner.string			= "SYSTEM SETUP";
+networkOptionsInfo.graphics.string				= "GRAPHICS";
+networkOptionsInfo.display.string				= "DISPLAY";
+networkOptionsInfo.sound.string					= "SOUND";
+networkOptionsInfo.network.string				= "OTHER";
+networkOptionsInfo.rate.generic.name		= "Data Rate:";
+networkOptionsInfo.rview.generic.name	   		= "Map Select Icon Size:";
+networkOptionsInfo.rviewf.generic.name	   		= "Map Select Icon Rows:";
+networkOptionsInfo.rviewu.generic.name	   		= "Map Select Icon Cols:";
+}
+if(rus.integer){
+networkOptionsInfo.banner.string			= "СИСТЕМНЫЕ НАСТРОЙКИ";
+networkOptionsInfo.graphics.string				= "ГРАФИКА";
+networkOptionsInfo.display.string				= "ЭКРАН";
+networkOptionsInfo.sound.string					= "ЗВУК";
+networkOptionsInfo.network.string				= "ДРУГОЕ";
+networkOptionsInfo.rate.generic.name		= "Скорость сети:";
+networkOptionsInfo.rview.generic.name	   		= "Выбор карты размер значка:";
+networkOptionsInfo.rviewf.generic.name	   		= "Выбор карты ширина значков:";
+networkOptionsInfo.rviewu.generic.name	   		= "Выбор карты высота значков:";
+}
 
 	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.banner );
 	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.framel );
@@ -235,6 +340,9 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.sound );
 	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.network );
 	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.rate );
+	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.rview );
+	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.rviewf );
+	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.rviewu );
 	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.back );
 
 	rate = trap_Cvar_VariableValue( "rate" );
@@ -253,6 +361,11 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	else {
 		networkOptionsInfo.rate.curvalue = 4;
 	}
+	
+	networkOptionsInfo.rview.curvalue  = trap_Cvar_VariableValue( "ui_mapiconsizeq") * 10;
+		networkOptionsInfo.rviewf.curvalue  = trap_Cvar_VariableValue( "ui_maprowsq");
+			networkOptionsInfo.rviewu.curvalue  = trap_Cvar_VariableValue( "ui_mapcolsq");
+	
 }
 
 

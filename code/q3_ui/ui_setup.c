@@ -30,6 +30,7 @@ SETUP MENU
 
 
 #include "ui_local.h"
+#include "../game/challenges.h"
 
 
 #define SETUP_MENU_VERTICAL_SPACING		34
@@ -81,8 +82,34 @@ static void Setup_ResetDefaults_Action( qboolean result ) {
 	}
 	trap_Cmd_ExecuteText( EXEC_APPEND, "exec default.cfg\n");
 	trap_Cmd_ExecuteText( EXEC_APPEND, "cvar_restart\n");
+	challenges_reset();
+	trap_Cvar_Set( "model", "anarki/blue" );
+	trap_Cvar_Set( "headmodel", "anarki/blue" );
+	trap_Cvar_Set( "ui_mslegsskin", "blue" );
+	trap_Cvar_Set( "ui_msskin", "blue" );
+	trap_Cvar_Set( "ui_msheadskin", "blue" );
+	trap_Cvar_Set( "ui_mslegsmodel", "anarki" );
+	trap_Cvar_Set( "ui_msmodel", "anarki" );
+	trap_Cvar_Set( "ui_msheadmodel", "anarki" );
 	trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
+
 }
+
+/*
+=================
+Setup_Buy_Skin
+=================
+*//*
+static void Setup_Buy_Skin( qboolean result ) {
+	if( !result ) {
+		return;
+	}
+if(getChallenge(GENERAL_MONEY) > 499){
+	challenges_buymenu();
+	trap_Cvar_Set( "cg_ch9slze", "1" );
+	UI_PlayerSettingsMenu();
+}
+}*/
 
 
 /*
@@ -91,9 +118,31 @@ Setup_ResetDefaults_Draw
 =================
 */
 static void Setup_ResetDefaults_Draw( void ) {
+	if(!rus.integer){
 	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER|UI_SMALLFONT, color_yellow );
 	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "options to their default values.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	}
+	if(rus.integer){
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "ВНИМАНИЕ: Это востанновит ваши", UI_CENTER|UI_SMALLFONT, color_yellow );
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "настройки до заводских значений.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	}
 }
+
+/*
+=================
+Setup_ResetDefaults_Draw
+=================
+*//*
+static void Setup_ResetDefaults_Drawl( void ) {
+	if(!rus.integer){
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "WARNING: Skin select work", UI_CENTER|UI_SMALLFONT, color_yellow );
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "one time.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	}
+	if(rus.integer){
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "ВНИМАНИЕ: Покупка смены скина", UI_CENTER|UI_SMALLFONT, color_yellow );
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "работает один раз подумай над выбором.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	}
+}*/
 
 
 /*
@@ -108,7 +157,18 @@ static void UI_SetupMenu_Event( void *ptr, int event ) {
 
 	switch( ((menucommon_s*)ptr)->id ) {
 	case ID_CUSTOMIZEPLAYER:
+		UI_SPPlayerxp();
+//if(cg_ch9slze.integer == 1){
 		UI_PlayerSettingsMenu();
+//}
+/*if(cg_ch9slze.integer == 0){
+	if(!rus.integer){
+		UI_ConfirmMenu( "Buy skin select 500$?", Setup_ResetDefaults_Drawl, Setup_Buy_Skin );
+	}
+	if(rus.integer){
+		UI_ConfirmMenu( "Купить смену скина 500$?", Setup_ResetDefaults_Drawl, Setup_Buy_Skin );
+	}
+}*/
 		break;
 
 	case ID_CUSTOMIZECONTROLS:
@@ -136,7 +196,12 @@ static void UI_SetupMenu_Event( void *ptr, int event ) {
 //		break;
 
 	case ID_DEFAULTS:
+	if(!rus.integer){
 		UI_ConfirmMenu( "SET TO DEFAULTS?", Setup_ResetDefaults_Draw, Setup_ResetDefaults_Action );
+	}
+	if(rus.integer){
+		UI_ConfirmMenu( "СТЕРЕТЬ НАСТРОЙКИ?", Setup_ResetDefaults_Draw, Setup_ResetDefaults_Action );
+	}
 		break;
 
 	case ID_BACK:
@@ -160,6 +225,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.menu.wrapAround = qtrue;
 	setupMenuInfo.menu.fullscreen = qtrue;
 
+if(!rus.integer){
 	setupMenuInfo.banner.generic.type				= MTYPE_BTEXT;
 	setupMenuInfo.banner.generic.x					= 320;
 	setupMenuInfo.banner.generic.y					= 16;
@@ -170,7 +236,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.framel.generic.type				= MTYPE_BITMAP;
 	setupMenuInfo.framel.generic.name				= ART_FRAMEL;
 	setupMenuInfo.framel.generic.flags				= QMF_INACTIVE;
-	setupMenuInfo.framel.generic.x					= 0;  
+	setupMenuInfo.framel.generic.x					= 0;
 	setupMenuInfo.framel.generic.y					= 78;
 	setupMenuInfo.framel.width  					= 256;
 	setupMenuInfo.framel.height  					= 329;
@@ -189,7 +255,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.setupplayer.generic.x				= 320;
 	setupMenuInfo.setupplayer.generic.y				= y;
 	setupMenuInfo.setupplayer.generic.id			= ID_CUSTOMIZEPLAYER;
-	setupMenuInfo.setupplayer.generic.callback		= UI_SetupMenu_Event; 
+	setupMenuInfo.setupplayer.generic.callback		= UI_SetupMenu_Event;
 	setupMenuInfo.setupplayer.string				= "PLAYER";
 	setupMenuInfo.setupplayer.color					= color_red;
 	setupMenuInfo.setupplayer.style					= UI_CENTER;
@@ -200,7 +266,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.setupcontrols.generic.x			= 320;
 	setupMenuInfo.setupcontrols.generic.y			= y;
 	setupMenuInfo.setupcontrols.generic.id			= ID_CUSTOMIZECONTROLS;
-	setupMenuInfo.setupcontrols.generic.callback	= UI_SetupMenu_Event; 
+	setupMenuInfo.setupcontrols.generic.callback	= UI_SetupMenu_Event;
 	setupMenuInfo.setupcontrols.string				= "CONTROLS";
 	setupMenuInfo.setupcontrols.color				= color_red;
 	setupMenuInfo.setupcontrols.style				= UI_CENTER;
@@ -211,10 +277,11 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.setupsystem.generic.x				= 320;
 	setupMenuInfo.setupsystem.generic.y				= y;
 	setupMenuInfo.setupsystem.generic.id			= ID_SYSTEMCONFIG;
-	setupMenuInfo.setupsystem.generic.callback		= UI_SetupMenu_Event; 
+	setupMenuInfo.setupsystem.generic.callback		= UI_SetupMenu_Event;
 	setupMenuInfo.setupsystem.string				= "SYSTEM";
 	setupMenuInfo.setupsystem.color					= color_red;
 	setupMenuInfo.setupsystem.style					= UI_CENTER;
+
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.game.generic.type					= MTYPE_PTEXT;
@@ -222,7 +289,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.game.generic.x					= 320;
 	setupMenuInfo.game.generic.y					= y;
 	setupMenuInfo.game.generic.id					= ID_GAME;
-	setupMenuInfo.game.generic.callback				= UI_SetupMenu_Event; 
+	setupMenuInfo.game.generic.callback				= UI_SetupMenu_Event;
 	setupMenuInfo.game.string						= "GAME OPTIONS";
 	setupMenuInfo.game.color						= color_red;
 	setupMenuInfo.game.style						= UI_CENTER;
@@ -233,7 +300,7 @@ static void UI_SetupMenu_Init( void ) {
 	setupMenuInfo.cdkey.generic.x					= 320;
 	setupMenuInfo.cdkey.generic.y					= y;
 	setupMenuInfo.cdkey.generic.id					= ID_CDKEY;
-	setupMenuInfo.cdkey.generic.callback			= UI_SetupMenu_Event; 
+	setupMenuInfo.cdkey.generic.callback			= UI_SetupMenu_Event;
 	setupMenuInfo.cdkey.string						= "CD Key";
 	setupMenuInfo.cdkey.color						= color_red;
 	setupMenuInfo.cdkey.style						= UI_CENTER;*/
@@ -246,7 +313,7 @@ static void UI_SetupMenu_Init( void ) {
 		setupMenuInfo.load.generic.x					= 320;
 		setupMenuInfo.load.generic.y					= y;
 		setupMenuInfo.load.generic.id					= ID_LOAD;
-		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event; 
+		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event;
 		setupMenuInfo.load.string						= "LOAD";
 		setupMenuInfo.load.color						= color_red;
 		setupMenuInfo.load.style						= UI_CENTER;
@@ -257,7 +324,7 @@ static void UI_SetupMenu_Init( void ) {
 		setupMenuInfo.save.generic.x					= 320;
 		setupMenuInfo.save.generic.y					= y;
 		setupMenuInfo.save.generic.id					= ID_SAVE;
-		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event; 
+		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event;
 		setupMenuInfo.save.string						= "SAVE";
 		setupMenuInfo.save.color						= color_red;
 		setupMenuInfo.save.style						= UI_CENTER;
@@ -269,11 +336,129 @@ static void UI_SetupMenu_Init( void ) {
 		setupMenuInfo.defaults.generic.x				= 320;
 		setupMenuInfo.defaults.generic.y				= y;
 		setupMenuInfo.defaults.generic.id				= ID_DEFAULTS;
-		setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event; 
+		setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event;
 		setupMenuInfo.defaults.string					= "DEFAULTS";
 		setupMenuInfo.defaults.color					= color_red;
 		setupMenuInfo.defaults.style					= UI_CENTER;
 	}
+}
+if(rus.integer){
+	setupMenuInfo.banner.generic.type				= MTYPE_BTEXT;
+	setupMenuInfo.banner.generic.x					= 320;
+	setupMenuInfo.banner.generic.y					= 16;
+	setupMenuInfo.banner.string						= "НАСТРОЙКИ";
+	setupMenuInfo.banner.color						= color_white;
+	setupMenuInfo.banner.style						= UI_CENTER;
+
+	setupMenuInfo.framel.generic.type				= MTYPE_BITMAP;
+	setupMenuInfo.framel.generic.name				= ART_FRAMEL;
+	setupMenuInfo.framel.generic.flags				= QMF_INACTIVE;
+	setupMenuInfo.framel.generic.x					= 0;
+	setupMenuInfo.framel.generic.y					= 78;
+	setupMenuInfo.framel.width  					= 256;
+	setupMenuInfo.framel.height  					= 329;
+
+	setupMenuInfo.framer.generic.type				= MTYPE_BITMAP;
+	setupMenuInfo.framer.generic.name				= ART_FRAMER;
+	setupMenuInfo.framer.generic.flags				= QMF_INACTIVE;
+	setupMenuInfo.framer.generic.x					= 376;
+	setupMenuInfo.framer.generic.y					= 76;
+	setupMenuInfo.framer.width  					= 256;
+	setupMenuInfo.framer.height  					= 334;
+
+	y = 134;
+	setupMenuInfo.setupplayer.generic.type			= MTYPE_PTEXT;
+	setupMenuInfo.setupplayer.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.setupplayer.generic.x				= 320;
+	setupMenuInfo.setupplayer.generic.y				= y;
+	setupMenuInfo.setupplayer.generic.id			= ID_CUSTOMIZEPLAYER;
+	setupMenuInfo.setupplayer.generic.callback		= UI_SetupMenu_Event;
+	setupMenuInfo.setupplayer.string				= "ИГРОК";
+	setupMenuInfo.setupplayer.color					= color_red;
+	setupMenuInfo.setupplayer.style					= UI_CENTER;
+
+	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.setupcontrols.generic.type		= MTYPE_PTEXT;
+	setupMenuInfo.setupcontrols.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.setupcontrols.generic.x			= 320;
+	setupMenuInfo.setupcontrols.generic.y			= y;
+	setupMenuInfo.setupcontrols.generic.id			= ID_CUSTOMIZECONTROLS;
+	setupMenuInfo.setupcontrols.generic.callback	= UI_SetupMenu_Event;
+	setupMenuInfo.setupcontrols.string				= "УПРАВЛЕНИЕ";
+	setupMenuInfo.setupcontrols.color				= color_red;
+	setupMenuInfo.setupcontrols.style				= UI_CENTER;
+
+	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.setupsystem.generic.type			= MTYPE_PTEXT;
+	setupMenuInfo.setupsystem.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.setupsystem.generic.x				= 320;
+	setupMenuInfo.setupsystem.generic.y				= y;
+	setupMenuInfo.setupsystem.generic.id			= ID_SYSTEMCONFIG;
+	setupMenuInfo.setupsystem.generic.callback		= UI_SetupMenu_Event;
+	setupMenuInfo.setupsystem.string				= "СИСТЕМА";
+	setupMenuInfo.setupsystem.color					= color_red;
+	setupMenuInfo.setupsystem.style					= UI_CENTER;
+
+
+	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.game.generic.type					= MTYPE_PTEXT;
+	setupMenuInfo.game.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.game.generic.x					= 320;
+	setupMenuInfo.game.generic.y					= y;
+	setupMenuInfo.game.generic.id					= ID_GAME;
+	setupMenuInfo.game.generic.callback				= UI_SetupMenu_Event;
+	setupMenuInfo.game.string						= "ИГРОВЫЕ ОПЦИИ";
+	setupMenuInfo.game.color						= color_red;
+	setupMenuInfo.game.style						= UI_CENTER;
+
+/*	y += SETUP_MENU_VERTICAL_SPACING;
+	setupMenuInfo.cdkey.generic.type				= MTYPE_PTEXT;
+	setupMenuInfo.cdkey.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	setupMenuInfo.cdkey.generic.x					= 320;
+	setupMenuInfo.cdkey.generic.y					= y;
+	setupMenuInfo.cdkey.generic.id					= ID_CDKEY;
+	setupMenuInfo.cdkey.generic.callback			= UI_SetupMenu_Event;
+	setupMenuInfo.cdkey.string						= "CD Key";
+	setupMenuInfo.cdkey.color						= color_red;
+	setupMenuInfo.cdkey.style						= UI_CENTER;*/
+
+	if( !trap_Cvar_VariableValue( "cl_paused" ) ) {
+#if 0
+		y += SETUP_MENU_VERTICAL_SPACING;
+		setupMenuInfo.load.generic.type					= MTYPE_PTEXT;
+		setupMenuInfo.load.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+		setupMenuInfo.load.generic.x					= 320;
+		setupMenuInfo.load.generic.y					= y;
+		setupMenuInfo.load.generic.id					= ID_LOAD;
+		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event;
+		setupMenuInfo.load.string						= "LOAD";
+		setupMenuInfo.load.color						= color_red;
+		setupMenuInfo.load.style						= UI_CENTER;
+
+		y += SETUP_MENU_VERTICAL_SPACING;
+		setupMenuInfo.save.generic.type					= MTYPE_PTEXT;
+		setupMenuInfo.save.generic.flags				= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+		setupMenuInfo.save.generic.x					= 320;
+		setupMenuInfo.save.generic.y					= y;
+		setupMenuInfo.save.generic.id					= ID_SAVE;
+		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event;
+		setupMenuInfo.save.string						= "SAVE";
+		setupMenuInfo.save.color						= color_red;
+		setupMenuInfo.save.style						= UI_CENTER;
+#endif
+
+		y += SETUP_MENU_VERTICAL_SPACING;
+		setupMenuInfo.defaults.generic.type				= MTYPE_PTEXT;
+		setupMenuInfo.defaults.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+		setupMenuInfo.defaults.generic.x				= 320;
+		setupMenuInfo.defaults.generic.y				= y;
+		setupMenuInfo.defaults.generic.id				= ID_DEFAULTS;
+		setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event;
+		setupMenuInfo.defaults.string					= "СТЕРЕТЬ НАСТРОЙКИ";
+		setupMenuInfo.defaults.color					= color_red;
+		setupMenuInfo.defaults.style					= UI_CENTER;
+	}
+}
 
 	setupMenuInfo.back.generic.type					= MTYPE_BITMAP;
 	setupMenuInfo.back.generic.name					= ART_BACK0;
@@ -289,16 +474,19 @@ static void UI_SetupMenu_Init( void ) {
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.banner );
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.framel );
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.framer );
+	if( !trap_Cvar_VariableValue( "cl_paused" ) ) {
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.setupplayer );
+	}
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.setupcontrols );
-	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.setupsystem );
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.game );
 //	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.cdkey );
 //	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.load );
 //	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.save );
+
 	if( !trap_Cvar_VariableValue( "cl_paused" ) ) {
 		Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.defaults );
 	}
+		Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.setupsystem );
 	Menu_AddItem( &setupMenuInfo.menu, &setupMenuInfo.back );
 }
 

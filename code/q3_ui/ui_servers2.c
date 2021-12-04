@@ -500,8 +500,14 @@ static void ArenaServers_UpdateMenu( void ) {
 		// servers found
 		if( g_arenaservers.refreshservers && ( g_arenaservers.currentping <= g_arenaservers.numqueriedservers ) ) {
 			// show progress
+			if(!rus.integer){
 			Com_sprintf( g_arenaservers.status.string, MAX_STATUSLENGTH, "%d of %d Arena Servers.", g_arenaservers.currentping, g_arenaservers.numqueriedservers);
 			g_arenaservers.statusbar.string  = "Press SPACE to stop";
+			}
+			if(rus.integer){
+			Com_sprintf( g_arenaservers.status.string, MAX_STATUSLENGTH, "%d из %d Серверов.", g_arenaservers.currentping, g_arenaservers.numqueriedservers);
+			g_arenaservers.statusbar.string  = "Нажмите ПРОБЕЛ для остановки";
+			}
 			qsort( g_arenaservers.serverlist, *g_arenaservers.numservers, sizeof( servernode_t ), ArenaServers_Compare);
 		}
 		else {
@@ -530,8 +536,14 @@ static void ArenaServers_UpdateMenu( void ) {
 	else {
 		// no servers found
 		if( g_arenaservers.refreshservers ) {
+			if(!rus.integer){
 			strcpy( g_arenaservers.status.string,"Scanning For Servers." );
 			g_arenaservers.statusbar.string = "Press SPACE to stop";
+			}
+			if(rus.integer){
+			strcpy( g_arenaservers.status.string,"Сканирование серверов." );
+			g_arenaservers.statusbar.string = "Нажмите ПРОБЕЛ для остановки";
+			}
 
 			// disable controls during refresh
 			g_arenaservers.master.generic.flags		|= QMF_GRAYED;
@@ -547,10 +559,20 @@ static void ArenaServers_UpdateMenu( void ) {
 		}
 		else {
 			if( g_arenaservers.numqueriedservers < 0 ) {
+				if(!rus.integer){
 				strcpy(g_arenaservers.status.string,"No Response From Master Server." );
+				}
+				if(rus.integer){
+				strcpy(g_arenaservers.status.string,"Нет ответа от мастер сервера." );
+				}
 			}
 			else {
+				if(!rus.integer){
 				strcpy(g_arenaservers.status.string,"No Servers Found." );
+				}
+				if(rus.integer){
+				strcpy(g_arenaservers.status.string,"Сервера не найдены." );
+				}
 			}
 
 			// update status bar
@@ -1373,7 +1395,12 @@ int ArenaServers_SetType( int type )
 		g_arenaservers.currentping       = *g_arenaservers.numservers;
 		g_arenaservers.numqueriedservers = *g_arenaservers.numservers; 
 		ArenaServers_UpdateMenu();
+		if(!rus.integer){
 		strcpy(g_arenaservers.status.string,"hit refresh to update");
+		}
+		if(rus.integer){
+		strcpy(g_arenaservers.status.string,"нажмите refresh для обновления");
+		}
 	}
 	
 	return type;
@@ -1550,11 +1577,17 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.menu.draw       = ArenaServers_MenuDraw;
 	g_arenaservers.menu.key        = ArenaServers_MenuKey;
 
+if(!rus.integer){
 	g_arenaservers.banner.generic.type  = MTYPE_BTEXT;
 	g_arenaservers.banner.generic.flags = QMF_CENTER_JUSTIFY;
 	g_arenaservers.banner.generic.x	    = 320;
 	g_arenaservers.banner.generic.y	    = 16;
-	g_arenaservers.banner.string  		= "OPENARENA SERVERS";
+if(onnextarena.integer == 0){
+	g_arenaservers.banner.string  		= "OpenArenaPlus Servers";
+}
+if(onnextarena.integer == 1){
+	g_arenaservers.banner.string  		= "NextArena Servers";
+}
 	g_arenaservers.banner.style  	    = UI_CENTER;
 	g_arenaservers.banner.color  	    = color_white;
 
@@ -1623,6 +1656,88 @@ static void ArenaServers_MenuInit( void ) {
 	g_arenaservers.hideprivate.generic.id			= ID_HIDE_PRIVATE;
 	g_arenaservers.hideprivate.generic.x			= 320;
 	g_arenaservers.hideprivate.generic.y			= y;
+}
+if(rus.integer){
+	g_arenaservers.banner.generic.type  = MTYPE_BTEXT;
+	g_arenaservers.banner.generic.flags = QMF_CENTER_JUSTIFY;
+	g_arenaservers.banner.generic.x	    = 320;
+	g_arenaservers.banner.generic.y	    = 16;
+if(onnextarena.integer == 0){
+	g_arenaservers.banner.string  		= "Сервера OpenArenaPlus";
+}
+if(onnextarena.integer == 1){
+	g_arenaservers.banner.string  		= "Сервера NextArena";
+}
+	g_arenaservers.banner.style  	    = UI_CENTER;
+	g_arenaservers.banner.color  	    = color_white;
+
+	y = 80-SMALLCHAR_HEIGHT;
+	g_arenaservers.master.generic.type			= MTYPE_SPINCONTROL;
+	g_arenaservers.master.generic.name			= "Сервера:";
+	g_arenaservers.master.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.master.generic.callback		= ArenaServers_Event;
+	g_arenaservers.master.generic.id			= ID_MASTER;
+	g_arenaservers.master.generic.x				= 320;
+	g_arenaservers.master.generic.y				= y;
+	g_arenaservers.master.itemnames				= master_items;
+
+	y += SMALLCHAR_HEIGHT;
+	g_arenaservers.gametype.generic.type		= MTYPE_SPINCONTROL;
+	g_arenaservers.gametype.generic.name		= "Режим игры:";
+	g_arenaservers.gametype.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.gametype.generic.callback	= ArenaServers_Event;
+	g_arenaservers.gametype.generic.id			= ID_GAMETYPE;
+	g_arenaservers.gametype.generic.x			= 320;
+	g_arenaservers.gametype.generic.y			= y;
+	g_arenaservers.gametype.itemnames			= servertype_items;
+
+	y += SMALLCHAR_HEIGHT;
+	g_arenaservers.sortkey.generic.type			= MTYPE_SPINCONTROL;
+	g_arenaservers.sortkey.generic.name			= "Сортировка:";
+	g_arenaservers.sortkey.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.sortkey.generic.callback		= ArenaServers_Event;
+	g_arenaservers.sortkey.generic.id			= ID_SORTKEY;
+	g_arenaservers.sortkey.generic.x			= 320;
+	g_arenaservers.sortkey.generic.y			= y;
+	g_arenaservers.sortkey.itemnames			= sortkey_items;
+
+	y += SMALLCHAR_HEIGHT;
+	g_arenaservers.showfull.generic.type		= MTYPE_RADIOBUTTON;
+	g_arenaservers.showfull.generic.name		= "Отобразить заполненые:";
+	g_arenaservers.showfull.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.showfull.generic.callback	= ArenaServers_Event;
+	g_arenaservers.showfull.generic.id			= ID_SHOW_FULL;
+	g_arenaservers.showfull.generic.x			= 320;
+	g_arenaservers.showfull.generic.y			= y;
+
+	y += SMALLCHAR_HEIGHT;
+	g_arenaservers.showempty.generic.type		= MTYPE_RADIOBUTTON;
+	g_arenaservers.showempty.generic.name		= "Отобразить пустые:";
+	g_arenaservers.showempty.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.showempty.generic.callback	= ArenaServers_Event;
+	g_arenaservers.showempty.generic.id			= ID_SHOW_EMPTY;
+	g_arenaservers.showempty.generic.x			= 320;
+	g_arenaservers.showempty.generic.y			= y;
+        
+        y += SMALLCHAR_HEIGHT;
+	g_arenaservers.onlyhumans.generic.type		= MTYPE_RADIOBUTTON;
+	g_arenaservers.onlyhumans.generic.name		= "Только люди:";
+	g_arenaservers.onlyhumans.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.onlyhumans.generic.callback	= ArenaServers_Event;
+	g_arenaservers.onlyhumans.generic.id			= ID_ONLY_HUMANS;
+	g_arenaservers.onlyhumans.generic.x			= 320;
+	g_arenaservers.onlyhumans.generic.y			= y;
+        
+        y += SMALLCHAR_HEIGHT;
+	g_arenaservers.hideprivate.generic.type		= MTYPE_RADIOBUTTON;
+	g_arenaservers.hideprivate.generic.name		= "Скрыть приватные:";
+	g_arenaservers.hideprivate.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	g_arenaservers.hideprivate.generic.callback	= ArenaServers_Event;
+	g_arenaservers.hideprivate.generic.id			= ID_HIDE_PRIVATE;
+	g_arenaservers.hideprivate.generic.x			= 320;
+	g_arenaservers.hideprivate.generic.y			= y;
+}
+
 
 	y += 2 * SMALLCHAR_HEIGHT;
 	g_arenaservers.list.generic.type			= MTYPE_SCROLLLIST;

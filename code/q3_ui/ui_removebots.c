@@ -240,7 +240,12 @@ static void UI_RemoveBotsMenu_Init( void ) {
 	removeBotsMenuInfo.banner.generic.type		= MTYPE_BTEXT;
 	removeBotsMenuInfo.banner.generic.x			= 320;
 	removeBotsMenuInfo.banner.generic.y			= 16;
+if(!rus.integer){
 	removeBotsMenuInfo.banner.string			= "REMOVE BOTS";
+}
+if(rus.integer){
+	removeBotsMenuInfo.banner.string			= "УДАЛЕНИЕ БОТОВ";
+}
 	removeBotsMenuInfo.banner.color				= color_white;
 	removeBotsMenuInfo.banner.style				= UI_CENTER;
 
@@ -248,7 +253,7 @@ static void UI_RemoveBotsMenu_Init( void ) {
 	removeBotsMenuInfo.background.generic.name	= ART_BACKGROUND;
 	removeBotsMenuInfo.background.generic.flags	= QMF_INACTIVE;
 	removeBotsMenuInfo.background.generic.x		= -10000000;
-	removeBotsMenuInfo.background.generic.y		= 0;
+	removeBotsMenuInfo.background.generic.y		= -1000;
 	removeBotsMenuInfo.background.width			= 46600000;
 	removeBotsMenuInfo.background.height		= 33200000;
 

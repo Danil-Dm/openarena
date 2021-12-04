@@ -121,7 +121,7 @@ MessaheMenu_Draw
 static void MessageMenu_Draw( void ) {
 	int i,y;
 	
-	UI_DrawNamedPic( -10000000, 0, 46600000, 33200000, ART_CONFIRM_FRAME );
+	UI_DrawNamedPic( -10000000, -1000, 46600000, 33200000, ART_CONFIRM_FRAME );
 	
 	y = 188;
 	for(i=0; s_confirm.lines[i]; i++)
@@ -143,7 +143,7 @@ ConfirmMenu_Draw
 =================
 */
 static void ConfirmMenu_Draw( void ) {
-	UI_DrawNamedPic( -10000000, 0, 46600000, 33200000, ART_CONFIRM_FRAME );
+	UI_DrawNamedPic( -10000000, -1000, 46600000, 33200000, ART_CONFIRM_FRAME );
 	UI_DrawProportionalString( 320, 204, s_confirm.question, s_confirm.style, color_red );
 	UI_DrawProportionalString( s_confirm.slashX, 265, "/", UI_LEFT|UI_INVERSE, color_red );
 
@@ -180,9 +180,16 @@ void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void )
 
 	ConfirmMenu_Cache();
 
+if(!rus.integer){
 	n1 = UI_ProportionalStringWidth( "YES/NO" );
 	n2 = UI_ProportionalStringWidth( "YES" ) + PROP_GAP_WIDTH;
 	n3 = UI_ProportionalStringWidth( "/" )  + PROP_GAP_WIDTH;
+}
+if(rus.integer){
+	n1 = UI_ProportionalStringWidth( "ДА/НЕТ" );
+	n2 = UI_ProportionalStringWidth( "ДА" ) + PROP_GAP_WIDTH;
+	n3 = UI_ProportionalStringWidth( "/" )  + PROP_GAP_WIDTH;
+}
 	l1 = 320 - ( n1 / 2 );
 	l2 = l1 + n2;
 	l3 = l2 + n3;
@@ -204,7 +211,7 @@ void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void )
 	else {
 		s_confirm.menu.fullscreen = qtrue;
 	}
-
+if(!rus.integer){
 	s_confirm.yes.generic.type		= MTYPE_PTEXT;      
 	s_confirm.yes.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS; 
 	s_confirm.yes.generic.callback	= ConfirmMenu_Event;
@@ -224,6 +231,30 @@ void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void )
 	s_confirm.no.string				= "NO";
 	s_confirm.no.color			    = color_red;
 	s_confirm.no.style			    = UI_LEFT;
+}
+
+if(rus.integer){
+	s_confirm.yes.generic.type		= MTYPE_PTEXT;      
+	s_confirm.yes.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS; 
+	s_confirm.yes.generic.callback	= ConfirmMenu_Event;
+	s_confirm.yes.generic.id		= ID_CONFIRM_YES;
+	s_confirm.yes.generic.x			= l1;
+	s_confirm.yes.generic.y			= 264;
+	s_confirm.yes.string			= "ДА";
+	s_confirm.yes.color				= color_red;
+	s_confirm.yes.style				= UI_LEFT;
+
+	s_confirm.no.generic.type		= MTYPE_PTEXT;      
+	s_confirm.no.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS; 
+	s_confirm.no.generic.callback	= ConfirmMenu_Event;
+	s_confirm.no.generic.id			= ID_CONFIRM_NO;
+	s_confirm.no.generic.x		    = l3;
+	s_confirm.no.generic.y		    = 264;
+	s_confirm.no.string				= "НЕТ";
+	s_confirm.no.color			    = color_red;
+	s_confirm.no.style			    = UI_LEFT;
+}
+
 
 	Menu_AddItem( &s_confirm.menu,	&s_confirm.yes );             
 	Menu_AddItem( &s_confirm.menu,	&s_confirm.no );

@@ -23,8 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // gameinfo.c
 //
-
 #include "ui_local.h"
+
+#include "../game/challenges.h"
 
 
 //
@@ -695,6 +696,10 @@ Clears the scores and sets the difficutly level
 ===============
 */
 void UI_NewGame( void ) {
+	challenges_reset();
+	challenges_plusmenu();
+	challenges_buymenu();
+	trap_Cvar_Set( "ui_char", "0" );
 	trap_Cvar_Set( "g_spScores1", "" );
 	trap_Cvar_Set( "g_spScores2", "" );
 	trap_Cvar_Set( "g_spScores3", "" );
@@ -702,6 +707,14 @@ void UI_NewGame( void ) {
 	trap_Cvar_Set( "g_spScores5", "" );
 	trap_Cvar_Set( "g_spAwards", "" );
 	trap_Cvar_Set( "g_spVideos", "" );
+	trap_Cvar_Set( "model", "1" );
+	trap_Cvar_Set( "headmodel", "1" );
+	trap_Cvar_Set( "ui_mslegsskin", "1" );
+	trap_Cvar_Set( "ui_msskin", "1" );
+	trap_Cvar_Set( "ui_msheadskin", "1" );
+	trap_Cvar_Set( "ui_mslegsmodel", "1" );
+	trap_Cvar_Set( "ui_msmodel", "1" );
+	trap_Cvar_Set( "ui_msheadmodel", "1" );
 }
 
 
@@ -797,6 +810,25 @@ void UI_SPUnlockMedals_f( void ) {
 	trap_Cvar_Set( "g_spAwards", awardData );
 
 	trap_Print( "All levels unlocked at 100\n" );
+}
+
+void UI_SPPlayerxp( void ) {
+if(skinsmultiplayer.integer == 0){
+if(ui_skinsunlocked.integer == 0){
+trap_Cvar_SetValue( "playerxp", getChallenge(GENERAL_MONEY));
+}
+if(ui_skinsunlocked.integer == 1){
+trap_Cvar_SetValue( "playerxp", 9999999);
+}
+}
+if(skinsmultiplayer.integer == 1){
+if(ui_skinsunlocked.integer == 0){
+trap_Cvar_SetValue( "playerxp", getChallenge(GENERAL_MONEY));
+}
+if(ui_skinsunlocked.integer == 1){
+trap_Cvar_SetValue( "playerxp", 9999999);
+}
+}
 }
 
 

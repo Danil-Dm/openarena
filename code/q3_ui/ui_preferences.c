@@ -109,6 +109,15 @@ static const char *teamoverlay_names[] =
 	NULL
 };
 
+static const char *teamoverlay_namesrus[] =
+{
+	"выкл",
+	"вверху справа",
+	"внизу справа",
+	"внизу слева",
+	NULL
+};
+
 static void Preferences_SetMenuItems( void ) {
 	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue( "cg_drawCrosshair" ) % NUM_CROSSHAIRS;
         s_preferences.crosshairHealth.curvalue          = trap_Cvar_VariableValue( "cg_crosshairHealth") != 0;
@@ -309,6 +318,8 @@ static void Preferences_MenuInit( void ) {
 
 	s_preferences.menu.wrapAround = qtrue;
 	s_preferences.menu.fullscreen = qtrue;
+
+if(!rus.integer){
 
 	s_preferences.banner.generic.type  = MTYPE_BTEXT;
 	s_preferences.banner.generic.x	   = 320;
@@ -523,6 +534,224 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.teamchatbeep.generic.id       = ID_TEAMCHATBEEP;
 	s_preferences.teamchatbeep.generic.x	       = PREFERENCES_X_POS;
 	s_preferences.teamchatbeep.generic.y	       = y;
+}
+
+if(rus.integer){
+
+	s_preferences.banner.generic.type  = MTYPE_BTEXT;
+	s_preferences.banner.generic.x	   = 320;
+	s_preferences.banner.generic.y	   = 16;
+	s_preferences.banner.string		   = "Игровые опции";
+	s_preferences.banner.color         = color_white;
+	s_preferences.banner.style         = UI_CENTER;
+
+	s_preferences.framel.generic.type  = MTYPE_BITMAP;
+	s_preferences.framel.generic.name  = ART_FRAMEL;
+	s_preferences.framel.generic.flags = QMF_INACTIVE;
+	s_preferences.framel.generic.x	   = 0;
+	s_preferences.framel.generic.y	   = 78;
+	s_preferences.framel.width  	   = 256;
+	s_preferences.framel.height  	   = 329;
+
+	s_preferences.framer.generic.type  = MTYPE_BITMAP;
+	s_preferences.framer.generic.name  = ART_FRAMER;
+	s_preferences.framer.generic.flags = QMF_INACTIVE;
+	s_preferences.framer.generic.x	   = 376;
+	s_preferences.framer.generic.y	   = 76;
+	s_preferences.framer.width  	   = 256;
+	s_preferences.framer.height  	   = 334;
+
+	y = 82;
+	s_preferences.crosshair.generic.type		= MTYPE_TEXT;
+	s_preferences.crosshair.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT|QMF_NODEFAULTINIT|QMF_OWNERDRAW;
+	s_preferences.crosshair.generic.x			= PREFERENCES_X_POS;
+	s_preferences.crosshair.generic.y			= y;
+	s_preferences.crosshair.generic.name		= "Прицел:";
+	s_preferences.crosshair.generic.callback	= Preferences_Event;
+	s_preferences.crosshair.generic.ownerdraw	= Crosshair_Draw;
+	s_preferences.crosshair.generic.id			= ID_CROSSHAIR;
+	s_preferences.crosshair.generic.top			= y - 4;
+	s_preferences.crosshair.generic.bottom		= y + 20;
+	s_preferences.crosshair.generic.left		= PREFERENCES_X_POS - ( ( strlen(s_preferences.crosshair.generic.name) + 1 ) * SMALLCHAR_WIDTH );
+	s_preferences.crosshair.generic.right		= PREFERENCES_X_POS + 48;
+
+        y += BIGCHAR_HEIGHT+2;
+	s_preferences.crosshairHealth.generic.type        = MTYPE_RADIOBUTTON;
+	s_preferences.crosshairHealth.generic.name	      = "Прицел показывает жизни:";
+	s_preferences.crosshairHealth.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.crosshairHealth.generic.callback    = Preferences_Event;
+	s_preferences.crosshairHealth.generic.id          = ID_CROSSHAIRHEALTH;
+	s_preferences.crosshairHealth.generic.x	          = PREFERENCES_X_POS;
+	s_preferences.crosshairHealth.generic.y	          = y;
+
+        y += BIGCHAR_HEIGHT;
+        s_preferences.crosshairColorRed.generic.type		= MTYPE_SLIDER;
+	s_preferences.crosshairColorRed.generic.name		= "Прицел-красный:";
+	s_preferences.crosshairColorRed.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.crosshairColorRed.generic.callback	= Preferences_Event;
+	s_preferences.crosshairColorRed.generic.id		= ID_COLORRED;
+	s_preferences.crosshairColorRed.generic.x			= PREFERENCES_X_POS;
+	s_preferences.crosshairColorRed.generic.y			= y;
+	s_preferences.crosshairColorRed.minvalue			= 0.0f;
+	s_preferences.crosshairColorRed.maxvalue			= 255.0f;
+
+        y += BIGCHAR_HEIGHT+2;
+        s_preferences.crosshairColorGreen.generic.type		= MTYPE_SLIDER;
+	s_preferences.crosshairColorGreen.generic.name		= "Прицел-зелёный:";
+	s_preferences.crosshairColorGreen.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.crosshairColorGreen.generic.callback	= Preferences_Event;
+	s_preferences.crosshairColorGreen.generic.id		= ID_COLORGREEN;
+	s_preferences.crosshairColorGreen.generic.x			= PREFERENCES_X_POS;
+	s_preferences.crosshairColorGreen.generic.y			= y;
+	s_preferences.crosshairColorGreen.minvalue			= 0.0f;
+	s_preferences.crosshairColorGreen.maxvalue			= 255.0f;
+
+        y += BIGCHAR_HEIGHT+2;
+        s_preferences.crosshairColorBlue.generic.type		= MTYPE_SLIDER;
+	s_preferences.crosshairColorBlue.generic.name		= "Прицел-синий:";
+	s_preferences.crosshairColorBlue.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.crosshairColorBlue.generic.callback	= Preferences_Event;
+	s_preferences.crosshairColorBlue.generic.id		= ID_COLORBLUE;
+	s_preferences.crosshairColorBlue.generic.x			= PREFERENCES_X_POS;
+	s_preferences.crosshairColorBlue.generic.y			= y;
+	s_preferences.crosshairColorBlue.minvalue			= 0.0f;
+	s_preferences.crosshairColorBlue.maxvalue			= 255.0f;
+
+
+        if(s_preferences.crosshairHealth.curvalue) {
+            s_preferences.crosshairColorRed.generic.flags       |= QMF_INACTIVE;
+            s_preferences.crosshairColorGreen.generic.flags       |= QMF_INACTIVE;
+            s_preferences.crosshairColorBlue.generic.flags       |= QMF_INACTIVE;
+        }
+
+	y += BIGCHAR_HEIGHT+2+4;
+	s_preferences.simpleitems.generic.type        = MTYPE_RADIOBUTTON;
+	s_preferences.simpleitems.generic.name	      = "Простые предметы:";
+	s_preferences.simpleitems.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.simpleitems.generic.callback    = Preferences_Event;
+	s_preferences.simpleitems.generic.id          = ID_SIMPLEITEMS;
+	s_preferences.simpleitems.generic.x	          = PREFERENCES_X_POS;
+	s_preferences.simpleitems.generic.y	          = y;
+        
+        //Elimination
+        y += BIGCHAR_HEIGHT;
+	s_preferences.alwaysweaponbar.generic.type        = MTYPE_RADIOBUTTON;
+	s_preferences.alwaysweaponbar.generic.name	      = "Всегда отображать оружие:";
+	s_preferences.alwaysweaponbar.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.alwaysweaponbar.generic.callback    = Preferences_Event;
+	s_preferences.alwaysweaponbar.generic.id          = ID_WEAPONBAR;
+	s_preferences.alwaysweaponbar.generic.x	          = PREFERENCES_X_POS;
+	s_preferences.alwaysweaponbar.generic.y	          = y;
+
+	y += BIGCHAR_HEIGHT;
+	s_preferences.wallmarks.generic.type          = MTYPE_RADIOBUTTON;
+	s_preferences.wallmarks.generic.name	      = "Дырки от пуль:";
+	s_preferences.wallmarks.generic.flags	      = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.wallmarks.generic.callback      = Preferences_Event;
+	s_preferences.wallmarks.generic.id            = ID_WALLMARKS;
+	s_preferences.wallmarks.generic.x	          = PREFERENCES_X_POS;
+	s_preferences.wallmarks.generic.y	          = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.brass.generic.type              = MTYPE_RADIOBUTTON;
+	s_preferences.brass.generic.name	          = "Гильзы от пуль:";
+	s_preferences.brass.generic.flags	          = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.brass.generic.callback          = Preferences_Event;
+	s_preferences.brass.generic.id                = ID_EJECTINGBRASS;
+	s_preferences.brass.generic.x	              = PREFERENCES_X_POS;
+	s_preferences.brass.generic.y	              = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.dynamiclights.generic.type      = MTYPE_RADIOBUTTON;
+	s_preferences.dynamiclights.generic.name	  = "Динамическое освещение:";
+	s_preferences.dynamiclights.generic.flags     = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.dynamiclights.generic.callback  = Preferences_Event;
+	s_preferences.dynamiclights.generic.id        = ID_DYNAMICLIGHTS;
+	s_preferences.dynamiclights.generic.x	      = PREFERENCES_X_POS;
+	s_preferences.dynamiclights.generic.y	      = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.identifytarget.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.identifytarget.generic.name	  = "Определить цель:";
+	s_preferences.identifytarget.generic.flags    = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.identifytarget.generic.callback = Preferences_Event;
+	s_preferences.identifytarget.generic.id       = ID_IDENTIFYTARGET;
+	s_preferences.identifytarget.generic.x	      = PREFERENCES_X_POS;
+	s_preferences.identifytarget.generic.y	      = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.highqualitysky.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.highqualitysky.generic.name	  = "Небо высокого качества:";
+	s_preferences.highqualitysky.generic.flags	  = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.highqualitysky.generic.callback = Preferences_Event;
+	s_preferences.highqualitysky.generic.id       = ID_HIGHQUALITYSKY;
+	s_preferences.highqualitysky.generic.x	      = PREFERENCES_X_POS;
+	s_preferences.highqualitysky.generic.y	      = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.synceveryframe.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.synceveryframe.generic.name	  = "Вертикальная Синхронизация:";
+	s_preferences.synceveryframe.generic.flags	  = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.synceveryframe.generic.callback = Preferences_Event;
+	s_preferences.synceveryframe.generic.id       = ID_SYNCEVERYFRAME;
+	s_preferences.synceveryframe.generic.x	      = PREFERENCES_X_POS;
+	s_preferences.synceveryframe.generic.y	      = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.forcemodel.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.forcemodel.generic.name	  = "Одинаковые модели игроков:";
+	s_preferences.forcemodel.generic.flags	  = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.forcemodel.generic.callback = Preferences_Event;
+	s_preferences.forcemodel.generic.id       = ID_FORCEMODEL;
+	s_preferences.forcemodel.generic.x	      = PREFERENCES_X_POS;
+	s_preferences.forcemodel.generic.y	      = y;
+
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.drawteamoverlay.generic.type     = MTYPE_SPINCONTROL;
+	s_preferences.drawteamoverlay.generic.name	   = "Рисовать командную статистику:";
+	s_preferences.drawteamoverlay.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.drawteamoverlay.generic.callback = Preferences_Event;
+	s_preferences.drawteamoverlay.generic.id       = ID_DRAWTEAMOVERLAY;
+	s_preferences.drawteamoverlay.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.drawteamoverlay.generic.y	       = y;
+	s_preferences.drawteamoverlay.itemnames			= teamoverlay_namesrus;
+
+        y += BIGCHAR_HEIGHT+2;
+	s_preferences.delaghitscan.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.delaghitscan.generic.name	   = "Компенцация задержки:";
+	s_preferences.delaghitscan.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.delaghitscan.generic.callback = Preferences_Event;
+	s_preferences.delaghitscan.generic.id       = ID_DELAGHITSCAN;
+	s_preferences.delaghitscan.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.delaghitscan.generic.y	       = y;
+        
+	y += BIGCHAR_HEIGHT+2;
+	s_preferences.allowdownload.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.allowdownload.generic.name	   = "Автоматическое скачивание:";
+	s_preferences.allowdownload.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.allowdownload.generic.callback = Preferences_Event;
+	s_preferences.allowdownload.generic.id       = ID_ALLOWDOWNLOAD;
+	s_preferences.allowdownload.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.allowdownload.generic.y	       = y;
+        
+        y += BIGCHAR_HEIGHT+2;
+	s_preferences.chatbeep.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.chatbeep.generic.name	   = "Звук чат:";
+	s_preferences.chatbeep.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.chatbeep.generic.callback = Preferences_Event;
+	s_preferences.chatbeep.generic.id       = ID_CHATBEEP;
+	s_preferences.chatbeep.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.chatbeep.generic.y	       = y;
+        
+        y += BIGCHAR_HEIGHT+2;
+	s_preferences.teamchatbeep.generic.type     = MTYPE_RADIOBUTTON;
+	s_preferences.teamchatbeep.generic.name	   = "Звук командного чата:";
+	s_preferences.teamchatbeep.generic.flags	   = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.teamchatbeep.generic.callback = Preferences_Event;
+	s_preferences.teamchatbeep.generic.id       = ID_TEAMCHATBEEP;
+	s_preferences.teamchatbeep.generic.x	       = PREFERENCES_X_POS;
+	s_preferences.teamchatbeep.generic.y	       = y;
+}
 
 	y += BIGCHAR_HEIGHT+2;
 	s_preferences.back.generic.type	    = MTYPE_BITMAP;

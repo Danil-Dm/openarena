@@ -74,6 +74,16 @@ static const char *ctfOrders[] = {
 	"I Relinquish Command",
 	NULL
 };
+static const char *ctfOrdersrus[] = {
+	"Я главный",
+	"Охраняй базу",
+	"Иди за мной",
+	"Иди за флагом",
+	"Сиди здесь",
+	"Что там",
+	"Ты главный",
+	NULL
+};
 static const char *ctfMessages[] = {
 	"i am the leader",
 	"%s defend the base",
@@ -94,6 +104,16 @@ static const char *ctf1fOrders[] = {
 	"Camp Here",
 	"Report",
 	"I Relinquish Command",
+	NULL
+};
+static const char *ctf1fOrdersrus[] = {
+	"Я главный",
+	"Охраняй базу",
+	"Иди за мной",
+	"Иди за флагом",
+	"Сиди здесь",
+	"Что там",
+	"Ты главный",
 	NULL
 };
 static const char *ctf1fMessages[] = {
@@ -118,6 +138,16 @@ static const char *baseOrders[] = {
 	"I Relinquish Command",
 	NULL
 };
+static const char *baseOrdersrus[] = {
+	"Я главный",
+	"Охраняй базу",
+	"Иди за мной",
+	"Атакую вражескую базу",
+	"Сиди здесь",
+	"Что там",
+	"Ты главный",
+	NULL
+};
 static const char *baseMessages[] = {
 	"i am the leader",
 	"%s defend the base",
@@ -137,6 +167,15 @@ static const char *teamOrders[] = {
 	"Camp Here",
 	"Report",
 	"I Relinquish Command",
+	NULL
+};
+static const char *teamOrdersrus[] = {
+	"Я главный",
+	"Иди за мной",
+	"Гуляй",
+	"Сиди здесь",
+	"Что там",
+	"Ты главный",
 	NULL
 };
 static const char *teamMessages[] = {
@@ -159,6 +198,17 @@ static const char *ddOrders[] = {
 	"Camp Here",
 	"Report",
 	"I Relinquish Command",
+	NULL
+};
+static const char *ddOrdersrus[] = {
+	"Я главный",
+	"Иди за мной",
+	"Гуляй",
+	"Захвати A",
+	"Захвати B",
+	"Сиди здесь",
+	"Что там",
+	"Ты главный",
 	NULL
 };
 static const char *ddMessages[] = {
@@ -203,31 +253,56 @@ static void UI_TeamOrdersMenu_SetList( int id ) {
 	case ID_LIST_CTF_ORDERS:
 		teamOrdersMenuInfo.list.generic.id = id;
 		teamOrdersMenuInfo.list.numitems = NUM_CTF_ORDERS;
+		if(!rus.integer){
 		teamOrdersMenuInfo.list.itemnames = ctfOrders;
+		}
+		if(rus.integer){
+		teamOrdersMenuInfo.list.itemnames = ctfOrdersrus;
+		}
 		break;
 
         case ID_LIST_CTF1F_ORDERS:
 		teamOrdersMenuInfo.list.generic.id = id;
 		teamOrdersMenuInfo.list.numitems = NUM_CTF1F_ORDERS;
+		if(!rus.integer){
 		teamOrdersMenuInfo.list.itemnames = ctf1fOrders;
+		}
+		if(rus.integer){
+		teamOrdersMenuInfo.list.itemnames = ctf1fOrdersrus;
+		}
 		break;
 
         case ID_LIST_BASE_ORDERS:
 		teamOrdersMenuInfo.list.generic.id = id;
 		teamOrdersMenuInfo.list.numitems = NUM_BASE_ORDERS;
+		if(!rus.integer){
 		teamOrdersMenuInfo.list.itemnames = baseOrders;
+		}
+		if(rus.integer){
+		teamOrdersMenuInfo.list.itemnames = baseOrdersrus;
+		}
 		break;
 
 	case ID_LIST_TEAM_ORDERS:
 		teamOrdersMenuInfo.list.generic.id = id;
 		teamOrdersMenuInfo.list.numitems = NUM_TEAM_ORDERS;
+		if(!rus.integer){
 		teamOrdersMenuInfo.list.itemnames = teamOrders;
+		}
+		if(rus.integer){
+		teamOrdersMenuInfo.list.itemnames = teamOrdersrus;
+		}
 		break;
 
 	case ID_LIST_DD_ORDERS:
 		teamOrdersMenuInfo.list.generic.id = id;
 		teamOrdersMenuInfo.list.numitems = NUM_DD_ORDERS;
+		if(!rus.integer){
 		teamOrdersMenuInfo.list.itemnames = ddOrders;
+		}
+		if(rus.integer){
+		teamOrdersMenuInfo.list.itemnames = ddOrdersrus;
+		}
 		break;
 	}
 
@@ -461,17 +536,22 @@ static void UI_TeamOrdersMenu_Init( void ) {
 	teamOrdersMenuInfo.banner.generic.type		= MTYPE_BTEXT;
 	teamOrdersMenuInfo.banner.generic.x			= 320;
 	teamOrdersMenuInfo.banner.generic.y			= 16;
+	if(!rus.integer){
 	teamOrdersMenuInfo.banner.string			= "TEAM ORDERS";
+	}
+	if(rus.integer){
+	teamOrdersMenuInfo.banner.string			= "КОМАНДНЫЕ ПРИКАЗЫ";
+	}
 	teamOrdersMenuInfo.banner.color				= color_white;
 	teamOrdersMenuInfo.banner.style				= UI_CENTER;
 
 	teamOrdersMenuInfo.frame.generic.type		= MTYPE_BITMAP;
 	teamOrdersMenuInfo.frame.generic.flags		= QMF_INACTIVE;
 	teamOrdersMenuInfo.frame.generic.name		= ART_FRAME;
-	teamOrdersMenuInfo.frame.generic.x			= 320-233;
-	teamOrdersMenuInfo.frame.generic.y			= 240-166;
-	teamOrdersMenuInfo.frame.width				= 466;
-	teamOrdersMenuInfo.frame.height				= 332;
+	teamOrdersMenuInfo.frame.generic.x			= -10000000;
+	teamOrdersMenuInfo.frame.generic.y			= -1000;
+	teamOrdersMenuInfo.frame.width				= 46600000;
+	teamOrdersMenuInfo.frame.height				= 33200000;
 
 	teamOrdersMenuInfo.list.generic.type		= MTYPE_SCROLLLIST;
 	teamOrdersMenuInfo.list.generic.flags		= QMF_PULSEIFFOCUS;

@@ -70,6 +70,7 @@ vec4_t color_lightOrange    = {0.30f, 0.45f, 0.58f, 1.00f };
 vec4_t color_orange	    = {0.30f, 0.45f, 0.58f, 1.00f};
 vec4_t color_red	    = {0.55f, 0.65f, 0.73f, 1.00f};
 vec4_t color_dim	    = {0.00f, 0.00f, 0.00f, 0.25f};
+vec4_t color_green	    = {0.00f, 0.99f, 0.00f, 1.00f};
 
 // current color scheme
 vec4_t pulse_color          = {1.00f, 1.00f, 1.00f, 1.00f};
@@ -647,6 +648,7 @@ Slider_Draw
 static void Slider_Draw( menuslider_s *s ) {
 	int			x;
 	int			y;
+	int			val;
 	int			style;
 	float		*color;
 	int			button;
@@ -654,6 +656,7 @@ static void Slider_Draw( menuslider_s *s ) {
 	
 	x =	s->generic.x;
 	y = s->generic.y;
+	val = s->curvalue;
 	focus = (s->generic.parent->cursor == s->generic.menuPosition);
 
 	if( s->generic.flags & QMF_GRAYED ) {
@@ -671,6 +674,7 @@ static void Slider_Draw( menuslider_s *s ) {
 
 	// draw label
 	UI_DrawString( x - SMALLCHAR_WIDTH, y, s->generic.name, UI_RIGHT|style, color );
+	UI_DrawString( x + SMALLCHAR_WIDTH*14, y, va(" %i", val), UI_LEFT|style, colorGreen );
 
 	// draw slider
 	UI_SetColor( color );
@@ -1727,13 +1731,87 @@ void Menu_Cache( void )
 	uis.rb_off          = trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip( "white" );
+if(ui_backcolor.integer == 0){
 	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
 		// the blend effect turns to shit with the normal 
-		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menubackRagePro" );
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plus" );
 	} else {
-		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_blueish" );
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plus" );
 	}
-	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menubacknologo_blueish" );
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plus" );
+}
+if(ui_backcolor.integer == 1){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusred" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusred" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusred" );
+}
+if(ui_backcolor.integer == 2){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusgreen" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusgreen" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusgreen" );
+}
+if(ui_backcolor.integer == 3){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusblue" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusblue" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusblue" );
+}
+if(ui_backcolor.integer == 4){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusblack" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusblack" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusblack" );
+}
+if(ui_backcolor.integer == 5){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusyellow" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusyellow" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusyellow" );
+}
+if(ui_backcolor.integer == 6){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusorange" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusorange" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusorange" );
+}
+if(ui_backcolor.integer == 7){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_pluswhite" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_pluswhite" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_pluswhite" );
+}
+if(ui_backcolor.integer == 8){
+	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
+		// the blend effect turns to shit with the normal 
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusdark" );
+	} else {
+		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_plusdark" );
+	}
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_plusdark" );
+}
 
 	menu_in_sound	= trap_S_RegisterSound( "sound/misc/menu1.wav", qfalse );
 	menu_move_sound	= trap_S_RegisterSound( "sound/misc/menu2.wav", qfalse );

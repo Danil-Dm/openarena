@@ -29,6 +29,7 @@ SINGLE PLAYER LEVEL SELECT MENU
 */
 
 #include "ui_local.h"
+#include "../game/challenges.h"
 
 
 #define ART_LEVELFRAME_FOCUS		"menu/art_blueish/maps_select"
@@ -68,8 +69,8 @@ SINGLE PLAYER LEVEL SELECT MENU
 #define ID_CUSTOM			25
 #define ID_NEXT				26
 
-#define PLAYER_Y			314
-#define AWARDS_Y			(PLAYER_Y + 26)
+#define PLAYER_Y			310
+#define AWARDS_Y			(PLAYER_Y + 32)
 
 
 typedef struct {
@@ -352,14 +353,22 @@ static void UI_SPLevelMenu_SetMenuItems( void ) {
 UI_SPLevelMenu_ResetEvent
 =================
 */
-static void UI_SPLevelMenu_ResetDraw( void ) {
+void UI_SPLevelMenu_ResetDraw( void ) {
+	if(!rus.integer){
 	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "WARNING: This resets all of the", UI_CENTER|UI_SMALLFONT, color_yellow );
 	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "single player game variables.", UI_CENTER|UI_SMALLFONT, color_yellow );
 	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 2, "Do this only if you want to", UI_CENTER|UI_SMALLFONT, color_yellow );
 	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 3, "start over from the beginning.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	}
+	if(rus.integer){
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "ВНИМАНИЕ: Это сбросит", UI_CENTER|UI_SMALLFONT, color_yellow );
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "весь прогресс.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 2, "Это надо если хотите", UI_CENTER|UI_SMALLFONT, color_yellow );
+	UI_DrawProportionalString( SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 3, "начать играть с самого начала.", UI_CENTER|UI_SMALLFONT, color_yellow );
+	}
 }
 
-static void UI_SPLevelMenu_ResetAction( qboolean result ) {
+void UI_SPLevelMenu_ResetAction( qboolean result ) {
 	if( !result ) {
 		return;
 	}
@@ -370,7 +379,7 @@ static void UI_SPLevelMenu_ResetAction( qboolean result ) {
 
 	// make the level select menu re-initialize
 	UI_PopMenu();
-	UI_SPLevelMenu();
+//	UI_SPLevelMenu();
 }
 
 static void UI_SPLevelMenu_ResetEvent( void* ptr, int event )
@@ -378,8 +387,12 @@ static void UI_SPLevelMenu_ResetEvent( void* ptr, int event )
 	if (event != QM_ACTIVATED) {
 		return;
 	}
-
+if(!rus.integer){
 	UI_ConfirmMenu( "RESET GAME?", UI_SPLevelMenu_ResetDraw, UI_SPLevelMenu_ResetAction );
+}
+if(rus.integer){
+	UI_ConfirmMenu( "СБРОСИТЬ ИГРУ?", UI_SPLevelMenu_ResetDraw, UI_SPLevelMenu_ResetAction );
+}
 }
 
 
@@ -453,7 +466,8 @@ static void UI_SPLevelMenu_PlayerEvent( void* ptr, int notification ) {
 		return;
 	}
 
-	UI_PlayerSettingsMenu();
+	UI_SPPlayerxp();
+//	UI_PlayerSettingsMenu();
 }
 
 
@@ -540,7 +554,7 @@ static void UI_SPLevelMenu_MenuDraw( void ) {
 	int				x, y;
 	vec4_t			color;
 	int				level;
-//	int				fraglimit;
+	int				fraglimit;
 	int				pad;
 	char			buf[MAX_INFO_VALUE];
 	char			string[64];
@@ -555,6 +569,7 @@ static void UI_SPLevelMenu_MenuDraw( void ) {
 	trap_Cvar_VariableStringBuffer( "name", string, 32 );
 	Q_CleanStr( string );
 	UI_DrawProportionalString( 320, PLAYER_Y, string, UI_CENTER|UI_SMALLFONT, color_orange );
+	UI_DrawProportionalString( 320, 326, playerxp.string, UI_CENTER|UI_SMALLFONT, color_orange );
 
 	// check for model changes
 	trap_Cvar_VariableStringBuffer( "model", buf, sizeof(buf) );
@@ -608,7 +623,12 @@ static void UI_SPLevelMenu_MenuDraw( void ) {
 	}
 
 	if ( selectedArenaSet > currentSet ) {
+		if(!rus.integer){
 		UI_DrawProportionalString( 320, 216, "ACCESS DENIED", UI_CENTER|UI_BIGFONT, color_red );
+		}
+		if(rus.integer){
+		UI_DrawProportionalString( 320, 216, "ДОСТУП ЗАПРЕЩЁН", UI_CENTER|UI_BIGFONT, color_red );
+		}
 		return;
 	}
 
@@ -646,8 +666,8 @@ static void UI_SPLevelMenu_MenuDraw( void ) {
 	Com_sprintf( string, sizeof(string), "%s: %s", buf, Info_ValueForKey( levelMenuInfo.selectedArenaInfo, "longname" ) );
 	UI_DrawProportionalString( 320, y, string, UI_CENTER|UI_SMALLFONT, color_orange );
 
-//	fraglimit = atoi( Info_ValueForKey( levelMenuInfo.selectedArenaInfo, "fraglimit" ) );
-//	UI_DrawString( 18, 212, va("Frags %i", fraglimit) , UI_LEFT|UI_SMALLFONT, color_orange );
+	fraglimit = atoi( Info_ValueForKey( levelMenuInfo.selectedArenaInfo, "fraglimit" ) );
+	UI_DrawString( 18, 212, va("Frags %i", fraglimit) , UI_LEFT|UI_SMALLFONT, color_orange );
 
 	// draw bot opponents
 	y += 24;
@@ -736,7 +756,12 @@ static void UI_SPLevelMenu_Init( void ) {
 	levelMenuInfo.item_banner.generic.type			= MTYPE_BTEXT;
 	levelMenuInfo.item_banner.generic.x				= 320;
 	levelMenuInfo.item_banner.generic.y				= 16;
+	if(!rus.integer){
 	levelMenuInfo.item_banner.string				= "CHOOSE LEVEL";
+	}
+	if(rus.integer){
+	levelMenuInfo.item_banner.string				= "ВЫБЕРИТЕ УРОВЕНЬ";
+	}
 	levelMenuInfo.item_banner.color					= color_red;
 	levelMenuInfo.item_banner.style					= UI_CENTER;
 

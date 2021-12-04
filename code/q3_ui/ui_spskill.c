@@ -49,6 +49,7 @@ SINGLE PLAYER SKILL MENU
 #define ID_NIGHTMARE				14
 #define ID_BACK						15
 #define ID_FIGHT					16
+#define ID_COOP			17
 
 
 typedef struct {
@@ -66,6 +67,7 @@ typedef struct {
 	menubitmap_s	art_skillPic;
 	menubitmap_s	item_back;
 	menubitmap_s	item_fight;
+    menuradiobutton_s  coop;
 
 	const char		*arenaInfo;
 	qhandle_t		skillpics[5];
@@ -126,6 +128,12 @@ static void UI_SPSkillMenu_SkillEvent( void *ptr, int notification ) {
 	else {
 		trap_S_StartLocalSound( skillMenuInfo.silenceSound, CHAN_ANNOUNCER );
 	}
+}
+
+static void UI_SPSkillMenu_CoopEvent( void *ptr, int notification ) {
+
+		trap_Cvar_SetValue( "ui_coop", skillMenuInfo.coop.curvalue);
+
 }
 
 
@@ -209,10 +217,10 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.art_frame.generic.type		= MTYPE_BITMAP;
 	skillMenuInfo.art_frame.generic.name		= ART_FRAME;
 	skillMenuInfo.art_frame.generic.flags		= QMF_LEFT_JUSTIFY|QMF_INACTIVE;
-	skillMenuInfo.art_frame.generic.x			= 142;
-	skillMenuInfo.art_frame.generic.y			= 118;
-	skillMenuInfo.art_frame.width				= 359;
-	skillMenuInfo.art_frame.height				= 256;
+	skillMenuInfo.art_frame.generic.x			= -10000000;
+	skillMenuInfo.art_frame.generic.y			= -1000;
+	skillMenuInfo.art_frame.width				= 46600000;
+	skillMenuInfo.art_frame.height				= 33200000;
 
 	skillMenuInfo.art_banner.generic.type		= MTYPE_BTEXT;
 	skillMenuInfo.art_banner.generic.flags		= QMF_CENTER_JUSTIFY;
@@ -221,6 +229,14 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.art_banner.string				= "DIFFICULTY";
 	skillMenuInfo.art_banner.color				= color_white;
 	skillMenuInfo.art_banner.style				= UI_CENTER;
+
+	skillMenuInfo.coop.generic.type     	= MTYPE_RADIOBUTTON;
+	skillMenuInfo.coop.generic.flags	    = QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	skillMenuInfo.coop.generic.callback 	= UI_SPSkillMenu_CoopEvent;
+	skillMenuInfo.coop.generic.id       	= ID_COOP;
+	skillMenuInfo.coop.generic.x	       	= 320;
+	skillMenuInfo.coop.generic.y	        = 90;
+	skillMenuInfo.coop.generic.name	   		= "Co-op Level:";
 
 	skillMenuInfo.item_baby.generic.type		= MTYPE_PTEXT;
 	skillMenuInfo.item_baby.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -231,6 +247,12 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.item_baby.string				= "I Can Win";
 	skillMenuInfo.item_baby.color				= color_red;
 	skillMenuInfo.item_baby.style				= UI_CENTER;
+if(onnextarena.integer == 0){
+	if(ui_spSelection.integer > 39){
+	skillMenuInfo.item_baby.generic.flags		= QMF_GRAYED;
+	}
+}
+
 
 	skillMenuInfo.item_easy.generic.type		= MTYPE_PTEXT;
 	skillMenuInfo.item_easy.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -241,6 +263,11 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.item_easy.string				= "Bring It On";
 	skillMenuInfo.item_easy.color				= color_red;
 	skillMenuInfo.item_easy.style				= UI_CENTER;
+if(onnextarena.integer == 0){
+	if(ui_spSelection.integer > 39){
+	skillMenuInfo.item_easy.generic.flags		= QMF_GRAYED;
+	}
+}
 
 	skillMenuInfo.item_medium.generic.type		= MTYPE_PTEXT;
 	skillMenuInfo.item_medium.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -251,6 +278,11 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.item_medium.string			= "Hurt Me Plenty";
 	skillMenuInfo.item_medium.color				= color_red;
 	skillMenuInfo.item_medium.style				= UI_CENTER;
+if(onnextarena.integer == 0){
+	if(ui_spSelection.integer > 39){
+	skillMenuInfo.item_medium.generic.flags		= QMF_GRAYED;
+	}
+}
 
 	skillMenuInfo.item_hard.generic.type		= MTYPE_PTEXT;
 	skillMenuInfo.item_hard.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -261,6 +293,11 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.item_hard.string				= "Hardcore";
 	skillMenuInfo.item_hard.color				= color_red;
 	skillMenuInfo.item_hard.style				= UI_CENTER;
+if(onnextarena.integer == 0){
+	if(ui_spSelection.integer <= 39){
+	skillMenuInfo.item_hard.generic.flags		= QMF_GRAYED;
+	}
+}
 
 	skillMenuInfo.item_nightmare.generic.type		= MTYPE_PTEXT;
 	skillMenuInfo.item_nightmare.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -271,6 +308,11 @@ static void UI_SPSkillMenu_Init( void ) {
 	skillMenuInfo.item_nightmare.string				= "NIGHTMARE!";
 	skillMenuInfo.item_nightmare.color				= color_red;
 	skillMenuInfo.item_nightmare.style				= UI_CENTER;
+if(onnextarena.integer == 0){
+	if(ui_spSelection.integer <= 39){
+	skillMenuInfo.item_nightmare.generic.flags		= QMF_GRAYED;
+	}
+}
 
 	skillMenuInfo.item_back.generic.type		= MTYPE_BITMAP;
 	skillMenuInfo.item_back.generic.name		= ART_BACK;
@@ -311,6 +353,7 @@ static void UI_SPSkillMenu_Init( void ) {
 	Menu_AddItem( &skillMenuInfo.menu, ( void * )&skillMenuInfo.art_skillPic );
 	Menu_AddItem( &skillMenuInfo.menu, ( void * )&skillMenuInfo.item_back );
 	Menu_AddItem( &skillMenuInfo.menu, ( void * )&skillMenuInfo.item_fight );
+	Menu_AddItem( &skillMenuInfo.menu, ( void * )&skillMenuInfo.coop );
 
 	skill = (int)Com_Clamp( 1, 5, trap_Cvar_VariableValue( "g_spSkill" ) );
 	SetSkillColor( skill, color_white );

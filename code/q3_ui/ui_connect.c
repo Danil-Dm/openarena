@@ -185,7 +185,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 	if ( !overlay ) {
 		// draw the dialog background
 		UI_SetColor( color_white );
-		UI_DrawHandlePic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader );
+		UI_DrawHandlePic( 0, 0, uis.xscale, uis.yscale, uis.menuBackShader );
 	}
 
 	// see what information we should display
@@ -193,11 +193,17 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 	info[0] = '\0';
 	if( trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) ) ) {
-		UI_DrawProportionalString( 320, 16, va( "Loading %s", Info_ValueForKey( info, "mapname" ) ), UI_BIGFONT|UI_CENTER|UI_DROPSHADOW, color_white );
+		UI_DrawProportionalString( 320, 15, va( "Loading %s", Info_ValueForKey( info, "mapname" ) ), UI_BIGFONT|UI_CENTER|UI_DROPSHADOW, color_white );
 	}
 
-	UI_DrawProportionalString( 320, 64, va("Connecting to %s", cstate.servername), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
-	//UI_DrawProportionalString( 320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+	UI_DrawProportionalString( 320, 75, va("Connecting to %s", cstate.servername), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+	UI_DrawProportionalString( 320, 35, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+if(onnextarena.integer == 0){
+	UI_DrawProportionalString( 320, 55, "OpenArenaPlus By Danil_Dm", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+}
+if(onnextarena.integer == 1){
+	UI_DrawProportionalString( 320, 55, "NextArena By Danil_Dm", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+}
 
 	// display global MOTD at bottom
 	UI_DrawProportionalString( SCREEN_WIDTH/2, SCREEN_HEIGHT-32, 
@@ -253,7 +259,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 				return;
 			}
 		}
-		s = "Awaiting gamestate...";
+		s = "Connecting...";
 		break;
 	case CA_LOADING:
 		return;

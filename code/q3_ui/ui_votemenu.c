@@ -49,6 +49,8 @@ static char* votemenu_artlist[] =
 #define ID_GAMETYPE 109
 #define ID_CUSTOM   110
 #define ID_SHUFFLE  111
+#define ID_YES                       112
+#define ID_NO                        113
 
 //This sorta dependend on number of vote options
 #define VOTEMENU_MENU_VERTICAL_SPACING	22
@@ -83,7 +85,11 @@ typedef struct
         menutext_s      bTimelimit;
         menutext_s      bFraglimit;
         menutext_s      bShuffle;
+        menutext_s      byes;
+        menutext_s      bno;
         menutext_s      bCustom;
+		menutext_s              yes;
+		menutext_s              no;
 
         int             selection;
 } votemenu_t;
@@ -154,6 +160,14 @@ static void VoteMenu_Event( void* ptr, int event )
                         trap_Cmd_ExecuteText( EXEC_APPEND, "callvote shuffle" );
                         UI_PopMenu();
                         break;
+                    case ID_YES:
+                        trap_Cmd_ExecuteText( EXEC_APPEND, "vote yes" );
+                        UI_PopMenu();
+                        break;
+                    case ID_NO:
+                        trap_Cmd_ExecuteText( EXEC_APPEND, "vote no" );
+                        UI_PopMenu();
+                        break;
                     case ID_FRAG:
                         UI_VoteFraglimitMenu();
                         //Don't pop! It will do a double pop if successfull
@@ -220,7 +234,7 @@ UI_VoteMenu_Draw
 */
 static void UI_VoteMenu_Draw( void ) {
 	UI_DrawBannerString( 320, 16, "CALL VOTE", UI_CENTER, color_white );
-	UI_DrawNamedPic( -10000000, 0, 46600000, 33200000, ART_BACKGROUND );
+	UI_DrawNamedPic( -10000000, -1000, 46600000, 33200000, ART_BACKGROUND );
 
 	// standard menu drawing
 	Menu_Draw( &s_votemenu.menu );
@@ -296,6 +310,7 @@ void UI_VoteMenuMenuInternal( void )
         s_votemenu.bShuffle.generic.callback = VoteMenu_Event;
         s_votemenu.bShuffle.string           = "Shuffle teams";
         s_votemenu.bShuffle.style            = UI_CENTER|UI_SMALLFONT;
+	
 
         y+=VOTEMENU_MENU_VERTICAL_SPACING;
         s_votemenu.bMap.generic.type        = MTYPE_PTEXT;
@@ -433,6 +448,28 @@ void UI_VoteMenuMenuInternal( void )
 	s_votemenu.go.width  		   = 128;
 	s_votemenu.go.height  		   = 64;
 	s_votemenu.go.focuspic         = ART_FIGHT1;
+	
+	y += 28;
+	s_votemenu.yes.generic.type			= MTYPE_PTEXT;
+	s_votemenu.yes.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_votemenu.yes.generic.x				= 550;
+	s_votemenu.yes.generic.y				= 100;
+	s_votemenu.yes.generic.id				= ID_YES;
+	s_votemenu.yes.generic.callback		= VoteMenu_Event; 
+	s_votemenu.yes.color					= color_yellow;
+	s_votemenu.yes.string					= "Yes";
+	s_votemenu.yes.style					= UI_CENTER|UI_SMALLFONT;
+	
+	y += 28;
+	s_votemenu.no.generic.type			= MTYPE_PTEXT;
+	s_votemenu.no.generic.flags			= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_votemenu.no.generic.x				= 550;
+	s_votemenu.no.generic.y				= 125;
+	s_votemenu.no.generic.id				= ID_NO;
+	s_votemenu.no.generic.callback		= VoteMenu_Event; 
+	s_votemenu.no.color					= color_yellow;
+	s_votemenu.no.string					= "No";
+	s_votemenu.no.style					= UI_CENTER|UI_SMALLFONT;
 
 }
 
@@ -462,6 +499,8 @@ void UI_VoteMenuMenu( void ) {
         Menu_AddItem( &s_votemenu.menu, (void*) &s_votemenu.bDoWarmup );
         Menu_AddItem( &s_votemenu.menu, (void*) &s_votemenu.bFraglimit );
         Menu_AddItem( &s_votemenu.menu, (void*) &s_votemenu.bTimelimit );
+        Menu_AddItem( &s_votemenu.menu, (void*) &s_votemenu.yes );
+        Menu_AddItem( &s_votemenu.menu, (void*) &s_votemenu.no );
         Menu_AddItem( &s_votemenu.menu, (void*) &s_votemenu.bCustom );
 
 	UI_PushMenu( &s_votemenu.menu );
