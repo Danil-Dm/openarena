@@ -186,6 +186,7 @@ cd windows\build\q3_ui
 %cc%  ../../../code/q3_ui/ui_rankstatus.c
 %cc%  ../../../code/q3_ui/ui_removebots.c
 %cc%  ../../../code/q3_ui/ui_saveconfig.c
+%cc%  ../../../code/q3_ui/ui_selectmodel.c
 %cc%  ../../../code/q3_ui/ui_serverinfo.c
 %cc%  ../../../code/q3_ui/ui_servers2.c
 %cc%  ../../../code/q3_ui/ui_setup.c

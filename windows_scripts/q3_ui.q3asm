@@ -38,6 +38,7 @@ ui_video
 ui_addbots
 ui_removebots
 ui_saveconfig
+ui_selectmodel
 ui_loadconfig
 ui_teamorders
 ui_cdkey
