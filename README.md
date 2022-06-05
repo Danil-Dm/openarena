@@ -6,8 +6,6 @@ This is a mod that adds new variables, such as elimination_items, weapon setting
 
 # Variable List:
 
-g_kill "1" // Allow the use of the kill command
-
 g_spawnselect "0" // Set spawn without deleting items 1-on 0-off
 
 elimination_items "0" // Items in elimination modes, last-man-standing
