@@ -235,6 +235,13 @@ static void CG_TellTarget_f( void ) {
 	trap_SendClientCommand( command );
 }
 
+static void CG_Echoo_f( void ) {
+	char	message[128];
+
+	trap_Args( message, 128 );
+	CG_Printf( "| %s\n", message);
+}
+
 static void CG_TellAttacker_f( void ) {
 	int		clientNum;
 	char	command[128];
@@ -484,6 +491,50 @@ static void CG_Camera_f( void ) {
 }
 */
 
+/*
+===============
+CG_SetUp_f
+===============
+*/
+static void CG_SetUp_f( void ) {
+	const char		*cvar;
+	char		*cvarvalue;
+	int		number;
+
+	if ( !CG_Argv( 1 ) ) {
+		return;
+	}
+	if ( !atoi(CG_Argv( 2 )) ) {
+		number = 1;
+	}
+	cvar = CG_Argv( 1 );
+	cvarvalue = va("%s.integer", CG_Argv( 1 ));
+
+	trap_Cvar_Set(cvar, va("%i",(int)(atoi(cvarvalue)+number)));
+}
+
+/*
+===============
+CG_SetDown_f
+===============
+*/
+static void CG_SetDown_f( void ) {
+	const char		*cvar;
+	char		*cvarvalue;
+	int		number;
+
+	if ( !CG_Argv( 1 ) ) {
+		return;
+	}
+	if ( !atoi(CG_Argv( 2 )) ) {
+		number = 1;
+	}
+	cvar = CG_Argv( 1 );
+	cvarvalue = va("%s.integer", CG_Argv( 1 ));
+
+	trap_Cvar_Set(cvar, va("%i",(int)(atoi(cvarvalue)-number)));
+}
+
 
 typedef struct {
 	char	*cmd;
@@ -493,6 +544,7 @@ typedef struct {
 static consoleCommand_t	commands[] = {
 	{ "testgun", CG_TestGun_f },
 	{ "testmodel", CG_TestModel_f },
+	{ "cloadmap", CG_CloadMap_f },
 	{ "nextframe", CG_TestModelNextFrame_f },
 	{ "prevframe", CG_TestModelPrevFrame_f },
 	{ "nextskin", CG_TestModelNextSkin_f },
@@ -508,6 +560,7 @@ static consoleCommand_t	commands[] = {
 	{ "weapprev", CG_PrevWeapon_f },
 	{ "weapon", CG_Weapon_f },
 	{ "tell_target", CG_TellTarget_f },
+	{ "echoo", CG_Echoo_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "vtell_target", CG_VoiceTellTarget_f },
 	{ "vtell_attacker", CG_VoiceTellAttacker_f },
@@ -596,6 +649,7 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("say_team");
 	trap_AddCommand ("tell");
 	trap_AddCommand ("vsay");
+	trap_AddCommand ("echoo");
 	trap_AddCommand ("vsay_team");
 	trap_AddCommand ("vtell");
 	trap_AddCommand ("vtaunt");
@@ -628,4 +682,12 @@ void CG_InitConsoleCommands( void ) {
 	trap_AddCommand ("sendlegs");
 	trap_AddCommand ("sendhead");
 	trap_AddCommand ("replacetex");
+	trap_AddCommand ("setup1");
+	trap_AddCommand ("setdown1");
+	trap_AddCommand ("setup10");
+	trap_AddCommand ("setdown10");
+	trap_AddCommand ("setup100");
+	trap_AddCommand ("setdown100");
+	trap_AddCommand ("setup1000");
+	trap_AddCommand ("setdown1000");
 }

@@ -662,6 +662,11 @@ void CG_EffectParse( const char *effectstr )
   	for( count = 0; count < cg_atmFx.numDrops; count++ )
   	  	cg_atmFx.particles[count].nextDropTime = ATMOSPHERIC_DROPDELAY + (rand() % ATMOSPHERIC_DROPDELAY);
 
+  	  	  	  	type = "snow";
+  	  	  	  	cg_atmFx.ParticleCheckVisible = &CG_RainParticleCheckVisible;
+  	  	  	  	cg_atmFx.ParticleGenerate = &CG_SnowParticleGenerate;
+  	  	  	  	cg_atmFx.ParticleRender = &CG_SnowParticleRender;
+
   	CG_EffectGust();
 }
 

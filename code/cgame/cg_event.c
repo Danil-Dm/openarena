@@ -222,7 +222,14 @@ static void CG_Obituary( entityState_t *ent ) {
 
         //If a suicide happens while disconnecting then we might not have a targetName
 	if (message && strlen(targetName)) {
-		CG_Printf( "%s %s.\n", targetName, message);
+		CG_Printf( "%s> %s%s%s %s.%s\n", 
+				S_COLOR_YELLOW,
+				S_COLOR_WHITE,
+				targetName,
+				S_COLOR_YELLOW,
+			       	message,
+				S_COLOR_WHITE
+				);
 		return;
 	}
         
@@ -377,17 +384,31 @@ if(rus.integer){
 		}
 if(mod_zombiemode == 0){
 		if (message) {
-			CG_Printf( "%s %s %s%s\n", 
-				targetName, message, attackerName, message2);
+			CG_Printf( "%s> %s%s%s %s%s %s%s%s\n", 
+				S_COLOR_YELLOW,
+			       	S_COLOR_WHITE,
+			       	targetName,
+			       	S_COLOR_YELLOW,
+			       	message,
+			       	S_COLOR_WHITE,
+				attackerName,
+			       	S_COLOR_YELLOW,
+			       	message2,
+			       	S_COLOR_WHITE
+				);
 			return;
 		}
 }
 	}
 
 	// we don't know what it was
-if(mod_zombiemode == 0){
-	CG_Printf( "%s died.\n", targetName );
-}
+	CG_Printf( "%s> %s%s%s died.%s\n",
+			S_COLOR_YELLOW,
+			S_COLOR_WHITE,
+		       	targetName,
+			S_COLOR_YELLOW,
+			S_COLOR_WHITE
+		 );
 }
 
 //==========================================================================

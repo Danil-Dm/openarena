@@ -747,7 +747,8 @@ static void CG_MapRestart( void ) {
 	}
 #endif
 //	trap_Cvar_Set("cg_thirdPerson", "0");
-	trap_SendConsoleCommand("levelstartcmds \n");
+	//trap_Cvar_Set( "ui_loaded", "1" );
+	//trap_SendConsoleCommand("levelstartcmds \n");
 }
 
 #define MAX_VOICEFILESIZE	16384
@@ -1194,12 +1195,15 @@ void CG_VoiceChatLocal( int mode, qboolean voiceOnly, int clientNum, int color, 
 			Q_strncpyz(vchat.cmd, cmd, sizeof(vchat.cmd));
 			if ( mode == SAY_TELL ) {
 				Com_sprintf(vchat.message, sizeof(vchat.message), "[%s]: %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+				CG_PrintfChat( qfalse, "%s\n", vchat.message );
 			}
 			else if ( mode == SAY_TEAM ) {
 				Com_sprintf(vchat.message, sizeof(vchat.message), "(%s): %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+				CG_PrintfChat( qtrue, "%s\n", vchat.message );
 			}
 			else {
 				Com_sprintf(vchat.message, sizeof(vchat.message), "%s: %c%c%s", ci->name, Q_COLOR_ESCAPE, color, chat);
+				CG_PrintfChat( qfalse, "%s\n", vchat.message );
 			}
 			CG_AddBufferedVoiceChat(&vchat);
 		}
@@ -1339,13 +1343,18 @@ static void CG_ServerCommand( void ) {
 		return;
 	}
 
+	if ( !strcmp( cmd, "printChat" ) ) {
+		CG_PrintfChat(qfalse, "%s", CG_Argv(1) );
+		return;
+	}
+
 	if ( !strcmp( cmd, "chat" ) ) {
 		if ( !cg_teamChatsOnly.integer ) {
                         if( cg_chatBeep.integer )
                                 trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 			Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 			CG_RemoveChatEscapeChar( text );
-			CG_Printf( "%s\n", text );
+			CG_PrintfChat( qfalse, "%s\n", text );
 		}
 		return;
 	}
@@ -1356,7 +1365,7 @@ static void CG_ServerCommand( void ) {
 		Q_strncpyz( text, CG_Argv(1), MAX_SAY_TEXT );
 		CG_RemoveChatEscapeChar( text );
 		CG_AddToTeamChat( text );
-		CG_Printf( "%s\n", text );
+		CG_PrintfChat( qtrue, "%s\n", text );
 		return;
 	}
 	if ( !strcmp( cmd, "vchat" ) ) {

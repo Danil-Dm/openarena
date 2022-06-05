@@ -101,6 +101,18 @@ void CG_TestModel_f (void) {
 
 /*
 =================
+CG_CloadMap_f
+
+Creates an entity in front of the current position, which
+can then be moved around
+=================
+*/
+void CG_CloadMap_f (void) {
+	
+}
+
+/*
+=================
 CG_TestGun_f
 
 Replaces the current view weapon with the given model

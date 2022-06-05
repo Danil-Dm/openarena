@@ -3152,7 +3152,15 @@ legs.customShader = cgs.media.ptex153Shader;
 	legs.shaderRGBA[2] = cg_plightblue.integer;
 	legs.shaderRGBA[3] = 255;
 	}
-
+	if(ci->plred == 0){
+	legs.shaderRGBA[0] = 200;	
+	}
+	if(ci->plgreen == 0){
+	legs.shaderRGBA[1] = 200;	
+	}
+	if(ci->plblue == 0){
+	legs.shaderRGBA[2] = 200;	
+	}
 	VectorCopy( cent->lerpOrigin, legs.origin );
 
 	VectorCopy( cent->lerpOrigin, legs.lightingOrigin );
@@ -3163,89 +3171,6 @@ legs.customShader = cgs.media.ptex153Shader;
 		VectorScale(legs.axis[2], chibifactorbody, legs.axis[2]);
 	}
 
-/*	if (mod_zombiemode == 15) {
-		VectorScale(legs.axis[0], 500 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 500 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 500 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 14) {
-		VectorScale(legs.axis[0], 400 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 400 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 400 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 13) {
-		VectorScale(legs.axis[0], 300 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 300 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 300 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 12) {
-		VectorScale(legs.axis[0], 200 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 200 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 200 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 11) {
-		VectorScale(legs.axis[0], 150 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 150 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 150 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 9) {
-		VectorScale(legs.axis[0], 90 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 90 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 90 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 8) {
-		VectorScale(legs.axis[0], 80 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 80 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 80 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 7) {
-		VectorScale(legs.axis[0], 70 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 70 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 70 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 6) {
-		VectorScale(legs.axis[0], 60 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 60 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 60 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 5) {
-		VectorScale(legs.axis[0], 50 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 50 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 50 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 4) {
-		VectorScale(legs.axis[0], 40 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 40 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 40 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 3) {
-		VectorScale(legs.axis[0], 30 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 30 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 30 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 2) {
-		VectorScale(legs.axis[0], 20 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 20 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 20 / 100, legs.axis[2]);
-	}
-
-	if (mod_zombiemode == 1) {
-		VectorScale(legs.axis[0], 10 / 100, legs.axis[0]);
-		VectorScale(legs.axis[1], 10 / 100, legs.axis[1]);
-		VectorScale(legs.axis[2], 10 / 100, legs.axis[2]);
-	}*/
 
 	legs.shadowPlane = shadowPlane;
 	legs.renderfx = renderfx;
@@ -3740,6 +3665,15 @@ torso.customShader = cgs.media.ptex153Shader;
 	torso.shaderRGBA[1] = cg_tolightgreen.integer;
 	torso.shaderRGBA[2] = cg_tolightblue.integer;
 	torso.shaderRGBA[3] = 255;
+	}
+	if(ci->tolred == 0){
+	torso.shaderRGBA[0] = 200;	
+	}
+	if(ci->tolgreen == 0){
+	torso.shaderRGBA[1] = 200;	
+	}
+	if(ci->tolblue == 0){
+	torso.shaderRGBA[2] = 200;	
 	}
 
 	VectorCopy( cent->lerpOrigin, torso.lightingOrigin );
@@ -4470,6 +4404,16 @@ head.customShader = cgs.media.ptex153Shader;
 	head.shaderRGBA[2] = cg_helightblue.integer;
 	head.shaderRGBA[3] = 255;
 	}
+	if(ci->helred == 0){
+	head.shaderRGBA[0] = 200;	
+	}
+	if(ci->helgreen == 0){
+	head.shaderRGBA[1] = 200;	
+	}
+	if(ci->helblue == 0){
+	head.shaderRGBA[2] = 200;	
+	}
+
 
 
 	VectorCopy( cent->lerpOrigin, head.lightingOrigin );

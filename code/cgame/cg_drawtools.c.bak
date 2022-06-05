@@ -813,10 +813,10 @@ UI_ProportionalSizeScale
 */
 float UI_ProportionalSizeScale( int style ) {
 	if(  style & UI_SMALLFONT ) {
-		return 0.75;
+		return 0.6;
 	}
 
-	return 1;
+	return 0.80;
 }
 
 
@@ -878,7 +878,7 @@ void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t
 		return;
 	}
 
-	UI_DrawProportionalString2( x, y, str, color, sizeScale, cgs.media.charsetProp );
+	UI_DrawProportionalString2( x, y, str, color, sizeScale * 0.8, cgs.media.charsetProp );
 }
 
 

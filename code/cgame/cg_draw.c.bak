@@ -1553,8 +1553,8 @@ static float CG_DrawPlayerRound( float y ) {
 	tens = seconds / 10;
 	seconds -= tens * 10;
 
-if(mins == mod_yuround + 1){
-	mod_yuround += 1;
+if(mins == mod_yuround + 2){
+	mod_yuround += 2;
 	trap_SendConsoleCommand("setup1 ui_zplmd\n");
 }
 	return y;

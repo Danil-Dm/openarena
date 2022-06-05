@@ -33,11 +33,11 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
-	
+
 	// lerp the tag
 	trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, tagName );
@@ -62,7 +62,7 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
@@ -129,10 +129,10 @@ static void CG_EntityEffects( centity_t *cent ) {
 	// add loop sound
 	if ( cent->currentState.loopSound ) {
 		if (cent->currentState.eType != ET_SPEAKER) {
-			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+			trap_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		} else {
-			trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, 
+			trap_S_AddRealLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
 				cgs.gameSounds[ cent->currentState.loopSound ] );
 		}
 	}
@@ -183,6 +183,514 @@ static void CG_General( centity_t *cent ) {
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
 	ent.hModel = cgs.gameModels[s1->modelindex];
+	
+if(s1->generic1 == 1	){			
+ent.customShader = cgs.media.ptex1Shader;	
+}					
+if(s1->generic1 == 2	){			
+ent.customShader = cgs.media.ptex2Shader;	
+}					
+if(s1->generic1 == 3	){			
+ent.customShader = cgs.media.ptex3Shader;	
+}					
+if(s1->generic1 == 4	){			
+ent.customShader = cgs.media.ptex4Shader;	
+}					
+if(s1->generic1 == 5	){			
+ent.customShader = cgs.media.ptex5Shader;	
+}					
+if(s1->generic1 == 6	){			
+ent.customShader = cgs.media.ptex6Shader;	
+}					
+if(s1->generic1 == 7	){			
+ent.customShader = cgs.media.ptex7Shader;	
+}					
+if(s1->generic1 == 8	){			
+ent.customShader = cgs.media.ptex8Shader;	
+}					
+if(s1->generic1 == 9	){			
+ent.customShader = cgs.media.ptex9Shader;	
+}					
+if(s1->generic1 == 10	){			
+ent.customShader = cgs.media.ptex10Shader;	
+}					
+if(s1->generic1 == 11	){			
+ent.customShader = cgs.media.ptex11Shader;	
+}					
+if(s1->generic1 == 12	){			
+ent.customShader = cgs.media.ptex12Shader;	
+}					
+if(s1->generic1 == 13	){			
+ent.customShader = cgs.media.ptex13Shader;	
+}					
+if(s1->generic1 == 14	){			
+ent.customShader = cgs.media.ptex14Shader;	
+}					
+if(s1->generic1 == 15	){			
+ent.customShader = cgs.media.ptex15Shader;	
+}					
+if(s1->generic1 == 16	){			
+ent.customShader = cgs.media.ptex16Shader;	
+}					
+if(s1->generic1 == 17	){			
+ent.customShader = cgs.media.ptex17Shader;	
+}					
+if(s1->generic1 == 18	){			
+ent.customShader = cgs.media.ptex18Shader;	
+}					
+if(s1->generic1 == 19	){			
+ent.customShader = cgs.media.ptex19Shader;	
+}					
+if(s1->generic1 == 20	){			
+ent.customShader = cgs.media.ptex20Shader;	
+}					
+if(s1->generic1 == 21	){			
+ent.customShader = cgs.media.ptex21Shader;	
+}					
+if(s1->generic1 == 22	){			
+ent.customShader = cgs.media.ptex22Shader;	
+}					
+if(s1->generic1 == 23	){			
+ent.customShader = cgs.media.ptex23Shader;	
+}					
+if(s1->generic1 == 24	){			
+ent.customShader = cgs.media.ptex24Shader;	
+}					
+if(s1->generic1 == 25	){			
+ent.customShader = cgs.media.ptex25Shader;	
+}					
+if(s1->generic1 == 26	){			
+ent.customShader = cgs.media.ptex26Shader;	
+}					
+if(s1->generic1 == 27	){			
+ent.customShader = cgs.media.ptex27Shader;	
+}					
+if(s1->generic1 == 28	){			
+ent.customShader = cgs.media.ptex28Shader;	
+}					
+if(s1->generic1 == 29	){			
+ent.customShader = cgs.media.ptex29Shader;	
+}					
+if(s1->generic1 == 30	){			
+ent.customShader = cgs.media.ptex30Shader;	
+}					
+if(s1->generic1 == 31	){			
+ent.customShader = cgs.media.ptex31Shader;	
+}					
+if(s1->generic1 == 32	){			
+ent.customShader = cgs.media.ptex32Shader;	
+}					
+if(s1->generic1 == 33	){			
+ent.customShader = cgs.media.ptex33Shader;	
+}					
+if(s1->generic1 == 34	){			
+ent.customShader = cgs.media.ptex34Shader;	
+}					
+if(s1->generic1 == 35	){			
+ent.customShader = cgs.media.ptex35Shader;	
+}					
+if(s1->generic1 == 36	){			
+ent.customShader = cgs.media.ptex36Shader;	
+}					
+if(s1->generic1 == 37	){			
+ent.customShader = cgs.media.ptex37Shader;	
+}					
+if(s1->generic1 == 38	){			
+ent.customShader = cgs.media.ptex38Shader;	
+}					
+if(s1->generic1 == 39	){			
+ent.customShader = cgs.media.ptex39Shader;	
+}					
+if(s1->generic1 == 40	){			
+ent.customShader = cgs.media.ptex40Shader;	
+}					
+if(s1->generic1 == 41	){			
+ent.customShader = cgs.media.ptex41Shader;	
+}					
+if(s1->generic1 == 42	){			
+ent.customShader = cgs.media.ptex42Shader;	
+}					
+if(s1->generic1 == 43	){			
+ent.customShader = cgs.media.ptex43Shader;	
+}					
+if(s1->generic1 == 44	){			
+ent.customShader = cgs.media.ptex44Shader;	
+}					
+if(s1->generic1 == 45	){			
+ent.customShader = cgs.media.ptex45Shader;	
+}					
+if(s1->generic1 == 46	){			
+ent.customShader = cgs.media.ptex46Shader;	
+}					
+if(s1->generic1 == 47	){			
+ent.customShader = cgs.media.ptex47Shader;	
+}					
+if(s1->generic1 == 48	){			
+ent.customShader = cgs.media.ptex48Shader;	
+}					
+if(s1->generic1 == 49	){			
+ent.customShader = cgs.media.ptex49Shader;	
+}					
+if(s1->generic1 == 50	){			
+ent.customShader = cgs.media.ptex50Shader;	
+}					
+if(s1->generic1 == 51	){			
+ent.customShader = cgs.media.ptex51Shader;	
+}					
+if(s1->generic1 == 52	){			
+ent.customShader = cgs.media.ptex52Shader;	
+}					
+if(s1->generic1 == 53	){			
+ent.customShader = cgs.media.ptex53Shader;	
+}					
+if(s1->generic1 == 54	){			
+ent.customShader = cgs.media.ptex54Shader;	
+}					
+if(s1->generic1 == 55	){			
+ent.customShader = cgs.media.ptex55Shader;	
+}					
+if(s1->generic1 == 56	){			
+ent.customShader = cgs.media.ptex56Shader;	
+}					
+if(s1->generic1 == 57	){			
+ent.customShader = cgs.media.ptex57Shader;	
+}					
+if(s1->generic1 == 58	){			
+ent.customShader = cgs.media.ptex58Shader;	
+}					
+if(s1->generic1 == 59	){			
+ent.customShader = cgs.media.ptex59Shader;	
+}					
+if(s1->generic1 == 60	){			
+ent.customShader = cgs.media.ptex60Shader;	
+}					
+if(s1->generic1 == 61	){			
+ent.customShader = cgs.media.ptex61Shader;	
+}					
+if(s1->generic1 == 62	){			
+ent.customShader = cgs.media.ptex62Shader;	
+}					
+if(s1->generic1 == 63	){			
+ent.customShader = cgs.media.ptex63Shader;	
+}					
+if(s1->generic1 == 64	){			
+ent.customShader = cgs.media.ptex64Shader;	
+}					
+if(s1->generic1 == 65	){			
+ent.customShader = cgs.media.ptex65Shader;	
+}					
+if(s1->generic1 == 66	){			
+ent.customShader = cgs.media.ptex66Shader;	
+}					
+if(s1->generic1 == 67	){			
+ent.customShader = cgs.media.ptex67Shader;	
+}					
+if(s1->generic1 == 68	){			
+ent.customShader = cgs.media.ptex68Shader;	
+}					
+if(s1->generic1 == 69	){			
+ent.customShader = cgs.media.ptex69Shader;	
+}					
+if(s1->generic1 == 70	){			
+ent.customShader = cgs.media.ptex70Shader;	
+}					
+if(s1->generic1 == 71	){			
+ent.customShader = cgs.media.ptex71Shader;	
+}					
+if(s1->generic1 == 72	){			
+ent.customShader = cgs.media.ptex72Shader;	
+}					
+if(s1->generic1 == 73	){			
+ent.customShader = cgs.media.ptex73Shader;	
+}					
+if(s1->generic1 == 74	){			
+ent.customShader = cgs.media.ptex74Shader;	
+}					
+if(s1->generic1 == 75	){			
+ent.customShader = cgs.media.ptex75Shader;	
+}					
+if(s1->generic1 == 76	){			
+ent.customShader = cgs.media.ptex76Shader;	
+}					
+if(s1->generic1 == 77	){			
+ent.customShader = cgs.media.ptex77Shader;	
+}					
+if(s1->generic1 == 78	){			
+ent.customShader = cgs.media.ptex78Shader;	
+}					
+if(s1->generic1 == 79	){			
+ent.customShader = cgs.media.ptex79Shader;	
+}					
+if(s1->generic1 == 80	){			
+ent.customShader = cgs.media.ptex80Shader;	
+}					
+if(s1->generic1 == 81	){			
+ent.customShader = cgs.media.ptex81Shader;	
+}					
+if(s1->generic1 == 82	){			
+ent.customShader = cgs.media.ptex82Shader;	
+}					
+if(s1->generic1 == 83	){			
+ent.customShader = cgs.media.ptex83Shader;	
+}					
+if(s1->generic1 == 84	){			
+ent.customShader = cgs.media.ptex84Shader;	
+}					
+if(s1->generic1 == 85	){			
+ent.customShader = cgs.media.ptex85Shader;	
+}					
+if(s1->generic1 == 86	){			
+ent.customShader = cgs.media.ptex86Shader;	
+}					
+if(s1->generic1 == 87	){			
+ent.customShader = cgs.media.ptex87Shader;	
+}					
+if(s1->generic1 == 88	){			
+ent.customShader = cgs.media.ptex88Shader;	
+}					
+if(s1->generic1 == 89	){			
+ent.customShader = cgs.media.ptex89Shader;	
+}					
+if(s1->generic1 == 90	){			
+ent.customShader = cgs.media.ptex90Shader;	
+}					
+if(s1->generic1 == 91	){			
+ent.customShader = cgs.media.ptex91Shader;	
+}					
+if(s1->generic1 == 92	){			
+ent.customShader = cgs.media.ptex92Shader;	
+}					
+if(s1->generic1 == 93	){			
+ent.customShader = cgs.media.ptex93Shader;	
+}					
+if(s1->generic1 == 94	){			
+ent.customShader = cgs.media.ptex94Shader;	
+}					
+if(s1->generic1 == 95	){			
+ent.customShader = cgs.media.ptex95Shader;	
+}					
+if(s1->generic1 == 96	){			
+ent.customShader = cgs.media.ptex96Shader;	
+}					
+if(s1->generic1 == 97	){			
+ent.customShader = cgs.media.ptex97Shader;	
+}					
+if(s1->generic1 == 98	){			
+ent.customShader = cgs.media.ptex98Shader;	
+}					
+if(s1->generic1 == 99	){			
+ent.customShader = cgs.media.ptex99Shader;	
+}					
+if(s1->generic1 == 100	){			
+ent.customShader = cgs.media.ptex100Shader;	
+}					
+if(s1->generic1 == 101	){			
+ent.customShader = cgs.media.ptex101Shader;	
+}					
+if(s1->generic1 == 102	){			
+ent.customShader = cgs.media.ptex102Shader;	
+}					
+if(s1->generic1 == 103	){			
+ent.customShader = cgs.media.ptex103Shader;	
+}					
+if(s1->generic1 == 104	){			
+ent.customShader = cgs.media.ptex104Shader;	
+}					
+if(s1->generic1 == 105	){			
+ent.customShader = cgs.media.ptex105Shader;	
+}					
+if(s1->generic1 == 106	){			
+ent.customShader = cgs.media.ptex106Shader;	
+}					
+if(s1->generic1 == 107	){			
+ent.customShader = cgs.media.ptex107Shader;	
+}					
+if(s1->generic1 == 108	){			
+ent.customShader = cgs.media.ptex108Shader;	
+}					
+if(s1->generic1 == 109	){			
+ent.customShader = cgs.media.ptex109Shader;	
+}					
+if(s1->generic1 == 110	){			
+ent.customShader = cgs.media.ptex110Shader;	
+}					
+if(s1->generic1 == 111	){			
+ent.customShader = cgs.media.ptex111Shader;	
+}					
+if(s1->generic1 == 112	){			
+ent.customShader = cgs.media.ptex112Shader;	
+}					
+if(s1->generic1 == 113	){			
+ent.customShader = cgs.media.ptex113Shader;	
+}					
+if(s1->generic1 == 114	){			
+ent.customShader = cgs.media.ptex114Shader;	
+}					
+if(s1->generic1 == 115	){			
+ent.customShader = cgs.media.ptex115Shader;	
+}					
+if(s1->generic1 == 116	){			
+ent.customShader = cgs.media.ptex116Shader;	
+}					
+if(s1->generic1 == 117	){			
+ent.customShader = cgs.media.ptex117Shader;	
+}					
+if(s1->generic1 == 118	){			
+ent.customShader = cgs.media.ptex118Shader;	
+}					
+if(s1->generic1 == 119	){			
+ent.customShader = cgs.media.ptex119Shader;	
+}					
+if(s1->generic1 == 120	){			
+ent.customShader = cgs.media.ptex120Shader;	
+}					
+if(s1->generic1 == 121	){			
+ent.customShader = cgs.media.ptex121Shader;	
+}					
+if(s1->generic1 == 122	){			
+ent.customShader = cgs.media.ptex122Shader;	
+}					
+if(s1->generic1 == 123	){			
+ent.customShader = cgs.media.ptex123Shader;	
+}					
+if(s1->generic1 == 124	){			
+ent.customShader = cgs.media.ptex124Shader;	
+}					
+if(s1->generic1 == 125	){			
+ent.customShader = cgs.media.ptex125Shader;	
+}					
+if(s1->generic1 == 126	){			
+ent.customShader = cgs.media.ptex126Shader;	
+}					
+if(s1->generic1 == 127	){			
+ent.customShader = cgs.media.ptex127Shader;	
+}					
+if(s1->generic1 == 128	){			
+ent.customShader = cgs.media.ptex128Shader;	
+}					
+if(s1->generic1 == 129	){			
+ent.customShader = cgs.media.ptex129Shader;	
+}					
+if(s1->generic1 == 130	){			
+ent.customShader = cgs.media.ptex130Shader;	
+}					
+if(s1->generic1 == 131	){			
+ent.customShader = cgs.media.ptex131Shader;	
+}					
+if(s1->generic1 == 132	){			
+ent.customShader = cgs.media.ptex132Shader;	
+}					
+if(s1->generic1 == 133	){			
+ent.customShader = cgs.media.ptex133Shader;	
+}					
+if(s1->generic1 == 134	){			
+ent.customShader = cgs.media.ptex134Shader;	
+}					
+if(s1->generic1 == 135	){			
+ent.customShader = cgs.media.ptex135Shader;	
+}					
+if(s1->generic1 == 136	){			
+ent.customShader = cgs.media.ptex136Shader;	
+}					
+if(s1->generic1 == 137	){			
+ent.customShader = cgs.media.ptex137Shader;	
+}					
+if(s1->generic1 == 138	){			
+ent.customShader = cgs.media.ptex138Shader;	
+}					
+if(s1->generic1 == 139	){			
+ent.customShader = cgs.media.ptex139Shader;	
+}					
+if(s1->generic1 == 140	){			
+ent.customShader = cgs.media.ptex140Shader;	
+}					
+if(s1->generic1 == 141	){			
+ent.customShader = cgs.media.ptex141Shader;	
+}					
+if(s1->generic1 == 142	){			
+ent.customShader = cgs.media.ptex142Shader;	
+}					
+if(s1->generic1 == 143	){			
+ent.customShader = cgs.media.ptex143Shader;	
+}					
+if(s1->generic1 == 144	){			
+ent.customShader = cgs.media.ptex144Shader;	
+}					
+if(s1->generic1 == 145	){			
+ent.customShader = cgs.media.ptex145Shader;	
+}					
+if(s1->generic1 == 146	){			
+ent.customShader = cgs.media.ptex146Shader;	
+}					
+if(s1->generic1 == 147	){			
+ent.customShader = cgs.media.ptex147Shader;	
+}					
+if(s1->generic1 == 148	){			
+ent.customShader = cgs.media.ptex148Shader;	
+}					
+if(s1->generic1 == 149	){			
+ent.customShader = cgs.media.ptex149Shader;	
+}					
+if(s1->generic1 == 150	){			
+ent.customShader = cgs.media.ptex150Shader;	
+}					
+if(s1->generic1 == 151	){			
+ent.customShader = cgs.media.ptex151Shader;	
+}					
+if(s1->generic1 == 152	){			
+ent.customShader = cgs.media.ptex152Shader;	
+}					
+if(s1->generic1 == 153	){			
+ent.customShader = cgs.media.ptex153Shader;	
+}	
+if(s1->generic1 == 154	){			
+ent.customShader = cgs.media.ptex154Shader;	
+}	
+if(s1->generic1 == 155	){			
+ent.customShader = cgs.media.ptex155Shader;	
+}	
+if(s1->generic1 == 156	){			
+ent.customShader = cgs.media.ptex156Shader;	
+}	
+if(s1->generic1 == 157	){			
+ent.customShader = cgs.media.ptex157Shader;	
+}	
+if(s1->generic1 == 158	){			
+ent.customShader = cgs.media.ptex158Shader;	
+}	
+if(s1->generic1 == 159	){			
+ent.customShader = cgs.media.ptex159Shader;	
+}	
+if(s1->generic1 == 160	){			
+ent.customShader = cgs.media.ptex160Shader;	
+}	
+if(s1->generic1 == 161	){			
+ent.customShader = cgs.media.ptex161Shader;	
+}	
+if(s1->generic1 == 162	){			
+ent.customShader = cgs.media.ptex162Shader;	
+}	
+if(s1->generic1 == 163	){			
+ent.customShader = cgs.media.ptex163Shader;	
+}	
+if(s1->generic1 == 164	){			
+ent.customShader = cgs.media.ptex164Shader;	
+}	
+if(s1->generic1 == 165	){			
+ent.customShader = cgs.media.ptex165Shader;	
+}	
+if(s1->generic1 == 166	){			
+ent.customShader = cgs.media.ptex166Shader;	
+}	
+if(s1->generic1 == 167	){			
+ent.customShader = cgs.media.ptex167Shader;	
+}	
+if(s1->generic1 == 168	){			
+ent.customShader = cgs.media.ptex168Shader;	
+}	
+if(s1->generic1 == 169	){			
+ent.customShader = cgs.media.ptex169Shader;	
+}
 
 	// player model
 	if (s1->number == cg.snap->ps.clientNum) {
@@ -281,15 +789,15 @@ if(cg_itemstyle.integer == 3){
 	// eccentricly
 	if ( item->giType == IT_WEAPON ) {
 		wi = &cg_weapons[item->giTag];
-		cent->lerpOrigin[0] -= 
+		cent->lerpOrigin[0] -=
 			wi->weaponMidpoint[0] * ent.axis[0][0] +
 			wi->weaponMidpoint[1] * ent.axis[1][0] +
 			wi->weaponMidpoint[2] * ent.axis[2][0];
-		cent->lerpOrigin[1] -= 
+		cent->lerpOrigin[1] -=
 			wi->weaponMidpoint[0] * ent.axis[0][1] +
 			wi->weaponMidpoint[1] * ent.axis[1][1] +
 			wi->weaponMidpoint[2] * ent.axis[2][1];
-		cent->lerpOrigin[2] -= 
+		cent->lerpOrigin[2] -=
 			wi->weaponMidpoint[0] * ent.axis[0][2] +
 			wi->weaponMidpoint[1] * ent.axis[1][2] +
 			wi->weaponMidpoint[2] * ent.axis[2][2];
@@ -365,7 +873,7 @@ if(wallhack.integer == 666){
 	}
 
 	// accompanying rings / spheres for powerups
-	if ( !cg_simpleItems.integer ) 
+	if ( !cg_simpleItems.integer )
 	{
 		vec3_t spinAngles;
 
@@ -381,7 +889,7 @@ if(wallhack.integer == 666){
 					spinAngles[1] = ( cg.time & 1023 ) * 360 / -1024.0f;
 				}
 				AnglesToAxis( spinAngles, ent.axis );
-				
+
 				// scale up if respawning
 				if ( frac != 1.0 ) {
 					VectorScale( ent.axis[0], frac, ent.axis[0] );
@@ -418,7 +926,7 @@ static void CG_Missile( centity_t *cent ) {
 	VectorCopy( s1->angles, cent->lerpAngles);
 
 	// add trails
-	if ( weapon->missileTrailFunc ) 
+	if ( weapon->missileTrailFunc )
 	{
 		weapon->missileTrailFunc( cent, weapon );
 	}
@@ -435,13 +943,13 @@ static void CG_Missile( centity_t *cent ) {
 
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
 			weapon->missileDlightColor[col][0], weapon->missileDlightColor[col][1], weapon->missileDlightColor[col][2] );
 	}
 */
 	// add dynamic light
 	if ( weapon->missileDlight ) {
-		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight, 
+		trap_R_AddLightToScene(cent->lerpOrigin, weapon->missileDlight,
 			weapon->missileDlightColor[0], weapon->missileDlightColor[1], weapon->missileDlightColor[2] );
 	}
 
@@ -475,7 +983,7 @@ static void CG_Missile( centity_t *cent ) {
 		trap_R_AddRefEntityToScene( &ent );
 		return;
 	}
-	
+
 	if ( cent->currentState.weapon == WP_ANTIMATTER ) {
 		ent.reType = RT_SPRITE;
 		ent.radius = 50;
@@ -601,6 +1109,513 @@ static void CG_Mover( centity_t *cent ) {
 	} else {
 		ent.hModel = cgs.gameModels[s1->modelindex];
 	}
+if(s1->generic1 == 1	){			
+ent.customShader = cgs.media.ptex1Shader;	
+}					
+if(s1->generic1 == 2	){			
+ent.customShader = cgs.media.ptex2Shader;	
+}					
+if(s1->generic1 == 3	){			
+ent.customShader = cgs.media.ptex3Shader;	
+}					
+if(s1->generic1 == 4	){			
+ent.customShader = cgs.media.ptex4Shader;	
+}					
+if(s1->generic1 == 5	){			
+ent.customShader = cgs.media.ptex5Shader;	
+}					
+if(s1->generic1 == 6	){			
+ent.customShader = cgs.media.ptex6Shader;	
+}					
+if(s1->generic1 == 7	){			
+ent.customShader = cgs.media.ptex7Shader;	
+}					
+if(s1->generic1 == 8	){			
+ent.customShader = cgs.media.ptex8Shader;	
+}					
+if(s1->generic1 == 9	){			
+ent.customShader = cgs.media.ptex9Shader;	
+}					
+if(s1->generic1 == 10	){			
+ent.customShader = cgs.media.ptex10Shader;	
+}					
+if(s1->generic1 == 11	){			
+ent.customShader = cgs.media.ptex11Shader;	
+}					
+if(s1->generic1 == 12	){			
+ent.customShader = cgs.media.ptex12Shader;	
+}					
+if(s1->generic1 == 13	){			
+ent.customShader = cgs.media.ptex13Shader;	
+}					
+if(s1->generic1 == 14	){			
+ent.customShader = cgs.media.ptex14Shader;	
+}					
+if(s1->generic1 == 15	){			
+ent.customShader = cgs.media.ptex15Shader;	
+}					
+if(s1->generic1 == 16	){			
+ent.customShader = cgs.media.ptex16Shader;	
+}					
+if(s1->generic1 == 17	){			
+ent.customShader = cgs.media.ptex17Shader;	
+}					
+if(s1->generic1 == 18	){			
+ent.customShader = cgs.media.ptex18Shader;	
+}					
+if(s1->generic1 == 19	){			
+ent.customShader = cgs.media.ptex19Shader;	
+}					
+if(s1->generic1 == 20	){			
+ent.customShader = cgs.media.ptex20Shader;	
+}					
+if(s1->generic1 == 21	){			
+ent.customShader = cgs.media.ptex21Shader;	
+}					
+if(s1->generic1 == 22	){			
+ent.customShader = cgs.media.ptex22Shader;	
+}					
+if(s1->generic1 == 23	){			
+ent.customShader = cgs.media.ptex23Shader;	
+}					
+if(s1->generic1 == 24	){			
+ent.customShader = cgs.media.ptex24Shader;	
+}					
+if(s1->generic1 == 25	){			
+ent.customShader = cgs.media.ptex25Shader;	
+}					
+if(s1->generic1 == 26	){			
+ent.customShader = cgs.media.ptex26Shader;	
+}					
+if(s1->generic1 == 27	){			
+ent.customShader = cgs.media.ptex27Shader;	
+}					
+if(s1->generic1 == 28	){			
+ent.customShader = cgs.media.ptex28Shader;	
+}					
+if(s1->generic1 == 29	){			
+ent.customShader = cgs.media.ptex29Shader;	
+}					
+if(s1->generic1 == 30	){			
+ent.customShader = cgs.media.ptex30Shader;	
+}					
+if(s1->generic1 == 31	){			
+ent.customShader = cgs.media.ptex31Shader;	
+}					
+if(s1->generic1 == 32	){			
+ent.customShader = cgs.media.ptex32Shader;	
+}					
+if(s1->generic1 == 33	){			
+ent.customShader = cgs.media.ptex33Shader;	
+}					
+if(s1->generic1 == 34	){			
+ent.customShader = cgs.media.ptex34Shader;	
+}					
+if(s1->generic1 == 35	){			
+ent.customShader = cgs.media.ptex35Shader;	
+}					
+if(s1->generic1 == 36	){			
+ent.customShader = cgs.media.ptex36Shader;	
+}					
+if(s1->generic1 == 37	){			
+ent.customShader = cgs.media.ptex37Shader;	
+}					
+if(s1->generic1 == 38	){			
+ent.customShader = cgs.media.ptex38Shader;	
+}					
+if(s1->generic1 == 39	){			
+ent.customShader = cgs.media.ptex39Shader;	
+}					
+if(s1->generic1 == 40	){			
+ent.customShader = cgs.media.ptex40Shader;	
+}					
+if(s1->generic1 == 41	){			
+ent.customShader = cgs.media.ptex41Shader;	
+}					
+if(s1->generic1 == 42	){			
+ent.customShader = cgs.media.ptex42Shader;	
+}					
+if(s1->generic1 == 43	){			
+ent.customShader = cgs.media.ptex43Shader;	
+}					
+if(s1->generic1 == 44	){			
+ent.customShader = cgs.media.ptex44Shader;	
+}					
+if(s1->generic1 == 45	){			
+ent.customShader = cgs.media.ptex45Shader;	
+}					
+if(s1->generic1 == 46	){			
+ent.customShader = cgs.media.ptex46Shader;	
+}					
+if(s1->generic1 == 47	){			
+ent.customShader = cgs.media.ptex47Shader;	
+}					
+if(s1->generic1 == 48	){			
+ent.customShader = cgs.media.ptex48Shader;	
+}					
+if(s1->generic1 == 49	){			
+ent.customShader = cgs.media.ptex49Shader;	
+}					
+if(s1->generic1 == 50	){			
+ent.customShader = cgs.media.ptex50Shader;	
+}					
+if(s1->generic1 == 51	){			
+ent.customShader = cgs.media.ptex51Shader;	
+}					
+if(s1->generic1 == 52	){			
+ent.customShader = cgs.media.ptex52Shader;	
+}					
+if(s1->generic1 == 53	){			
+ent.customShader = cgs.media.ptex53Shader;	
+}					
+if(s1->generic1 == 54	){			
+ent.customShader = cgs.media.ptex54Shader;	
+}					
+if(s1->generic1 == 55	){			
+ent.customShader = cgs.media.ptex55Shader;	
+}					
+if(s1->generic1 == 56	){			
+ent.customShader = cgs.media.ptex56Shader;	
+}					
+if(s1->generic1 == 57	){			
+ent.customShader = cgs.media.ptex57Shader;	
+}					
+if(s1->generic1 == 58	){			
+ent.customShader = cgs.media.ptex58Shader;	
+}					
+if(s1->generic1 == 59	){			
+ent.customShader = cgs.media.ptex59Shader;	
+}					
+if(s1->generic1 == 60	){			
+ent.customShader = cgs.media.ptex60Shader;	
+}					
+if(s1->generic1 == 61	){			
+ent.customShader = cgs.media.ptex61Shader;	
+}					
+if(s1->generic1 == 62	){			
+ent.customShader = cgs.media.ptex62Shader;	
+}					
+if(s1->generic1 == 63	){			
+ent.customShader = cgs.media.ptex63Shader;	
+}					
+if(s1->generic1 == 64	){			
+ent.customShader = cgs.media.ptex64Shader;	
+}					
+if(s1->generic1 == 65	){			
+ent.customShader = cgs.media.ptex65Shader;	
+}					
+if(s1->generic1 == 66	){			
+ent.customShader = cgs.media.ptex66Shader;	
+}					
+if(s1->generic1 == 67	){			
+ent.customShader = cgs.media.ptex67Shader;	
+}					
+if(s1->generic1 == 68	){			
+ent.customShader = cgs.media.ptex68Shader;	
+}					
+if(s1->generic1 == 69	){			
+ent.customShader = cgs.media.ptex69Shader;	
+}					
+if(s1->generic1 == 70	){			
+ent.customShader = cgs.media.ptex70Shader;	
+}					
+if(s1->generic1 == 71	){			
+ent.customShader = cgs.media.ptex71Shader;	
+}					
+if(s1->generic1 == 72	){			
+ent.customShader = cgs.media.ptex72Shader;	
+}					
+if(s1->generic1 == 73	){			
+ent.customShader = cgs.media.ptex73Shader;	
+}					
+if(s1->generic1 == 74	){			
+ent.customShader = cgs.media.ptex74Shader;	
+}					
+if(s1->generic1 == 75	){			
+ent.customShader = cgs.media.ptex75Shader;	
+}					
+if(s1->generic1 == 76	){			
+ent.customShader = cgs.media.ptex76Shader;	
+}					
+if(s1->generic1 == 77	){			
+ent.customShader = cgs.media.ptex77Shader;	
+}					
+if(s1->generic1 == 78	){			
+ent.customShader = cgs.media.ptex78Shader;	
+}					
+if(s1->generic1 == 79	){			
+ent.customShader = cgs.media.ptex79Shader;	
+}					
+if(s1->generic1 == 80	){			
+ent.customShader = cgs.media.ptex80Shader;	
+}					
+if(s1->generic1 == 81	){			
+ent.customShader = cgs.media.ptex81Shader;	
+}					
+if(s1->generic1 == 82	){			
+ent.customShader = cgs.media.ptex82Shader;	
+}					
+if(s1->generic1 == 83	){			
+ent.customShader = cgs.media.ptex83Shader;	
+}					
+if(s1->generic1 == 84	){			
+ent.customShader = cgs.media.ptex84Shader;	
+}					
+if(s1->generic1 == 85	){			
+ent.customShader = cgs.media.ptex85Shader;	
+}					
+if(s1->generic1 == 86	){			
+ent.customShader = cgs.media.ptex86Shader;	
+}					
+if(s1->generic1 == 87	){			
+ent.customShader = cgs.media.ptex87Shader;	
+}					
+if(s1->generic1 == 88	){			
+ent.customShader = cgs.media.ptex88Shader;	
+}					
+if(s1->generic1 == 89	){			
+ent.customShader = cgs.media.ptex89Shader;	
+}					
+if(s1->generic1 == 90	){			
+ent.customShader = cgs.media.ptex90Shader;	
+}					
+if(s1->generic1 == 91	){			
+ent.customShader = cgs.media.ptex91Shader;	
+}					
+if(s1->generic1 == 92	){			
+ent.customShader = cgs.media.ptex92Shader;	
+}					
+if(s1->generic1 == 93	){			
+ent.customShader = cgs.media.ptex93Shader;	
+}					
+if(s1->generic1 == 94	){			
+ent.customShader = cgs.media.ptex94Shader;	
+}					
+if(s1->generic1 == 95	){			
+ent.customShader = cgs.media.ptex95Shader;	
+}					
+if(s1->generic1 == 96	){			
+ent.customShader = cgs.media.ptex96Shader;	
+}					
+if(s1->generic1 == 97	){			
+ent.customShader = cgs.media.ptex97Shader;	
+}					
+if(s1->generic1 == 98	){			
+ent.customShader = cgs.media.ptex98Shader;	
+}					
+if(s1->generic1 == 99	){			
+ent.customShader = cgs.media.ptex99Shader;	
+}					
+if(s1->generic1 == 100	){			
+ent.customShader = cgs.media.ptex100Shader;	
+}					
+if(s1->generic1 == 101	){			
+ent.customShader = cgs.media.ptex101Shader;	
+}					
+if(s1->generic1 == 102	){			
+ent.customShader = cgs.media.ptex102Shader;	
+}					
+if(s1->generic1 == 103	){			
+ent.customShader = cgs.media.ptex103Shader;	
+}					
+if(s1->generic1 == 104	){			
+ent.customShader = cgs.media.ptex104Shader;	
+}					
+if(s1->generic1 == 105	){			
+ent.customShader = cgs.media.ptex105Shader;	
+}					
+if(s1->generic1 == 106	){			
+ent.customShader = cgs.media.ptex106Shader;	
+}					
+if(s1->generic1 == 107	){			
+ent.customShader = cgs.media.ptex107Shader;	
+}					
+if(s1->generic1 == 108	){			
+ent.customShader = cgs.media.ptex108Shader;	
+}					
+if(s1->generic1 == 109	){			
+ent.customShader = cgs.media.ptex109Shader;	
+}					
+if(s1->generic1 == 110	){			
+ent.customShader = cgs.media.ptex110Shader;	
+}					
+if(s1->generic1 == 111	){			
+ent.customShader = cgs.media.ptex111Shader;	
+}					
+if(s1->generic1 == 112	){			
+ent.customShader = cgs.media.ptex112Shader;	
+}					
+if(s1->generic1 == 113	){			
+ent.customShader = cgs.media.ptex113Shader;	
+}					
+if(s1->generic1 == 114	){			
+ent.customShader = cgs.media.ptex114Shader;	
+}					
+if(s1->generic1 == 115	){			
+ent.customShader = cgs.media.ptex115Shader;	
+}					
+if(s1->generic1 == 116	){			
+ent.customShader = cgs.media.ptex116Shader;	
+}					
+if(s1->generic1 == 117	){			
+ent.customShader = cgs.media.ptex117Shader;	
+}					
+if(s1->generic1 == 118	){			
+ent.customShader = cgs.media.ptex118Shader;	
+}					
+if(s1->generic1 == 119	){			
+ent.customShader = cgs.media.ptex119Shader;	
+}					
+if(s1->generic1 == 120	){			
+ent.customShader = cgs.media.ptex120Shader;	
+}					
+if(s1->generic1 == 121	){			
+ent.customShader = cgs.media.ptex121Shader;	
+}					
+if(s1->generic1 == 122	){			
+ent.customShader = cgs.media.ptex122Shader;	
+}					
+if(s1->generic1 == 123	){			
+ent.customShader = cgs.media.ptex123Shader;	
+}					
+if(s1->generic1 == 124	){			
+ent.customShader = cgs.media.ptex124Shader;	
+}					
+if(s1->generic1 == 125	){			
+ent.customShader = cgs.media.ptex125Shader;	
+}					
+if(s1->generic1 == 126	){			
+ent.customShader = cgs.media.ptex126Shader;	
+}					
+if(s1->generic1 == 127	){			
+ent.customShader = cgs.media.ptex127Shader;	
+}					
+if(s1->generic1 == 128	){			
+ent.customShader = cgs.media.ptex128Shader;	
+}					
+if(s1->generic1 == 129	){			
+ent.customShader = cgs.media.ptex129Shader;	
+}					
+if(s1->generic1 == 130	){			
+ent.customShader = cgs.media.ptex130Shader;	
+}					
+if(s1->generic1 == 131	){			
+ent.customShader = cgs.media.ptex131Shader;	
+}					
+if(s1->generic1 == 132	){			
+ent.customShader = cgs.media.ptex132Shader;	
+}					
+if(s1->generic1 == 133	){			
+ent.customShader = cgs.media.ptex133Shader;	
+}					
+if(s1->generic1 == 134	){			
+ent.customShader = cgs.media.ptex134Shader;	
+}					
+if(s1->generic1 == 135	){			
+ent.customShader = cgs.media.ptex135Shader;	
+}					
+if(s1->generic1 == 136	){			
+ent.customShader = cgs.media.ptex136Shader;	
+}					
+if(s1->generic1 == 137	){			
+ent.customShader = cgs.media.ptex137Shader;	
+}					
+if(s1->generic1 == 138	){			
+ent.customShader = cgs.media.ptex138Shader;	
+}					
+if(s1->generic1 == 139	){			
+ent.customShader = cgs.media.ptex139Shader;	
+}					
+if(s1->generic1 == 140	){			
+ent.customShader = cgs.media.ptex140Shader;	
+}					
+if(s1->generic1 == 141	){			
+ent.customShader = cgs.media.ptex141Shader;	
+}					
+if(s1->generic1 == 142	){			
+ent.customShader = cgs.media.ptex142Shader;	
+}					
+if(s1->generic1 == 143	){			
+ent.customShader = cgs.media.ptex143Shader;	
+}					
+if(s1->generic1 == 144	){			
+ent.customShader = cgs.media.ptex144Shader;	
+}					
+if(s1->generic1 == 145	){			
+ent.customShader = cgs.media.ptex145Shader;	
+}					
+if(s1->generic1 == 146	){			
+ent.customShader = cgs.media.ptex146Shader;	
+}					
+if(s1->generic1 == 147	){			
+ent.customShader = cgs.media.ptex147Shader;	
+}					
+if(s1->generic1 == 148	){			
+ent.customShader = cgs.media.ptex148Shader;	
+}					
+if(s1->generic1 == 149	){			
+ent.customShader = cgs.media.ptex149Shader;	
+}					
+if(s1->generic1 == 150	){			
+ent.customShader = cgs.media.ptex150Shader;	
+}					
+if(s1->generic1 == 151	){			
+ent.customShader = cgs.media.ptex151Shader;	
+}					
+if(s1->generic1 == 152	){			
+ent.customShader = cgs.media.ptex152Shader;	
+}					
+if(s1->generic1 == 153	){			
+ent.customShader = cgs.media.ptex153Shader;	
+}	
+if(s1->generic1 == 154	){			
+ent.customShader = cgs.media.ptex154Shader;	
+}	
+if(s1->generic1 == 155	){			
+ent.customShader = cgs.media.ptex155Shader;	
+}	
+if(s1->generic1 == 156	){			
+ent.customShader = cgs.media.ptex156Shader;	
+}	
+if(s1->generic1 == 157	){			
+ent.customShader = cgs.media.ptex157Shader;	
+}	
+if(s1->generic1 == 158	){			
+ent.customShader = cgs.media.ptex158Shader;	
+}	
+if(s1->generic1 == 159	){			
+ent.customShader = cgs.media.ptex159Shader;	
+}	
+if(s1->generic1 == 160	){			
+ent.customShader = cgs.media.ptex160Shader;	
+}	
+if(s1->generic1 == 161	){			
+ent.customShader = cgs.media.ptex161Shader;	
+}	
+if(s1->generic1 == 162	){			
+ent.customShader = cgs.media.ptex162Shader;	
+}	
+if(s1->generic1 == 163	){			
+ent.customShader = cgs.media.ptex163Shader;	
+}	
+if(s1->generic1 == 164	){			
+ent.customShader = cgs.media.ptex164Shader;	
+}	
+if(s1->generic1 == 165	){			
+ent.customShader = cgs.media.ptex165Shader;	
+}	
+if(s1->generic1 == 166	){			
+ent.customShader = cgs.media.ptex166Shader;	
+}	
+if(s1->generic1 == 167	){			
+ent.customShader = cgs.media.ptex167Shader;	
+}	
+if(s1->generic1 == 168	){			
+ent.customShader = cgs.media.ptex168Shader;	
+}	
+if(s1->generic1 == 169	){			
+ent.customShader = cgs.media.ptex169Shader;	
+}
 
 	// add to refresh list
 	trap_R_AddRefEntityToScene(&ent);
@@ -844,7 +1859,7 @@ static void CG_CalcEntityLerpPositions( centity_t *cent ) {
 	// adjust for riding a mover if it wasn't rolled into the predicted
 	// player state
 	if ( cent != &cg.predictedPlayerEntity ) {
-		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, 
+		CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum,
 		cg.snap->serverTime, cg.time, cent->lerpOrigin );
 	}
 }
@@ -1083,7 +2098,7 @@ void CG_AddPacketEntities( void ) {
 			cg.frameInterpolation = (float)( cg.time - cg.snap->serverTime ) / delta;
 		}
 	} else {
-		cg.frameInterpolation = 0;	// actually, it should never be used, because 
+		cg.frameInterpolation = 0;	// actually, it should never be used, because
 									// no entities should be marked as interpolating
 	}
 
@@ -1107,8 +2122,8 @@ if(cg_itemstyle.integer == 2){
 	cg.autoAnglesFast[1] = ( cg.time & 4095 ) * 360 / 4096.0f;
 	cg.autoAnglesFast[2] = 0;
 }
-	
-if(cg_itemstyle.integer == 1){	
+
+if(cg_itemstyle.integer == 1){
 	cg.autoAngles[0] = 0;
 	cg.autoAngles[1] = 0;
 	cg.autoAngles[2] = 0;
@@ -1155,4 +2170,3 @@ if(cg_itemstyle.integer == 1){
 		} //Also unlagged
 	}
 }
-

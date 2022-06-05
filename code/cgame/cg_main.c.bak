@@ -609,7 +609,7 @@ static cvarTable_t cvarTable[] = { // bk001129
 	{ &cg_chatLines , "cg_chatLines", "6", 0},
 	{ &cg_teamChatLines , "cg_teamChatLines", "6", 0},
 
-	{ &cg_fontScale , "cg_fontScale", "1.5", CVAR_ARCHIVE},
+	{ &cg_fontScale , "cg_fontScale", "1.7", CVAR_ARCHIVE},
 	{ &cg_fontShadow , "cg_fontShadow", "1", CVAR_ARCHIVE},
 //unlagged - smooth clients #2
 // this is done server-side now
