@@ -84,7 +84,7 @@ if(g_building.integer != 2){
 if(g_building.integer == 2){
 if(ent->gmodtool){
 	VectorMA (muzzle, 700, forward, end);
-	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SELECT);
+	trap_Trace (&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_ALL);
 }
 if(!ent->gmodtool){
 	VectorMA (muzzle, g_grange.integer, forward, end);	

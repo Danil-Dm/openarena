@@ -469,7 +469,7 @@ zombiedamage += 1;
 
 zombiespeed += 15;
 
-zombiehealth += 10;
+zombiehealth += 8;
 
 trap_SendConsoleCommand( EXEC_APPEND, "addbot Zombie 5 Red \n");
 trap_SendServerCommand( -1, "csound sound/ZombieRound.wav");

@@ -321,9 +321,9 @@ static void ProximityMine_Player( gentity_t *mine, gentity_t *player ) {
 
 void ProximityMine_RemoveAll() {
     gentity_t	*mine;
-    
+
     mine = NULL;
-    
+
     while ((mine = G_Find (mine, FOFS(classname), "prox mine")) != NULL) {
         mine->think = ProximityMine_Explode;
 	mine->nextthink = level.time + 1;
@@ -355,7 +355,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	if ( other->takedamage ) {
 		if ( ent->s.weapon != WP_PROX_LAUNCHER ) {
 			if ( other->client && other->client->invulnerabilityTime > level.time ) {
-              
+
 				//
 				VectorCopy( ent->s.pos.trDelta, forward );
 				VectorNormalize( forward );
@@ -387,7 +387,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				velocity[2] = 1;	// stepped on a grenade
 			}
 			G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
-				ent->s.origin, ent->damage, 
+				ent->s.origin, ent->damage,
 				0, ent->methodOfDeath);
 		}
 	}
@@ -495,7 +495,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 	// splash damage (doesn't apply to person directly hit)
 	if ( ent->splashDamage ) {
-		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius, 
+		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius,
 			other, ent->splashMethodOfDeath ) ) {
 			if( !hitClient ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
@@ -586,7 +586,7 @@ void G_RunMissile( gentity_t *ent ) {
 
 /*
 ================
-G_HomingMissile               
+G_HomingMissile
 freaky - homing missile code
 ================
 */
@@ -599,13 +599,13 @@ void G_HomingMissile( gentity_t *ent )
 
 	while (( blip = findradius( blip, ent->r.currentOrigin, 2000 )) != NULL ) {
 
-		if ( blip->client == NULL )			
+		if ( blip->client == NULL )
 			continue;
 
-		if ( blip == ent->parent )			
+		if ( blip == ent->parent )
 			continue;
 
-		if ( blip->health<=0 )			
+		if ( blip->health<=0 )
 			continue;
 
 		if ( blip->client->sess.sessionTeam == TEAM_SPECTATOR )
@@ -629,10 +629,10 @@ void G_HomingMissile( gentity_t *ent )
 			//if new target is the nearest
 			VectorCopy( blipdir, temp_dir );
 			VectorNormalize( temp_dir );
-			VectorAdd( temp_dir, ent->r.currentAngles, temp_dir );	
+			VectorAdd( temp_dir, ent->r.currentAngles, temp_dir );
 
 			//now the longer temp_dir length is the more straight path for the rocket.
-			if ( VectorLength( temp_dir ) >0.8 ) {	
+			if ( VectorLength( temp_dir ) >0.8 ) {
 
 				//if this 1.6 were smaller,the rocket also get to target the enemy on his back.
 				target = blip;
@@ -641,13 +641,13 @@ void G_HomingMissile( gentity_t *ent )
 		}
 	}
 
-	if ( target == NULL ) {	
+	if ( target == NULL ) {
 		ent->nextthink = level.time + 10000;
 	} else {
 		ent->s.pos.trTime=level.time;
 		VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
 
-		//for exact trajectory calculation, set current point to base.		
+		//for exact trajectory calculation, set current point to base.
 		VectorNormalize( dir );
 		VectorScale( dir, 1.8,dir );
 		VectorAdd( dir, ent->r.currentAngles, dir );
@@ -680,13 +680,13 @@ void G_HomingMissile( gentity_t *ent )
 
 /*
 ================
-Guided_Missile_Think             
+Guided_Missile_Think
 freaky - guided missile code
 ================
 */
 void Guided_Missile_Think( gentity_t *missile )
 {
-	vec3_t forward, right, up; 
+	vec3_t forward, right, up;
 	vec3_t muzzle;
 	float  dist;
 
@@ -703,7 +703,7 @@ void Guided_Missile_Think( gentity_t *missile )
 
 	// Calculate the player's eyes origin, and store this origin in muzzle
 	CalcMuzzlePoint ( player, forward, right, up, muzzle );
- 
+
 	// Tells the engine that our movement starts at the current missile's origin
 	VectorCopy ( missile->r.currentOrigin, missile->s.pos.trBase );
 
@@ -714,7 +714,7 @@ void Guided_Missile_Think( gentity_t *missile )
 	// Get the dir vector between the player's point of view and the rocket
 	// and store it into muzzle again
 	VectorSubtract( muzzle, missile->r.currentOrigin, muzzle );
-	
+
 	// Add some range to our "line" so we can go behind blocks
 	// We could have used a trace function here, but the rocket would
 	// have come back if player was aiming on a block while the rocket is behind it
@@ -766,7 +766,7 @@ void Guided_Missile_Think( gentity_t *missile )
 	// Call this function in 0,1 s
     //missile->nextthink = level.time + FRAMETIME;
 	*/
-    
+
     //freaky - using frametime was buggy, so used custom value instead.
     missile->nextthink = level.time + 25;
 	//end
@@ -852,7 +852,7 @@ if(g_pgguided.integer == 1){
 	VectorCopy (start, bolt->r.currentOrigin);
 
 	return bolt;
-}	
+}
 
 //=============================================================================
 
@@ -1200,7 +1200,7 @@ if(g_ngguided.integer == 1){
 	VectorCopy( start, bolt->r.currentOrigin );
 
 	return bolt;
-}	
+}
 
 
 /*
@@ -1388,4 +1388,3 @@ if(g_amguided.integer == 1){
 
 	return bolt;
 }
-

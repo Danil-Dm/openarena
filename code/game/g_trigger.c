@@ -35,61 +35,82 @@ void InitTrigger( gentity_t *self ) {
 	if(modelid == 1){
 	VectorSet( self->r.mins, -25, -25, -25);
 	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass.md3" );
 	} else 
 	if(modelid == 2){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass.md3" );
+	VectorSet( self->r.mins, -50, -50, -50);
+	VectorSet( self->r.maxs, 50, 50, 50 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass2.md3" );
+	} else
+	if(modelid == 3){
+	VectorSet( self->r.mins, -250, -250, -250);
+	VectorSet( self->r.maxs, 250, 250, 250 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass10.md3" );
 	} else
 	if(modelid == 4){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	VectorSet( self->r.mins, -500, -500, -500);
+	VectorSet( self->r.maxs, 500, 500, 500 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass20.md3" );
+	} else
 	if(modelid == 5){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	VectorSet( self->r.mins, -50000, -50000, -25);
+	VectorSet( self->r.maxs, 50000, 50000, 25 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass.md3" );
+	} else
 	if(modelid == 6){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	VectorSet( self->r.mins, -50000, -50000, -50);
+	VectorSet( self->r.maxs, 50000, 50000, 50 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass2.md3" );
+	} else
 	if(modelid == 7){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	VectorSet( self->r.mins, -50000, -50000, -250);
+	VectorSet( self->r.maxs, 50000, 50000, 250 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass10.md3" );
+	} else
 	if(modelid == 8){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	VectorSet( self->r.mins, -50000, -50000, -500);
+	VectorSet( self->r.maxs, 50000, 50000, 500 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass10.md3" );
+	} else
 	if(modelid == 9){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 	
-	if(modelid == 10){
-	VectorSet( self->r.mins, -25, -25, -25);
-	VectorSet( self->r.maxs, 25, 25, 25 );
-	self->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
-	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
+	VectorSet( self->r.mins, -50000, -50000, -50000);
+	VectorSet( self->r.maxs, 50000, 50000, 50000 );
+	self->r.contents = CONTENTS_TRIGGER;
+	self->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass20.md3" );
 	} else {
+if(modelid != 12345){
 	trap_SetBrushModel( self, self->model );
-	}
+}
+}
 	self->r.contents = CONTENTS_TRIGGER;		// replaces the -1 from trap_SetBrushModel
+	if(modelid != 1){
+	if(modelid != 2){
+	if(modelid != 3){
+	if(modelid != 4){
+	if(modelid != 5){
+	if(modelid != 6){
+	if(modelid != 7){
+	if(modelid != 8){
+	if(modelid != 9){
 	self->r.svFlags = SVF_NOCLIENT;
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+	}
+SandboxObject( self );
 }
 
 
@@ -134,6 +155,15 @@ void multi_trigger( gentity_t *ent, gentity_t *activator ) {
 }
 
 void Use_Multi( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
+if(ent->owner != activator->s.clientNum + 1){
+if(ent->owner != 0){
+trap_SendServerCommand( activator->s.clientNum, va( "cp Owned_by_%s\n", ent->ownername ));
+return;
+}	
+}
+if(ent->locked != 0){
+return;
+}
 	multi_trigger( ent, activator );
 }
 
@@ -141,6 +171,15 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if( !other->client ) {
 		return;
 	}
+if(self->owner != other->s.clientNum + 1){
+if(self->owner != 0){
+trap_SendServerCommand( other->s.clientNum, va( "cp Owned_by_%s\n", self->ownername ));
+return;
+}	
+}
+if(self->locked != 0){
+return;
+}
 	multi_trigger( self, other );
 }
 
@@ -205,7 +244,9 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	if ( !other->client ) {
 		return;
 	}
-
+if(self->locked != 0){
+return;
+}
 	BG_TouchJumpPad( &other->client->ps, &self->s );
 }
 
@@ -260,7 +301,7 @@ void SP_trigger_push( gentity_t *self ) {
 	InitTrigger (self);
 
 	// unlike other triggers, we need to send this one to the client
-	self->r.svFlags &= ~SVF_NOCLIENT;
+	self->r.svFlags = SVF_NOCLIENT;
 
 	// make sure the client precaches this sound
 	G_SoundIndex("sound/world/jumppad.wav");
@@ -284,6 +325,9 @@ void Use_target_push( gentity_t *self, gentity_t *other, gentity_t *activator ) 
 	if ( activator->client->ps.powerups[PW_FLIGHT] ) {
 		return;
 	}
+if(self->locked != 0){
+return;
+}
 
 	VectorCopy (self->s.origin2, activator->client->ps.velocity);
 
@@ -335,7 +379,9 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 	if ( !other->client ) {
 		return;
 	}
-
+if(self->locked != 0){
+return;
+}
 	if ( other->client->ps.pm_type == PM_DEAD ) {
 		return;
 	}
@@ -380,7 +426,7 @@ void SP_trigger_teleport( gentity_t *self ) {
 	if ( self->spawnflags & 1 ) {
 		self->r.svFlags |= SVF_NOCLIENT;
 	} else {
-		self->r.svFlags &= ~SVF_NOCLIENT;
+	self->r.svFlags = SVF_NOCLIENT;
 	}
 
 	// make sure the client precaches this sound

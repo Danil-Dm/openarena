@@ -37,10 +37,6 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	int			i, j;
 	gclient_t	*cl;
 	int			numSorted, scoreFlags, accuracy, perfect;
-	
-	if(g_scoreboardlock.integer){
-	return;
-	}
 
 	// send the latest information on all clients
 	string[0] = 0;

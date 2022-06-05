@@ -606,7 +606,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	Info_SetValueForKey( userinfo, "rate", "25000" );
 	Info_SetValueForKey( userinfo, "snaps", "20" );
 	Info_SetValueForKey( userinfo, "skill", va("%1.2f", skill) );
-
+if(!onandroid.integer){
 	if ( skill >= 1 && skill < 2 ) {
 		Info_SetValueForKey( userinfo, "handicap", "50" );
 		//bot->client->botskill = 1;
@@ -663,7 +663,65 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		Info_SetValueForKey( userinfo, "handicap", "10000" );
 		//bot->client->botskill = 14;
 	}
-
+}
+if(onandroid.integer){
+	if ( skill >= 1 && skill < 2 ) {
+		Info_SetValueForKey( userinfo, "handicap", "20" );
+		//bot->client->botskill = 1;
+	}
+	else if ( skill >= 2 && skill < 3 ) {
+		Info_SetValueForKey( userinfo, "handicap", "30" );
+		//bot->client->botskill = 2;
+	}
+	else if ( skill >= 3 && skill < 4 ) {
+		Info_SetValueForKey( userinfo, "handicap", "40" );
+		//bot->client->botskill = 3;
+	}
+	else if ( skill >= 4 && skill < 5 ) {
+		Info_SetValueForKey( userinfo, "handicap", "50" );
+		//bot->client->botskill = 4;
+	}
+	else if ( skill >= 5 && skill < 6 ) {
+		Info_SetValueForKey( userinfo, "handicap", "50" );
+		//bot->client->botskill = 5;
+	}
+	else if ( skill >= 6 && skill < 7 ) {
+		Info_SetValueForKey( userinfo, "handicap", "60" );
+		//bot->client->botskill = 6;
+	}
+	else if ( skill >= 7 && skill < 8 ) {
+		Info_SetValueForKey( userinfo, "handicap", "70" );
+		//bot->client->botskill = 7;
+	}
+	else if ( skill >= 8 && skill < 9 ) {
+		Info_SetValueForKey( userinfo, "handicap", "100" );
+		//bot->client->botskill = 8;
+	}
+	else if ( skill >= 9 && skill < 10 ) {
+		Info_SetValueForKey( userinfo, "handicap", "120" );
+		//bot->client->botskill = 9;
+	}
+	else if ( skill >= 10 && skill < 11 ) {
+		Info_SetValueForKey( userinfo, "handicap", "150" );
+		//bot->client->botskill = 10;
+	}
+	else if ( skill >= 11 && skill < 12 ) {
+		Info_SetValueForKey( userinfo, "handicap", "250" );
+		//bot->client->botskill = 11;
+	}
+	else if ( skill >= 12 && skill < 13 ) {
+		Info_SetValueForKey( userinfo, "handicap", "500" );
+		//bot->client->botskill = 12;
+	}
+	else if ( skill >= 13 && skill < 14 ) {
+		Info_SetValueForKey( userinfo, "handicap", "2500" );
+		//bot->client->botskill = 13;
+	}
+	else if ( skill >= 14 && skill < 15 ) {
+		Info_SetValueForKey( userinfo, "handicap", "5000" );
+		//bot->client->botskill = 14;
+	}
+}
 	key = "model";
 	model = Info_ValueForKey( botinfo, key );
 	if ( !*model ) {

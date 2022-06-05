@@ -115,6 +115,16 @@ void SP_info_player_deathmatch( gentity_t *ent ) {
 	if ( i ) {
 		ent->flags |= FL_NO_HUMANS;
 	}
+	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_GENERAL;
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+	ent->r.contents = CONTENTS_TRIGGER;
+	ent->s.modelindex = G_ModelIndex( "45.md3" );
+	
+	trap_LinkEntity( ent );
 }
 
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
@@ -122,15 +132,54 @@ equivelant to info_player_deathmatch
 */
 void SP_info_player_start(gentity_t *ent) {
 	ent->classname = "info_player_deathmatch";
+	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_GENERAL;
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+	ent->r.contents = CONTENTS_TRIGGER;
+	ent->s.modelindex = G_ModelIndex( "45.md3" );
+
 	SP_info_player_deathmatch( ent );
 }
 
 //Three for Double_D
 void SP_info_player_dd(gentity_t *ent) {
+		VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_GENERAL;
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+	ent->r.contents = CONTENTS_TRIGGER;
+	ent->s.modelindex = G_ModelIndex( "45.md3" );
+	
+	trap_LinkEntity( ent );
 }
 void SP_info_player_dd_red(gentity_t *ent) {
+		VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_GENERAL;
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+	ent->r.contents = CONTENTS_TRIGGER;
+	ent->s.modelindex = G_ModelIndex( "45.md3" );
+	
+	trap_LinkEntity( ent );
 }
 void SP_info_player_dd_blue(gentity_t *ent) {
+		VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_GENERAL;
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+	ent->r.contents = CONTENTS_TRIGGER;
+	ent->s.modelindex = G_ModelIndex( "45.md3" );
+	
+	trap_LinkEntity( ent );
 }
 
 //One for Standard Domination, not really a player spawn point
@@ -441,7 +490,7 @@ After sitting around for five seconds, fall into the ground and dissapear
 =============
 */
 void BodySink( gentity_t *ent ) {
-/*	if ( level.time - ent->timestamp > 6500 ) {
+	if ( level.time - ent->timestamp > 6500 ) {
 
 
 		// the body ques are never actually freed, they are just unlinked
@@ -450,8 +499,8 @@ void BodySink( gentity_t *ent ) {
 		return;
 	}
 	ent->nextthink = level.time + 100;
-	ent->s.pos.trBase[2] -= 1;*/
-	GibEntity( ent, 0 );
+	ent->s.pos.trBase[2] -= 1;
+	//GibEntity( ent, 0 );
 }
 
 /*
@@ -1173,6 +1222,9 @@ void ClientUserinfoChanged( int clientNum ) {
 	int		teamTask, teamLeader, team, health;
 	int		oasbidi;
 	int		oasbheight;
+	int		gmodtool;
+	float		gmodmodifier;
+	char		gmodmodifiers;
 	int		botskill;
 	char	*s;
 	char	model[MAX_QPATH];
@@ -1321,12 +1373,17 @@ void ClientUserinfoChanged( int clientNum ) {
         }
     }
 
+Q_strncpyz( ent->gmodmodifiers, Info_ValueForKey( userinfo, "oasb_modifiers" ), sizeof(ent->gmodmodifiers) );
 strcpy(modelname, Info_ValueForKey( userinfo, "ui_msmodel" ));
 Q_strncpyz( gender, Info_ValueForKey (userinfo, "gender"), sizeof( gender ) );
 oasbidi = atoi( Info_ValueForKey( userinfo, "oasb_idi" ) );
 ent->oasbid = oasbidi;
 oasbheight = atoi( Info_ValueForKey( userinfo, "oasb_height" ) );
 ent->oasbheight = oasbheight;
+gmodtool = atoi( Info_ValueForKey( userinfo, "oasb_tool" ) );
+ent->gmodtool = gmodtool;
+gmodmodifier = atoi( Info_ValueForKey( userinfo, "oasb_modifier" ) );
+ent->gmodmodifier = gmodmodifier;
 if ( ent->r.svFlags & SVF_BOT ) {
 botskill = atoi( Info_ValueForKey( userinfo, "skill" ) );
 ent->botskill = botskill;
@@ -2071,66 +2128,8 @@ client->pers.playerclass = client->pers.newplayerclass;
 
         //Sago: No one has hit the client yet!
         client->lastSentFlying = -1;
-//if(mod_zombiemode == 10){
 	VectorCopy (playerMins, ent->r.mins);
 	VectorCopy (playerMaxs, ent->r.maxs);
-//}
-/*if(mod_zombiemode == 15){
-	VectorCopy (playerMins15, ent->r.mins);
-	VectorCopy (playerMaxs15, ent->r.maxs);
-}
-if(mod_zombiemode == 14){
-	VectorCopy (playerMins14, ent->r.mins);
-	VectorCopy (playerMaxs14, ent->r.maxs);
-}
-if(mod_zombiemode == 13){
-	VectorCopy (playerMins13, ent->r.mins);
-	VectorCopy (playerMaxs13, ent->r.maxs);
-}
-if(mod_zombiemode == 12){
-	VectorCopy (playerMins12, ent->r.mins);
-	VectorCopy (playerMaxs12, ent->r.maxs);
-}
-if(mod_zombiemode == 11){
-	VectorCopy (playerMins11, ent->r.mins);
-	VectorCopy (playerMaxs11, ent->r.maxs);
-}
-if(mod_zombiemode == 9){
-	VectorCopy (playerMins9, ent->r.mins);
-	VectorCopy (playerMaxs9, ent->r.maxs);
-}
-if(mod_zombiemode == 8){
-	VectorCopy (playerMins8, ent->r.mins);
-	VectorCopy (playerMaxs8, ent->r.maxs);
-}
-if(mod_zombiemode == 7){
-	VectorCopy (playerMins7, ent->r.mins);
-	VectorCopy (playerMaxs7, ent->r.maxs);
-}
-if(mod_zombiemode == 6){
-	VectorCopy (playerMins6, ent->r.mins);
-	VectorCopy (playerMaxs6, ent->r.maxs);
-}
-if(mod_zombiemode == 5){
-	VectorCopy (playerMins5, ent->r.mins);
-	VectorCopy (playerMaxs5, ent->r.maxs);
-}
-if(mod_zombiemode == 4){
-	VectorCopy (playerMins4, ent->r.mins);
-	VectorCopy (playerMaxs4, ent->r.maxs);
-}
-if(mod_zombiemode == 3){
-	VectorCopy (playerMins3, ent->r.mins);
-	VectorCopy (playerMaxs3, ent->r.maxs);
-}
-if(mod_zombiemode == 2){
-	VectorCopy (playerMins2, ent->r.mins);
-	VectorCopy (playerMaxs2, ent->r.maxs);
-}
-if(mod_zombiemode == 1){
-	VectorCopy (playerMins1, ent->r.mins);
-	VectorCopy (playerMaxs1, ent->r.maxs);
-}*/
 
 
 

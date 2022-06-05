@@ -301,7 +301,6 @@ vmCvar_t	oasb_phys;
 vmCvar_t	oasb_physbounce;
 //cvars
 vmCvar_t	g_connectmsg;
-vmCvar_t	g_scoreboardlock;
 vmCvar_t	g_zombiemode;
 vmCvar_t	tex_name;
 vmCvar_t	tex_newname;
@@ -911,7 +910,6 @@ static cvarTable_t		gameCvarTable[] = {
 	{ &oasb_physbounce, "oasb_physbounce", "0", 0, 0, qtrue  },
 	// change anytime vars
 	{ &g_connectmsg, "g_connectmsg", "1", 0, 0, qtrue},
-	{ &g_scoreboardlock, "g_scoreboardlock", "0", 0, 0, qtrue},
 	{ &g_zombiemode, "g_zombiemode", "0", 0, 0, qtrue},
 	{ &tex_name, "tex_name", "0", 0, 0, qtrue  },
 	{ &tex_newname, "tex_newname", "0", 0, 0, qtrue  },

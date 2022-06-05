@@ -22,9 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-#define MAX_MAPFILE_LENGTH 32000
+#define MAX_MAPFILE_LENGTH 512000
 
 #define MAX_TOKENNUM 8192
+
+static char 		buffergmod[ 512000 ];
 
 typedef enum {
 	TOT_LPAREN,
@@ -267,157 +269,10 @@ qboolean G_ClassnameAllowed( char *input ){
 		if ( !strcmp(input, "holdable_invulnerability" ) ) {
 			return qtrue;
 		}
-		if ( !strcmp(input, "info_player_start" ) ) {
-			return qtrue;
-		}
 		if ( !strcmp(input, "info_player_deathmatch" ) ) {
 			return qtrue;
 		}
-		if ( !strcmp(input, "info_player_intermission" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "info_player_dd" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "info_player_dd_red" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "info_player_dd_blue" ) ) {
-			return qtrue;
-		}
 		if ( !strcmp(input, "domination_point" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "info_null" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "info_notnull" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "info_camp" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_plat" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_button" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_door" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_static" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_rotating" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_bobbing" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_pendulum" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_train" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_group" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "func_timer" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "trigger_always" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "trigger_multiple" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "trigger_push" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "trigger_teleport" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "trigger_hurt" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_give" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_remove_powerups" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_delay" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_print" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_laser" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_score" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_cmd" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_music" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_sound" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_model" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_legs" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_head" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_teleporter" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_relay" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_kill" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_position" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_location" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "target_push" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "misc_teleporter_dest" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "misc_portal_surface" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "misc_portal_camera" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "shooter_rocket" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "shooter_grenade" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "shooter_plasma" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "team_CTF_redplayer" ) ) {
-			return qtrue;
-		}
-		if ( !strcmp(input, "team_CTF_blueplayer" ) ) {
 			return qtrue;
 		}
 		if ( !strcmp(input, "team_CTF_redspawn" ) ) {
@@ -435,13 +290,9 @@ qboolean G_ClassnameAllowed( char *input ){
 		if ( !strcmp(input, "team_neutralobelisk" ) ) {
 			return qtrue;
 		}
-		if ( !strcmp(input, "item_botroam" ) ) {
-			return qtrue;
-		}
 		if ( !strcmp(input, "func_prop" ) ) {
 			return qtrue;
 		}
-		
 		if ( !strcmp(input, "team_CTF_neutralflag" ) ) {
 			return qtrue;
 		}
@@ -584,6 +435,13 @@ fieldCopy_t fieldsCopy[] = {
 	{"classname", FOFS(classname), F_LSTRING},
 	{"origin", FOFS(s.origin), F_VECTOR},
 	{"model", FOFS(model), F_LSTRING},
+	{"sandmodel", FOFS(sandmodel), F_LSTRING},
+	{"sandmodel", FOFS(modelnumber), F_INT},
+	{"sandphys", FOFS(sandphys), F_INT},
+	{"sandbounce", FOFS(sandbounce), F_INT},
+	{"sandcol", FOFS(sandcol), F_INT},
+	{"sandcoltype", FOFS(sandcoltype), F_INT},
+	{"sandtex", FOFS(s.generic1), F_INT},
 	{"model2", FOFS(model2), F_LSTRING},
 	{"spawnflags", FOFS(spawnflags), F_INT},
 	{"speed", FOFS(speed), F_FLOAT},
@@ -681,7 +539,6 @@ static void G_LoadMapfileEntity( token_t *in, int min, int max ){
 }
 
 void G_LoadMapfile( char *filename ){
-	char buffer[MAX_MAPFILE_LENGTH];
 	qboolean lastSpace = qtrue;
 	qboolean pgbreak = qfalse;
 	int i = 0;
@@ -699,26 +556,26 @@ void G_LoadMapfile( char *filename ){
 		return;
 	}
 
-	if ( len >= MAX_MAPFILE_LENGTH ) {
-		trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MAPFILE_LENGTH ) );
+	if ( len >= 512000 ) {
+		trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, 512000 ) );
 		trap_FS_FCloseFile( f );
 		return;
 	}
 //	ClearRegisteredItems();
 //	G_ClearEntities();
 
-	trap_FS_Read( buffer, len, f );
-	buffer[len] = 0;
+	trap_FS_Read( buffergmod, len, f );
+	buffergmod[len] = 0;
 	trap_FS_FCloseFile( f );
 	
-	COM_Compress(buffer);
+	COM_Compress(buffergmod);
 	
 	for ( i = 0; i < MAX_MAPFILE_LENGTH; i++ ){
 		
 		//Filter comments( start at # and end at break )
-		if( buffer[i] == '#' ){
+		if( buffergmod[i] == '#' ){
 			while( i < MAX_MAPFILE_LENGTH && !pgbreak ){
-				if( buffer[i] == '\n' || buffer[i] == '\r' )
+				if( buffergmod[i] == '\n' || buffergmod[i] == '\r' )
 					pgbreak = qtrue;
 				i++;
 			}
@@ -727,9 +584,9 @@ void G_LoadMapfile( char *filename ){
 			//continue;
 		}
 		
-		if( SkippedChar( buffer[i] ) ){
+		if( SkippedChar( buffergmod[i] ) ){
 			if( !lastSpace ){
-				buffer[charCount] = ' ';
+				buffergmod[charCount] = ' ';
 				charCount++;
 				lastSpace = qtrue;
 			}
@@ -737,13 +594,13 @@ void G_LoadMapfile( char *filename ){
 		}
 		
 		lastSpace = qfalse;
-		buffer[charCount] = buffer[i];
+		buffergmod[charCount] = buffergmod[i];
 		charCount++;
 	}
 	
 	i = 0;
 	while( i < MAX_MAPFILE_LENGTH && tokenNum < MAX_TOKENNUM){
-		i = G_setTokens2( buffer, tokens2[tokenNum].value, i);
+		i = G_setTokens2( buffergmod, tokens2[tokenNum].value, i);
 		tokens2[tokenNum].type = G_setTokenType2( tokens2[tokenNum].value );
 		tokenNum++;
 	}
@@ -774,7 +631,6 @@ void G_LoadMapfile( char *filename ){
 }
 
 void G_LoadMapfilec( char *filename ){
-	char buffer[MAX_MAPFILE_LENGTH];
 	qboolean lastSpace = qtrue;
 	qboolean pgbreak = qfalse;
 	int i = 0;
@@ -792,26 +648,26 @@ void G_LoadMapfilec( char *filename ){
 		return;
 	}
 
-	if ( len >= MAX_MAPFILE_LENGTH ) {
-		trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, MAX_MAPFILE_LENGTH ) );
+	if ( len >= 512000 ) {
+		trap_Error( va( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i", filename, len, 512000 ) );
 		trap_FS_FCloseFile( f );
 		return;
 	}
 	ClearRegisteredItems();
 	G_ClearEntities();
 
-	trap_FS_Read( buffer, len, f );
-	buffer[len] = 0;
+	trap_FS_Read( buffergmod, len, f );
+	buffergmod[len] = 0;
 	trap_FS_FCloseFile( f );
 	
-	COM_Compress(buffer);
+	COM_Compress(buffergmod);
 	
 	for ( i = 0; i < MAX_MAPFILE_LENGTH; i++ ){
 		
 		//Filter comments( start at # and end at break )
-		if( buffer[i] == '#' ){
+		if( buffergmod[i] == '#' ){
 			while( i < MAX_MAPFILE_LENGTH && !pgbreak ){
-				if( buffer[i] == '\n' || buffer[i] == '\r' )
+				if( buffergmod[i] == '\n' || buffergmod[i] == '\r' )
 					pgbreak = qtrue;
 				i++;
 			}
@@ -820,9 +676,9 @@ void G_LoadMapfilec( char *filename ){
 			//continue;
 		}
 		
-		if( SkippedChar( buffer[i] ) ){
+		if( SkippedChar( buffergmod[i] ) ){
 			if( !lastSpace ){
-				buffer[charCount] = ' ';
+				buffergmod[charCount] = ' ';
 				charCount++;
 				lastSpace = qtrue;
 			}
@@ -830,13 +686,13 @@ void G_LoadMapfilec( char *filename ){
 		}
 		
 		lastSpace = qfalse;
-		buffer[charCount] = buffer[i];
+		buffergmod[charCount] = buffergmod[i];
 		charCount++;
 	}
 	
 	i = 0;
 	while( i < MAX_MAPFILE_LENGTH && tokenNum < MAX_TOKENNUM){
-		i = G_setTokens2( buffer, tokens2[tokenNum].value, i);
+		i = G_setTokens2( buffergmod, tokens2[tokenNum].value, i);
 		tokens2[tokenNum].type = G_setTokenType2( tokens2[tokenNum].value );
 		tokenNum++;
 	}

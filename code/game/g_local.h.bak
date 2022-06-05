@@ -1408,7 +1408,6 @@ extern	vmCvar_t	oasb_phys;
 extern	vmCvar_t	oasb_physbounce;
 //cvars
 extern	vmCvar_t	g_connectmsg;
-extern	vmCvar_t	g_scoreboardlock;
 extern	vmCvar_t	g_zombiemode;
 extern	vmCvar_t	tex_name;
 extern	vmCvar_t	tex_newname;

@@ -64,10 +64,10 @@ gentity_t	*G_TestEntityPosition( gentity_t *ent ) {
 	} else {
 		trap_Trace( &tr, ent->s.pos.trBase, ent->r.mins, ent->r.maxs, ent->s.pos.trBase, ent->s.number, mask );
 	}
-	
+
 	if (tr.startsolid)
 		return &g_entities[ tr.entityNum ];
-		
+
 	return NULL;
 }
 
@@ -123,7 +123,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 
 	// EF_MOVER_STOP will just stop when contacting another entity
 	// instead of pushing it, but entities can still ride on top of it
-	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) && 
+	if ( ( pusher->s.eFlags & EF_MOVER_STOP ) &&
 		check->s.groundEntityNum != pusher->s.number ) {
 		return qfalse;
 	}
@@ -141,7 +141,7 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	}
 	pushed_p++;
 
-	// try moving the contacted entity 
+	// try moving the contacted entity
 	// figure movement due to the pusher's amove
 	G_CreateRotationMatrix( amove, transpose );
 	G_TransposeMatrix( transpose, matrix );
@@ -212,7 +212,7 @@ qboolean G_CheckProxMinePosition( gentity_t *check ) {
 	VectorMA(check->s.pos.trBase, 0.125, check->movedir, start);
 	VectorMA(check->s.pos.trBase, 2, check->movedir, end);
 	trap_Trace( &tr, start, NULL, NULL, end, check->s.number, MASK_SOLID );
-	
+
 	if (tr.startsolid || tr.fraction < 1)
 		return qfalse;
 
@@ -233,7 +233,7 @@ qboolean G_TryPushingProxMine( gentity_t *check, gentity_t *pusher, vec3_t move,
 	VectorSubtract (vec3_origin, amove, org);
 	AngleVectors (org, forward, right, up);
 
-	// try moving the contacted entity 
+	// try moving the contacted entity
 	VectorAdd (check->s.pos.trBase, move, check->s.pos.trBase);
 
 	// figure movement due to the pusher's amove
@@ -389,7 +389,7 @@ qboolean G_MoverPush( gentity_t *pusher, vec3_t move, vec3_t amove, gentity_t **
 			continue;
 		}
 
-		
+
 		// save off the obstacle so we can call the block function (crush, etc)
 		*obstacle = check;
 
@@ -537,7 +537,7 @@ void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
 		ent->s.pos.trType = TR_LINEAR_STOP;
 		break;
 	}
-	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );	
+	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
 	trap_LinkEntity( ent );
 }
 
@@ -638,8 +638,21 @@ void Use_BinaryMover( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 		Use_BinaryMover( ent->teammaster, other, activator );
 		return;
 	}
-
+	
 	ent->activator = activator;
+	
+if(ent->owner != activator->s.clientNum + 1){
+if(ent->owner != 0){
+trap_SendServerCommand( activator->s.clientNum, va( "cp Owned_by_%s\n", ent->ownername ));
+return;
+}	
+}
+
+if(ent->locked != 0){
+return;
+}
+
+
 
 	if ( ent->moverState == MOVER_POS1 ) {
 		// start moving 50 msec later, becase if this was player
@@ -780,6 +793,97 @@ void InitMover( gentity_t *ent ) {
 	}
 }
 
+void SandboxObject( gentity_t *ent ) {
+	char		*string;
+	int			modelid;
+
+if(!ent->sandmodel){
+return;
+}
+	string = ent->model;
+	modelid = atof( string );
+	// if the "model2" key is set, use a seperate model
+	// for drawing, but clip against the brushes
+	ent->s.modelindex = G_ModelIndex( ent->sandmodel );
+if(ent->sandphys == 1){
+	//ent->sandphys = 1;
+	//ent->sandbounce = attacker->gmodmodifier;
+	ent->physicsObject = qtrue;
+	ent->physicsBounce = ent->sandbounce;
+	ent->s.pos.trType = TR_GRAVITY;
+	ent->s.pos.trTime = level.time;
+}
+if(ent->sandphys == 2){
+	//ent->sandphys = 2;
+	ent->physicsObject = qfalse;
+	ent->s.pos.trType = TR_STATIONARY;
+	ent->s.pos.trTime = level.time;
+}
+if(ent->sandphys == 3){
+	ent->sandphys = 3;
+	ent->physicsObject = qfalse;
+	ent->s.pos.trType = TR_LINEAR;
+	ent->s.pos.trTime = level.time;
+}
+if(!ent->sandcol){
+	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
+}
+if(ent->sandcol == 1){
+	ent->r.contents = CONTENTS_SOLID;
+}
+if(ent->sandcol == 2){
+	ent->r.contents = CONTENTS_WATER;
+}
+if(!ent->sandcoltype){
+	VectorSet( ent->r.mins, -25, -25, -25);
+	VectorSet( ent->r.maxs, 25, 25, 25 );
+}
+if(ent->sandcoltype == 1){
+	VectorSet( ent->r.mins, -5, -5, -5);
+	VectorSet( ent->r.maxs, 5, 5, 5 );
+}
+if(ent->sandcoltype == 2){
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+}
+if(ent->sandcoltype == 3){
+	VectorSet( ent->r.mins, -15, -15, -15);
+	VectorSet( ent->r.maxs, 15, 15, 15 );
+}
+if(ent->sandcoltype == 4){
+	VectorSet( ent->r.mins, -20, -20, -20);
+	VectorSet( ent->r.maxs, 20, 20, 20 );
+}
+if(ent->sandcoltype == 5){
+	VectorSet( ent->r.mins, -25, -25, -25);
+	VectorSet( ent->r.maxs, 25, 25, 25 );
+}
+if(ent->sandcoltype == 6){
+	VectorSet( ent->r.mins, -50, -50, -50);
+	VectorSet( ent->r.maxs, 50, 50, 50 );
+}
+if(ent->sandcoltype == 7){
+	VectorSet( ent->r.mins, -75, -75, -75);
+	VectorSet( ent->r.maxs, 75, 75, 75 );
+}
+if(ent->sandcoltype == 8){
+	VectorSet( ent->r.mins, -100, -100, -100);
+	VectorSet( ent->r.maxs, 100, 100, 100 );
+}
+if(ent->sandcoltype == 9){
+	VectorSet( ent->r.mins, -200, -200, -200);
+	VectorSet( ent->r.maxs, 200, 200, 200 );
+}
+if(ent->sandcoltype == 10){
+	VectorSet( ent->r.mins, -250, -250, -250);
+	VectorSet( ent->r.maxs, 250, 250, 250 );
+}
+if(ent->sandcoltype == 11){
+	VectorSet( ent->r.mins, -500, -500, -500);
+	VectorSet( ent->r.maxs, 500, 500, 500 );
+}
+}
+
 
 /*
 ===============================================================================
@@ -856,6 +960,15 @@ Touch_DoorTrigger
 ================
 */
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace ) {
+if(ent->owner != other->s.clientNum + 1){
+if(ent->owner != 0){
+trap_SendServerCommand( other->s.clientNum, va( "cp Owned_by_%s\n", ent->ownername ));
+return;
+}	
+}
+if(ent->locked != 0){
+return;
+}	
 	if ( other->client && (other->client->sess.sessionTeam == TEAM_SPECTATOR || other->client->ps.pm_type == PM_SPECTATOR)) {
 		// if the door is not open and not opening
 		if ( ent->parent->moverState != MOVER_1TO2 &&
@@ -958,7 +1071,7 @@ void SP_func_door (gentity_t *ent) {
 	// default speed of 400
 	if (!ent->speed)
 		ent->speed = 400;
-	
+
 	// default wait of 2 seconds
 	if (!ent->wait)
 		ent->wait = 2;
@@ -974,7 +1087,7 @@ void SP_func_door (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -986,55 +1099,55 @@ void SP_func_door (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -1046,55 +1159,55 @@ void SP_func_door (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -1106,52 +1219,54 @@ void SP_func_door (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
 	}
-	
+	}
+
 if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & modelid != 6 & modelid != 7 & modelid != 8 & modelid != 9 & modelid != 10 & modelid != 11 & modelid != 12 & modelid != 13 & modelid != 14 & modelid != 15 & modelid != 16 & modelid != 17 & modelid != 18 & modelid != 19 & modelid != 20 & modelid != 21 & modelid != 22 & modelid != 23 & modelid != 24 & modelid != 25 & modelid != 26 & modelid != 27 & modelid != 28 & modelid != 29 & modelid != 30){
 	// default lip of 8 units
 	G_SpawnFloat( "lip", "8", &ent->lip );
@@ -1195,7 +1310,7 @@ if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & mo
 		}
 	}
 
-
+SandboxObject( ent );
 }
 
 /*
@@ -1262,7 +1377,7 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 	trigger->touch = Touch_PlatCenterTrigger;
 	trigger->r.contents = CONTENTS_TRIGGER;
 	trigger->parent = ent;
-	
+
 	tmin[0] = ent->pos1[0] + ent->r.mins[0] + 33;
 	tmin[1] = ent->pos1[1] + ent->r.mins[1] + 33;
 	tmin[2] = ent->pos1[2] + ent->r.mins[2];
@@ -1279,7 +1394,7 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 		tmin[1] = ent->pos1[1] + (ent->r.mins[1] + ent->r.maxs[1]) *0.5;
 		tmax[1] = tmin[1] + 1;
 	}
-	
+
 	VectorCopy (tmin, trigger->r.mins);
 	VectorCopy (tmax, trigger->r.maxs);
 
@@ -1302,7 +1417,7 @@ void SP_func_plat (gentity_t *ent) {
 	float		lip, height;
 	char		*string;
 	int			modelid;
-	
+
 
 	ent->sound1to2 = ent->sound2to1 = G_SoundIndex("sound/movers/plats/pt1_strt.wav");
 	ent->soundPos1 = ent->soundPos2 = G_SoundIndex("sound/movers/plats/pt1_end.wav");
@@ -1316,7 +1431,7 @@ void SP_func_plat (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -1328,55 +1443,55 @@ void SP_func_plat (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -1388,55 +1503,55 @@ void SP_func_plat (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -1448,59 +1563,61 @@ void SP_func_plat (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
 	}
-	
+	}
+
 	if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & modelid != 6 & modelid != 7 & modelid != 8 & modelid != 9 & modelid != 10 & modelid != 11 & modelid != 12 & modelid != 13 & modelid != 14 & modelid != 15 & modelid != 16 & modelid != 17 & modelid != 18 & modelid != 19 & modelid != 20 & modelid != 21 & modelid != 22 & modelid != 23 & modelid != 24 & modelid != 25 & modelid != 26 & modelid != 27 & modelid != 28 & modelid != 29 & modelid != 30){
 	G_SpawnFloat( "speed", "200", &ent->speed );
 	G_SpawnInt( "dmg", "2", &ent->damage );
 	G_SpawnFloat( "wait", "1", &ent->wait );
 	G_SpawnFloat( "lip", "8", &ent->lip );
 	ent->wait = 1000;
-	
+
 	if ( !G_SpawnFloat( "height", "0", &ent->height ) ) {
 		ent->height = (ent->r.maxs[2] - ent->r.mins[2]) - ent->lip;
 	}
@@ -1525,6 +1642,7 @@ void SP_func_plat (gentity_t *ent) {
 	if ( !ent->targetname ) {
 		SpawnPlatTrigger(ent);
 	}
+SandboxObject( ent );
 }
 
 
@@ -1575,7 +1693,7 @@ void SP_func_button( gentity_t *ent ) {
 	int			modelid;
 
 	ent->sound1to2 = G_SoundIndex("sound/movers/switches/butn2.wav");
-	
+
 	if ( !ent->speed ) {
 		ent->speed = 40;
 	}
@@ -1595,7 +1713,7 @@ void SP_func_button( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -1607,55 +1725,55 @@ void SP_func_button( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -1667,55 +1785,55 @@ void SP_func_button( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -1727,50 +1845,52 @@ void SP_func_button( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
+	}
 	}
 
 	G_SpawnFloat( "lip", "4", &lip );
@@ -1792,6 +1912,7 @@ void SP_func_button( gentity_t *ent ) {
 	}
 
 	InitMover( ent );
+SandboxObject( ent );
 }
 
 
@@ -2027,7 +2148,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_static( gentity_t *ent ) {
 	char		*string;
 	int			modelid;
-	
+
 	string = ent->model;
 	modelid = atof( string );
 	if(modelid == 1){
@@ -2035,7 +2156,7 @@ void SP_func_static( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -2047,55 +2168,55 @@ void SP_func_static( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -2107,55 +2228,55 @@ void SP_func_static( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -2167,55 +2288,58 @@ void SP_func_static( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
+	}
 	}
 	InitMover( ent );
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );
-	
+
+	SandboxObject( ent );
 	trap_LinkEntity( ent );
 }
 
@@ -2233,7 +2357,7 @@ A bmodel that just sits there, doing nothing.  Can be used for conditional walls
 void SP_func_prop( gentity_t *ent ) {
 	char		*string;
 	int			modelid;
-	
+
 	string = ent->model;
 	modelid = atof( string );
 	if(ent->count == 1){
@@ -2241,7 +2365,7 @@ void SP_func_prop( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(ent->count == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -2253,55 +2377,55 @@ void SP_func_prop( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(ent->count == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(ent->count == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(ent->count == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(ent->count == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(ent->count == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(ent->count == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(ent->count == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(ent->count == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(ent->count == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -2313,55 +2437,55 @@ void SP_func_prop( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(ent->count == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(ent->count == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(ent->count == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(ent->count == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(ent->count == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(ent->count == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(ent->count == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(ent->count == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(ent->count == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -2373,85 +2497,85 @@ void SP_func_prop( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(ent->count == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(ent->count == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(ent->count == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(ent->count == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(ent->count == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(ent->count == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(ent->count == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
-	} 
+	}
 	if(ent->count == 31){
 	VectorSet( ent->r.mins, -8, -9, -1);
 	VectorSet( ent->r.maxs, 9, 8, 16 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_basketball.md3" );
 	}
-	
+
 	if(ent->count == 32){
 	VectorSet( ent->r.mins, -8, -9, -1);
 	VectorSet( ent->r.maxs, 9, 8, 16 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_soccerball.md3" );
 	}
-	
+
 	if(ent->count == 33){
 	VectorSet( ent->r.mins, -2, -2, -2);
 	VectorSet( ent->r.maxs, 2, 2, 2 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_softball.md3" );
 	}
-	
+
 	if(ent->count == 34){
 	VectorSet( ent->r.mins, -2, -2, -2);
 	VectorSet( ent->r.maxs, 2, 2, 2 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_tennisball.md3" );
 	}
-	
+
 	if(ent->count == 35){
 	VectorSet( ent->r.mins, -5, -5, -4);
 	VectorSet( ent->r.maxs, 5, 5, 5 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_fruits/apple.md3" );
 	}
-	
+
 	if(ent->count == 36){
 	VectorSet( ent->r.mins, -34, -93, 0);
 	VectorSet( ent->r.maxs, 34, 93, 51 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_nascars/padcar_black.md3" );
 	}
-	
+
 	if(ent->count == 3333){
 	VectorSet( ent->r.mins, 0, 0, -0);
 	VectorSet( ent->r.maxs, 0, 0, 0 );
@@ -2463,7 +2587,7 @@ void SP_func_prop( gentity_t *ent ) {
 	VectorSet( ent->r.maxs, 0, 0, 0 );
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/secret2.md3" );
 	}
-	
+
 	if(ent->count == 3335){
 	VectorSet( ent->r.mins, 0, 0, -0);
 	VectorSet( ent->r.maxs, 0, 0, 0 );
@@ -2482,7 +2606,7 @@ void SP_func_prop( gentity_t *ent ) {
 	//ent->takedamage = qtrue;
 	//}
 	//ent->die = PropDie;
-
+	SandboxObject( ent );
 	trap_LinkEntity( ent );
 }
 
@@ -2510,7 +2634,7 @@ check either the X_AXIS or Y_AXIS box to change that.
 void SP_func_rotating (gentity_t *ent) {
 	char		*string;
 	int			modelid;
-	
+
 	if ( !ent->speed ) {
 		ent->speed = 100;
 	}
@@ -2536,7 +2660,7 @@ void SP_func_rotating (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -2548,55 +2672,55 @@ void SP_func_rotating (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -2608,55 +2732,55 @@ void SP_func_rotating (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -2668,57 +2792,59 @@ void SP_func_rotating (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
+	}
 	}
 	InitMover( ent );
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.pos.trBase, ent->r.currentOrigin );
 	VectorCopy( ent->s.apos.trBase, ent->r.currentAngles );
-
+	SandboxObject( ent );
 	trap_LinkEntity( ent );
 }
 
@@ -2755,7 +2881,7 @@ void SP_func_bobbing (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -2767,55 +2893,55 @@ void SP_func_bobbing (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -2827,55 +2953,55 @@ void SP_func_bobbing (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -2887,53 +3013,55 @@ void SP_func_bobbing (gentity_t *ent) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
 	}
+	}
 	InitMover( ent );
-	
+
 if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & modelid != 6 & modelid != 7 & modelid != 8 & modelid != 9 & modelid != 10 & modelid != 11 & modelid != 12 & modelid != 13 & modelid != 14 & modelid != 15 & modelid != 16 & modelid != 17 & modelid != 18 & modelid != 19 & modelid != 20 & modelid != 21 & modelid != 22 & modelid != 23 & modelid != 24 & modelid != 25 & modelid != 26 & modelid != 27 & modelid != 28 & modelid != 29 & modelid != 30){
 	G_SpawnFloat( "speed", "4", &ent->speed );
 	G_SpawnFloat( "height", "32", &ent->height );
@@ -2956,6 +3084,7 @@ if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & mo
 	} else {
 		ent->s.pos.trDelta[2] = ent->height;
 	}
+	SandboxObject( ent );
 }
 
 /*
@@ -2993,7 +3122,7 @@ void SP_func_pendulum(gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	} else 
+	} else
 	if(modelid == 2){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
@@ -3005,55 +3134,55 @@ void SP_func_pendulum(gentity_t *ent) {
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	} else 
+	} else
 	if(modelid == 4){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	} else 
+	} else
 	if(modelid == 5){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	} else 
+	} else
 	if(modelid == 6){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	} else 
+	} else
 	if(modelid == 7){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	} else 
+	} else
 	if(modelid == 8){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	} else 
+	} else
 	if(modelid == 9){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	} else 	
+	} else
 	if(modelid == 10){
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	} else 
+	} else
 	if(modelid == 11){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	} else 
+	} else
 	if(modelid == 12){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
@@ -3065,55 +3194,55 @@ void SP_func_pendulum(gentity_t *ent) {
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	} else 
+	} else
 	if(modelid == 14){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	} else 
+	} else
 	if(modelid == 15){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	} else 
+	} else
 	if(modelid == 16){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	} else 
+	} else
 	if(modelid == 17){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	} else 
+	} else
 	if(modelid == 18){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	} else 
+	} else
 	if(modelid == 19){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	} else 	
+	} else
 	if(modelid == 20){
 	VectorSet( ent->r.mins, -50, -50, -50);
 	VectorSet( ent->r.maxs, 50, 50, 50 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	} else 	
+	} else
 	if(modelid == 21){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	} else 
+	} else
 	if(modelid == 22){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
@@ -3125,57 +3254,59 @@ void SP_func_pendulum(gentity_t *ent) {
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	} else 
+	} else
 	if(modelid == 24){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	} else 
+	} else
 	if(modelid == 25){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	} else 
+	} else
 	if(modelid == 26){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	} else 
+	} else
 	if(modelid == 27){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	} else 
+	} else
 	if(modelid == 28){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	} else 
+	} else
 	if(modelid == 29){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	} else 	
+	} else
 	if(modelid == 30){
 	VectorSet( ent->r.mins, -250, -250, -250);
 	VectorSet( ent->r.maxs, 250, 250, 250 );
 	ent->r.contents = CONTENTS_SOLID | CONTENTS_BODY;
 	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
 	} else {
+	if(modelid != 12345){
 	trap_SetBrushModel( ent, ent->model );
+	}
 	}
 if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & modelid != 6 & modelid != 7 & modelid != 8 & modelid != 9 & modelid != 10 & modelid != 11 & modelid != 12 & modelid != 13 & modelid != 14 & modelid != 15 & modelid != 16 & modelid != 17 & modelid != 18 & modelid != 19 & modelid != 20 & modelid != 21 & modelid != 22 & modelid != 23 & modelid != 24 & modelid != 25 & modelid != 26 & modelid != 27 & modelid != 28 & modelid != 29 & modelid != 30){
 	G_SpawnFloat( "speed", "30", &ent->speed );
 	G_SpawnInt( "dmg", "2", &ent->damage );
 	G_SpawnFloat( "phase", "0", &ent->phase );
 }
-	
+
 	// find pendulum length
 	length = fabs( ent->r.mins[2] );
 	if ( length < 8 ) {
@@ -3197,4 +3328,5 @@ if(modelid != 1 & modelid != 2 & modelid != 3 & modelid != 4 & modelid != 5 & mo
 	ent->s.apos.trTime = ent->s.apos.trDuration * ent->phase;
 	ent->s.apos.trType = TR_SINE;
 	ent->s.apos.trDelta[2] = ent->speed;
+SandboxObject( ent );
 }

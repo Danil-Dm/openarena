@@ -466,7 +466,7 @@ void G_checkForMultiKill( gentity_t *ent ) {
     char    *sound;
     int     soundIndex;
     int     multiKillCount;
-    char    multiKillString[ 2 ];
+    char    multiKillString[ 5 ];
     gclient_t   *client;
     int         clientNum;
     

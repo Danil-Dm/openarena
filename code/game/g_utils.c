@@ -656,6 +656,28 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 
 /*
 ================
+G_SetTarget
+
+Sets the target for a selected entity
+================
+*/
+void G_SetTarget( gentity_t *ent, char *targ ) {
+	ent->target = targ;
+}
+
+/*
+================
+G_SetTargetName
+
+Sets the targetname for a selected entity
+================
+*/
+void G_SetTargetname( gentity_t *ent, char *targname ) {
+	ent->targetname = targname;
+}
+
+/*
+================
 findradius
 ================
 */

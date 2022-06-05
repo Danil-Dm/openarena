@@ -139,6 +139,16 @@ Now that we don't have teleport destination pads, this is just
 an info_notnull
 */
 void SP_misc_teleporter_dest( gentity_t *ent ) {
+	VectorCopy( ent->s.origin, ent->s.pos.trBase );
+	VectorCopy( ent->s.origin, ent->r.currentOrigin );
+	ent->s.eType = ET_GENERAL;
+	ent->s.pos.trType = TR_STATIONARY;
+	VectorSet( ent->r.mins, -10, -10, -10);
+	VectorSet( ent->r.maxs, 10, 10, 10 );
+	ent->r.contents = CONTENTS_TRIGGER;
+	ent->s.modelindex = G_ModelIndex( "45.md3" );
+	
+	trap_LinkEntity( ent );
 }
 
 
@@ -508,6 +518,7 @@ Fires at either the target or the current direction.
 */
 void SP_shooter_rocket( gentity_t *ent ) {
 	InitShooter( ent, WP_ROCKET_LAUNCHER );
+SandboxObject( ent );
 }
 
 /*QUAKED shooter_plasma (1 0 0) (-16 -16 -16) (16 16 16)
@@ -516,6 +527,7 @@ Fires at either the target or the current direction.
 */
 void SP_shooter_plasma( gentity_t *ent ) {
 	InitShooter( ent, WP_PLASMAGUN);
+SandboxObject( ent );
 }
 
 /*QUAKED shooter_grenade (1 0 0) (-16 -16 -16) (16 16 16)
@@ -524,6 +536,7 @@ Fires at either the target or the current direction.
 */
 void SP_shooter_grenade( gentity_t *ent ) {
 	InitShooter( ent, WP_GRENADE_LAUNCHER);
+SandboxObject( ent );
 }
 
 static void PortalDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod) {
@@ -753,8 +766,13 @@ static void BlockDel( gentity_t *self ) {
 
 static void BlockEnable( gentity_t *self ) {
 	self->r.contents = CONTENTS_SOLID;
+if(g_building.integer != 2){
 	self->think = BlockDel;
 	self->nextthink = level.time + g_buildingtime.integer * 1000;
+}
+if(g_building.integer == 2){	
+G_CallSpawn( self );
+}
 }
 
 
@@ -1142,12 +1160,12 @@ void G_BuildProp( gentity_t *client ) {
 
 	VectorCopy( client->s.pos.trBase, pxyz );
 
-	ox = pxyz[0] / 10;
-	oy = pxyz[1] / 10;
+	ox = pxyz[0] / 50;
+	oy = pxyz[1] / 50;
 	oz = pxyz[2];
 	
-	o[0] = ox * 10;
-	o[1] = oy * 10;
+	o[0] = ox * 50;
+	o[1] = oy * 50;
 	o[2] = oz - client->oasbheight;
 	VectorCopy (o, snapped);
 
@@ -1178,6 +1196,7 @@ if (client->oasbheight < 35){
 	ent->r.contents = CONTENTS_WATER;
 //	}
 	ent->takedamage = qfalse;
+if(g_building.integer != 2){
 	if(oasb_hp.integer){
 	ent->health = oasb_hp.integer;
 	ent->takedamage = qtrue;
@@ -1188,6 +1207,11 @@ if (client->oasbheight < 35){
 	ent->s.pos.trType = TR_GRAVITY;
 	ent->s.pos.trTime = level.time;
 	}
+}
+if(g_building.integer == 2){
+	ent->health = 10000000;
+	ent->takedamage = qtrue;
+}
 	ent->die = BlockDie;
 	
 //	ent->classname = "Model_Md3";
@@ -1195,279 +1219,23 @@ if (client->oasbheight < 35){
 	VectorSet( ent->r.maxs, 0, 0, 0 );
 	ent->s.modelindex = G_ModelIndex( oasb_id.string );
 	
-	
-	if(client->oasbid == 1){
-	ent->count = 1;
+if(g_building.integer != 2){	
+	ent->model = "12345";
+	ent->s.modelindex = G_ModelIndex( client->gmodmodifiers );
 	VectorSet( ent->r.mins, -25, -25, -25);
 	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick.md3" );
-	}
-	
-	if(client->oasbid == 2){
-	ent->count = 2;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass.md3" );
-	}
-	
-	if(client->oasbid == 3){
-	ent->count = 3;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood.md3" );
-	}
-	
-	if(client->oasbid == 4){
-	ent->count = 4;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block.md3" );
-	}
-	
-	if(client->oasbid == 5){
-	ent->count = 5;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block.md3" );
-	}
-	
-	if(client->oasbid == 6){
-	ent->count = 6;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block.md3" );
-	}
-	
-	if(client->oasbid == 7){
-	ent->count = 7;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick.md3" );
-	}
-	
-	if(client->oasbid == 8){
-	ent->count = 8;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar.md3" );
-	}
-	
-	if(client->oasbid == 9){
-	ent->count = 9;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian.md3" );
-	}
-	
-	if(client->oasbid == 10){
-	ent->count = 10;
-	VectorSet( ent->r.mins, -25, -25, -25);
-	VectorSet( ent->r.maxs, 25, 25, 25 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass.md3" );
-	}
-	
-	if(client->oasbid == 11){
-	ent->count = 11;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick2.md3" );
-	}
-	
-	if(client->oasbid == 12){
-	ent->count = 12;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass2.md3" );
-	}
-	
-	if(client->oasbid == 13){
-	ent->count = 13;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood2.md3" );
-	}
-	
-	if(client->oasbid == 14){
-	ent->count = 14;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block2.md3" );
-	}
-	
-	if(client->oasbid == 15){
-	ent->count = 15;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block2.md3" );
-	}
-	
-	if(client->oasbid == 16){
-	ent->count = 16;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block2.md3" );
-	}
-	
-	if(client->oasbid == 17){
-	ent->count = 17;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick2.md3" );
-	}
-	
-	if(client->oasbid == 18){
-	ent->count = 18;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar2.md3" );
-	}
-	
-	if(client->oasbid == 19){
-	ent->count = 19;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian2.md3" );
-	}
-	
-	if(client->oasbid == 20){
-	ent->count = 20;
-	VectorSet( ent->r.mins, -50, -50, -50);
-	VectorSet( ent->r.maxs, 50, 50, 50 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass2.md3" );
-	}
+	ent->modelnumber = client->gmodmodifier;
+	ent->sandboxindex = G_ModelIndex( client->gmodmodifiers );
+}
 
-	if(client->oasbid == 21){
-	ent->count = 21;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/stone_brick10.md3" );
-	}
-	
-	if(client->oasbid == 22){
-	ent->count = 22;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/glass10.md3" );
-	}
-	
-	if(client->oasbid == 23){
-	ent->count = 23;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/wood10.md3" );
-	}
-	
-	if(client->oasbid == 24){
-	ent->count = 24;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/steel_block10.md3" );
-	}
-	
-	if(client->oasbid == 25){
-	ent->count = 25;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/gold_block10.md3" );
-	}
-	
-	if(client->oasbid == 26){
-	ent->count = 26;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/diamond_block10.md3" );
-	}
-	
-	if(client->oasbid == 27){
-	ent->count = 27;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/brick10.md3" );
-	}
-	
-	if(client->oasbid == 28){
-	ent->count = 28;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/bar10.md3" );
-	}
-	
-	if(client->oasbid == 29){
-	ent->count = 29;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidian10.md3" );
-	}
-	
-	if(client->oasbid == 30){
-	ent->count = 30;
-	VectorSet( ent->r.mins, -250, -250, -250);
-	VectorSet( ent->r.maxs, 250, 250, 250 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/obsidianglass10.md3" );
-	}
-	
-	if(client->oasbid == 31){
-	ent->count = 31;
-	VectorSet( ent->r.mins, -8, -9, -1);
-	VectorSet( ent->r.maxs, 9, 8, 16 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_basketball.md3" );
-	}
-	
-	if(client->oasbid == 32){
-	ent->count = 32;
-	VectorSet( ent->r.mins, -8, -9, -1);
-	VectorSet( ent->r.maxs, 9, 8, 16 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_soccerball.md3" );
-	}
-	
-	if(client->oasbid == 33){
-	ent->count = 33;
-	VectorSet( ent->r.mins, -2, -2, -2);
-	VectorSet( ent->r.maxs, 2, 2, 2 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_softball.md3" );
-	}
-	
-	if(client->oasbid == 34){
-	ent->count = 34;
-	VectorSet( ent->r.mins, -2, -2, -2);
-	VectorSet( ent->r.maxs, 2, 2, 2 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_ball/pad_tennisball.md3" );
-	}
-	
-	if(client->oasbid == 35){
-	ent->count = 35;
-	VectorSet( ent->r.mins, -5, -5, -4);
-	VectorSet( ent->r.maxs, 5, 5, 5 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_fruits/apple.md3" );
-	}
-	
-	if(client->oasbid == 36){
-	ent->count = 36;
-	VectorSet( ent->r.mins, -34, -93, 0);
-	VectorSet( ent->r.maxs, 34, 93, 51 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/pad_nascars/padcar_black.md3" );
-	}
-	
-	if(client->oasbid == 3333){
-	ent->count = 3333;
-	VectorSet( ent->r.mins, 0, 0, -0);
-	VectorSet( ent->r.maxs, 0, 0, 0 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/secret1.md3" );
-	}
-
-	if(client->oasbid == 3334){
-	ent->count = 3334;
-	VectorSet( ent->r.mins, 0, 0, -0);
-	VectorSet( ent->r.maxs, 0, 0, 0 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/secret2.md3" );
-	}
-	
-	if(client->oasbid == 3335){
-	ent->count = 3335;
-	VectorSet( ent->r.mins, 0, 0, -0);
-	VectorSet( ent->r.maxs, 0, 0, 0 );
-	ent->s.modelindex = G_ModelIndex( "models/mapobjects/oasb/secret3.md3" );
-	}
+if(g_building.integer == 2){	
+	ent->model = "12345";
+	ent->s.modelindex = G_ModelIndex( client->gmodmodifiers );
+	VectorSet( ent->r.mins, -25, -25, -25);
+	VectorSet( ent->r.maxs, 25, 25, 25 );
+	ent->modelnumber = client->gmodmodifier;
+	ent->sandboxindex = G_ModelIndex( client->gmodmodifiers );
+}
 
 	trap_LinkEntity( ent );
 }

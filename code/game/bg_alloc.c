@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 #ifdef GAME
-# define  POOLSIZE ( 1024 * 1024 )
+# define  POOLSIZE ( 4096 * 4096 )
 #else
-# define  POOLSIZE ( 256 * 1024 )
+# define  POOLSIZE ( 2048 * 2048 )
 #endif
 
 #define  FREEMEMCOOKIE  ((int)0xDEADBE3F)  // Any unlikely to be used value
@@ -74,6 +74,8 @@ void *BG_Alloc( unsigned int size ) {
   int allocsize, smallestsize;
   char *endptr;
   int *ptr;
+  int usedMem;
+  usedMem = POOLSIZE - freeMem;
 
   allocsize = ( size + sizeof(int) + ROUNDBITS ) & ~ROUNDBITS;    // Round to 32-byte boundary
   ptr = NULL;
@@ -123,7 +125,8 @@ void *BG_Alloc( unsigned int size ) {
     return( (void *) ptr );
   }
 
-  Com_Error( ERR_DROP, "BG_Alloc: failed on allocation of %i bytes\n", size );
+	G_Printf( "AntiCrasher: crash detected\n", usedMem, POOLSIZE );
+	G_Printf( "BG_Alloc: failed on allocation of %i bytes\n", usedMem, POOLSIZE );
   return( NULL );
 }
 

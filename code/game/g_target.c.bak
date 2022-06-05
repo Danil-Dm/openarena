@@ -144,12 +144,17 @@ SandboxObject( ent );
 The activator is given this many points.
 */
 void Use_Target_Cmd (gentity_t *ent, gentity_t *other, gentity_t *activator) {
+	if ( ent->spawnflags == 0 ) {
 	trap_SendConsoleCommand( EXEC_APPEND, va("%s\n", ent->target ) );
+	}
+	if ( ent->spawnflags == 1 ) {
+	trap_SendConsoleCommand( EXEC_APPEND, va("exec %s\n", ent->target ) );
+	}
 }
 
 void SP_target_cmd( gentity_t *ent ) {
 	if ( !ent->target ) {
-G_Printf ("No target in target_cmd\n");
+		ent->target = "say No Cmd!";
 	}
 	ent->use = Use_Target_Cmd;
 SandboxObject( ent );
@@ -162,12 +167,12 @@ SandboxObject( ent );
 The activator is given this many points.
 */
 void Use_Target_Music (gentity_t *ent, gentity_t *other, gentity_t *activator) {
-trap_SendServerCommand(activator-g_entities, va( "cmusic %s", ent->target));
+trap_SendServerCommand(activator-g_entities, va( "cmusic %s", ent->text));
 }
 
 void SP_target_music( gentity_t *ent ) {
-	if ( !ent->target ) {
-G_Printf ("No target in target_music\n");
+	if ( !ent->text ) {
+G_Printf ("No TEXT in target_music\n");
 	}
 	ent->use = Use_Target_Music;
 SandboxObject( ent );
@@ -184,7 +189,7 @@ trap_SendServerCommand(activator-g_entities, va( "csound %s", ent->target));
 
 void SP_target_sound( gentity_t *ent ) {
 	if ( !ent->target ) {
-G_Printf ("No target in target_sound\n");
+		ent->target = "say No Cmd!";
 	}
 	ent->use = Use_Target_Sound;
 SandboxObject( ent );
@@ -201,7 +206,7 @@ trap_SendServerCommand(activator-g_entities, va( "cmodel %s", ent->target));
 
 void SP_target_model( gentity_t *ent ) {
 	if ( !ent->target ) {
-G_Printf ("No target in target_model\n");
+		ent->target = "say No Cmd!";
 	}
 	ent->use = Use_Target_Model;
 SandboxObject( ent );
@@ -218,7 +223,7 @@ trap_SendServerCommand(activator-g_entities, va( "chead %s", ent->target));
 
 void SP_target_head( gentity_t *ent ) {
 	if ( !ent->target ) {
-G_Printf ("No target in target_head\n");
+		ent->target = "say No Cmd!";
 	}
 	ent->use = Use_Target_Head;
 SandboxObject( ent );
@@ -235,7 +240,7 @@ trap_SendServerCommand(activator-g_entities, va( "clegs %s", ent->target));
 
 void SP_target_legs( gentity_t *ent ) {
 	if ( !ent->target ) {
-G_Printf ("No target in target_legs\n");
+		ent->target = "say No Cmd!";
 	}
 	ent->use = Use_Target_Legs;
 SandboxObject( ent );
