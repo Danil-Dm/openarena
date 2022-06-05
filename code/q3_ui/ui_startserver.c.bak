@@ -911,7 +911,7 @@ SERVER OPTIONS MENU *****
 #define ID_GO					28
 #define ID_BACK					29
 
-#define PLAYER_SLOTS	24
+#define PLAYER_SLOTS	22
 
 
 typedef struct {
@@ -1206,7 +1206,7 @@ static void ServerOptions_Start( void ) {
 		break;
 	}
 
-	trap_Cvar_SetValue( "sv_maxclients", Com_Clamp( 0, 48, maxclients ) );
+	trap_Cvar_SetValue( "sv_maxclients", Com_Clamp( 0, 64, maxclients ) );
 	trap_Cvar_SetValue( "dedicated", Com_Clamp( 0, 2, dedicated ) );
 	trap_Cvar_SetValue ("timelimit", Com_Clamp( 0, timelimit, timelimit ) );
 	trap_Cvar_SetValue ("fraglimit", Com_Clamp( 0, fraglimit, fraglimit ) );

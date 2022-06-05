@@ -1689,7 +1689,7 @@ void UI_ActMainMenu( void ) {
 #define ART_ARROWLEFT		"menu/art_blueish/arrows_horz_left"
 #define ART_ARROWRIGHT		"menu/art_blueish/arrows_horz_right"
 
-#define MAX_CONFIGS			2048
+#define MAX_CONFIGS			128
 #define NAMEBUFSIZE			( MAX_CONFIGS * 16 )
 
 #define ID_BACK				10

@@ -1048,10 +1048,10 @@ if(rus.integer){
 
 	s_controls.invertmouse.curvalue  = Controls_GetCvarDefault( "m_pitch" ) < 0;
 if(!onandroid.integer){
-	s_controls.smoothmouse.curvalue  = Controls_GetCvarDefault( "m_filter" );
+	s_controls.smoothmouse.curvalue  = Controls_GetCvarDefault( "m_filter" ) < 0;
 }
 if(onandroid.integer){
-	s_controls.smoothmouse.curvalue  = Controls_GetCvarDefault( "androidaim" ) < 0;
+	s_controls.smoothmouse.curvalue  = Controls_GetCvarDefault( "androidaim" );
 }
 	s_controls.alwaysrun.curvalue    = Controls_GetCvarDefault( "cl_run" );
 	s_controls.autoswitch.curvalue   = Controls_GetCvarDefault( "cg_autoswitch" );

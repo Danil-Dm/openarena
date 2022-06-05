@@ -395,7 +395,7 @@ if(rus.integer){
 	displayOptionsInfo.fov.generic.x			= 400;
 	displayOptionsInfo.fov.generic.y			= y;
 	displayOptionsInfo.fov.minvalue				= 4;
-    displayOptionsInfo.fov.maxvalue				= 12;
+    displayOptionsInfo.fov.maxvalue				= 14;
 
 	y += BIGCHAR_HEIGHT+2;
 	displayOptionsInfo.crosssize.generic.type			= MTYPE_SLIDER;
@@ -405,7 +405,7 @@ if(rus.integer){
 	displayOptionsInfo.crosssize.generic.x			= 400;
 	displayOptionsInfo.crosssize.generic.y			= y;
 	displayOptionsInfo.crosssize.minvalue				= 1;
-    displayOptionsInfo.crosssize.maxvalue				= 30;
+    displayOptionsInfo.crosssize.maxvalue				= 40;
 
 	        y += BIGCHAR_HEIGHT+2;
 	displayOptionsInfo.oldscore.generic.type     	= MTYPE_RADIOBUTTON;

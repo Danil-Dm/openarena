@@ -109,6 +109,7 @@ void SpecifyServer_MenuInit( void )
 
 	s_specifyserver.menu.wrapAround = qtrue;
 	s_specifyserver.menu.fullscreen = qtrue;
+	s_specifyserver.menu.fulllock = qtrue;
 
 	s_specifyserver.banner.generic.type	 = MTYPE_BTEXT;
 	s_specifyserver.banner.generic.x     = 320;

@@ -549,12 +549,12 @@ static void RadioButton_Draw( menuradiobutton_s *rb )
 	if ( !rb->curvalue )
 	{
 		UI_DrawHandlePic( x + SMALLCHAR_WIDTH, y + 2, 12, 12, uis.rb_off);
-		UI_DrawString( x + SMALLCHAR_WIDTH + 12, y, "off", style, color );
+		//UI_DrawString( x + SMALLCHAR_WIDTH + 12, y, "off", style, color );
 	}
 	else
 	{
 		UI_DrawHandlePic( x + SMALLCHAR_WIDTH, y + 2, 12, 12, uis.rb_on );
-		UI_DrawString( x + SMALLCHAR_WIDTH + 12, y, "on", style, color );
+		//UI_DrawString( x + SMALLCHAR_WIDTH + 12, y, "on", style, color );
 	}
 }
 

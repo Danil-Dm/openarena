@@ -282,7 +282,7 @@ UI_KeyConnect
 */
 void UI_KeyConnect( int key ) {
 	if ( key == K_ESCAPE ) {
-		trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
+		//trap_Cmd_ExecuteText( EXEC_APPEND, "disconnect\n" );
 		return;
 	}
 }

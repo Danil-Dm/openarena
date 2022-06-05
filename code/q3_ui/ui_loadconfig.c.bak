@@ -513,7 +513,7 @@ static void selecttoolEd_MenuInit( void ) {
 	s_selecttoolEd.list.generic.x		= 118;
 	s_selecttoolEd.list.generic.y		= 50;
 	s_selecttoolEd.list.width			= 36;
-	s_selecttoolEd.list.height			= 28;
+	s_selecttoolEd.list.height			= 35;
 	s_selecttoolEd.list.numitems			= 143;
 	s_selecttoolEd.list.itemnames		= (const char **)s_selecttoolEd.configlist;
 	s_selecttoolEd.list.columns			= 1;

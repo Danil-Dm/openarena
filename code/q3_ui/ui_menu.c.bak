@@ -426,7 +426,7 @@ if(!IsGame.integer){
 		UI_DrawString( 320, 400, "OpenArenaPlus 2018-2022", UI_CENTER|UI_SMALLFONT, color );
 		UI_DrawString( 320, 414, "You can create your games through CustomMod", UI_CENTER|UI_SMALLFONT, color );
 }
-		UI_DrawString( 320, 16, "NextEngine v6.0", UI_CENTER|UI_BIGFONT, color );
+		UI_DrawString( 320, 16, "NextEngine v5.0", UI_CENTER|UI_BIGFONT, color );
 }
 if(onnextarena.integer == 1){
 		UI_DrawString( 320, 0, "NextArena by ^5Danil_Dm", UI_CENTER|UI_BIGFONT, color );
@@ -455,7 +455,7 @@ if(onnextarena.integer == 1){
 		UI_DrawString( 0, 450-14, ui_modname.string, UI_SMALLFONT, color);
 
                 //Draw version.
-                UI_DrawString( 640-40, 480-14, "^7v6.0", UI_SMALLFONT, color );
+                UI_DrawString( 640-40, 480-14, "^7v5.0", UI_SMALLFONT, color );
                 if((int)trap_Cvar_VariableValue("protocol")!=71)
                     UI_DrawString( 0, 480-14, va("^7Protocol: %i",(int)trap_Cvar_VariableValue("protocol")), UI_SMALLFONT, color);
                 if((int)trap_Cvar_VariableValue("protocol")==68)

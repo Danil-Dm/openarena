@@ -495,8 +495,8 @@ static void PlayerModel_BuildList( int type )
 {
 	int		numdirs;
 	int		numfiles;
-	char	dirlist[8192];
-	char	filelist[8192];
+	char	dirlist[2048];
+	char	filelist[2048];
 	char	skinname[MAX_QPATH];
 	char*	dirptr;
 	char*	fileptr;
@@ -514,7 +514,7 @@ static void PlayerModel_BuildList( int type )
 
 if(type == 1){
 	// iterate directory of all player models
-	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, 8192 );
+	numdirs = trap_FS_GetFileList("models/players", "/", dirlist, 2048 );
 	dirptr  = dirlist;
 	if(0 == 0){
 	for (i=0; i<numdirs && s_playermodel.nummodels < ui_zplmd.integer; i++,dirptr+=dirlen+1)
@@ -528,7 +528,7 @@ if(type == 1){
 			continue;
 			
 		// iterate all skin files in directory
-		numfiles = trap_FS_GetFileList( va("models/players/%s",dirptr), "tga", filelist, 8192 );
+		numfiles = trap_FS_GetFileList( va("models/players/%s",dirptr), "tga", filelist, 2048 );
 		fileptr  = filelist;
 		for (j=0; j<numfiles && s_playermodel.nummodels < ui_zplmd.integer;j++,fileptr+=filelen+1)
 		{

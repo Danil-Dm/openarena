@@ -607,7 +607,7 @@ float UI_ProportionalSizeScale( int style ) {
 		return PROP_SMALL_SIZE_SCALE;
 	}
 
-	return 1;
+	return 0.80;
 }
 
 

@@ -299,7 +299,6 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_nomapicons, "ui_nomapicons", "0", CVAR_ARCHIVE },
 	{ &ui_loaded, "ui_loaded", "0", 0 },
 	{ &ui_char, "ui_char", "0", CVAR_ARCHIVE },
-	{ &ui_zplmd, "ui_zplmd", "1", CVAR_ARCHIVE },
 	{ &ui_actionmenu, "ui_actionmenu", "0", 0 },
 	{ &ui_gamemodesall, "ui_gamemodesall", "0", CVAR_ARCHIVE },
 	{ &ui_custommaps, "ui_custommaps", "0", CVAR_ARCHIVE },

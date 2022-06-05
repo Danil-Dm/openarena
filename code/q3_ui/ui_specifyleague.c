@@ -180,6 +180,7 @@ void SpecifyLeague_MenuInit( void )
 
 	s_specifyleague.menu.wrapAround = qtrue;
 	s_specifyleague.menu.fullscreen = qtrue;
+	s_specifyleague.menu.fulllock = qtrue;
 
 	s_specifyleague.banner.generic.type	 = MTYPE_BTEXT;
 	s_specifyleague.banner.generic.x     = 320;

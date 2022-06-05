@@ -84,12 +84,12 @@ MULTIPLAYER MENU (SERVER BROWSER)
 #define GR_LETTERS			31
 
 #define UIAS_LOCAL			0
-#define UIAS_GLOBAL1			1
+#define UIAS_GLOBAL1			6
 #define UIAS_GLOBAL2			2
 #define UIAS_GLOBAL3			3
 #define UIAS_GLOBAL4			4
 #define UIAS_GLOBAL5			5
-#define UIAS_FAVORITES			6
+#define UIAS_FAVORITES			1
 
 #define SORT_HOST			0
 #define SORT_MAP			1
@@ -114,12 +114,7 @@ MULTIPLAYER MENU (SERVER BROWSER)
 
 
 static const char *master_items[] = {
-	"Local",
-	"Internet",
-	"Internet(2)",
-	"Internet(3)",
-	"Internet(4)",
-	"Internet(5)",
+	"Local/ZeroTier",
 	"Favorites",
 	NULL
 };
@@ -179,8 +174,8 @@ static char* netnames[] = {
 	NULL
 };
 
-static char quake3worldMessage[] = "Visit www.openarena.ws - News, Community, Events, Files";
-
+static char quake3worldMessage[] = "Install ZeroTier to create and connect to servers";
+static char quake3worldMessageR[] = "Установите ZeroTier для создания и подключения к серверам";
 
 typedef struct {
 	char	adrstr[MAX_ADDRESSLENGTH];
@@ -524,8 +519,13 @@ static void ArenaServers_UpdateMenu( void ) {
 			g_arenaservers.go.generic.flags			&= ~QMF_GRAYED;
 
 			// update status bar
-			if( g_servertype >= UIAS_GLOBAL1 && g_servertype <= UIAS_GLOBAL5 ) {
+			if( g_servertype == UIAS_LOCAL ) {
+				if(!rus.integer){
 				g_arenaservers.statusbar.string = quake3worldMessage;
+				}
+				if(rus.integer){
+				g_arenaservers.statusbar.string = quake3worldMessageR;
+				}
 			}
 			else {
 				g_arenaservers.statusbar.string = "";
@@ -576,8 +576,13 @@ static void ArenaServers_UpdateMenu( void ) {
 			}
 
 			// update status bar
-			if( g_servertype >= UIAS_GLOBAL1 && g_servertype <= UIAS_GLOBAL5 ) {
+			if( g_servertype == UIAS_LOCAL ) {
+				if(!rus.integer){
 				g_arenaservers.statusbar.string = quake3worldMessage;
+				}
+				if(rus.integer){
+				g_arenaservers.statusbar.string = quake3worldMessageR;
+				}
 			}
 			else {
 				g_arenaservers.statusbar.string = "";
@@ -1573,6 +1578,7 @@ static void ArenaServers_MenuInit( void ) {
 	ArenaServers_Cache();
 
 	g_arenaservers.menu.fullscreen = qtrue;
+	g_arenaservers.menu.fulllock = qtrue;
 	g_arenaservers.menu.wrapAround = qtrue;
 	g_arenaservers.menu.draw       = ArenaServers_MenuDraw;
 	g_arenaservers.menu.key        = ArenaServers_MenuKey;

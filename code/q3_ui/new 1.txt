@@ -1,0 +1,6 @@
+networkOptionsInfo.banner.string			= "SYSTEM SETUP";
+networkOptionsInfo.graphics.string				= "GRAPHICS";
+networkOptionsInfo.display.string				= "DISPLAY";
+networkOptionsInfo.sound.string					= "SOUND";
+networkOptionsInfo.network.string				= "NETWORK";
+networkOptionsInfo.rate.generic.name		= "Data Rate:";

@@ -205,12 +205,7 @@ if(rus.integer){
 	s_confirm.menu.wrapAround = qtrue;
 
 	trap_GetClientState( &cstate );
-	if ( cstate.connState >= CA_CONNECTED ) {
-		s_confirm.menu.fullscreen = qfalse;
-	}
-	else {
-		s_confirm.menu.fullscreen = qtrue;
-	}
+	s_confirm.menu.fullscreen = qtrue;
 if(!rus.integer){
 	s_confirm.yes.generic.type		= MTYPE_PTEXT;      
 	s_confirm.yes.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS; 

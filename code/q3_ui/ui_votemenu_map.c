@@ -285,7 +285,7 @@ void UI_VoteMapMenu( void ) {
         Q_strncpyz(mappage.mapname[i],"----",5);
     }
     trap_Cmd_ExecuteText( EXEC_APPEND,"getmappage 0" );
-    trap_Cvar_Set( "cl_paused", "0" ); //We cannot send server commands while paused!
+    //trap_Cvar_Set( "cl_paused", "0" ); //We cannot send server commands while paused!
 
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.banner );
     Menu_AddItem( &s_votemenu_map.menu, (void*) &s_votemenu_map.info );

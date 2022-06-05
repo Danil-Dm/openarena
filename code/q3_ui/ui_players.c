@@ -1227,6 +1227,15 @@ legs.customShader = trap_R_RegisterShaderNoMip("powerups/battleSuit");
 	legs.shaderRGBA[0] = trap_Cvar_VariableValue( "cg_plightred");
 	legs.shaderRGBA[1] = trap_Cvar_VariableValue( "cg_plightgreen");
 	legs.shaderRGBA[2] = trap_Cvar_VariableValue( "cg_plightblue");
+	if(trap_Cvar_VariableValue( "cg_plightred") == 0){
+	legs.shaderRGBA[0] = 200;	
+	}
+	if(trap_Cvar_VariableValue( "cg_plightgreen") == 0){
+	legs.shaderRGBA[1] = 200;	
+	}
+	if(trap_Cvar_VariableValue( "cg_plightblue") == 0){
+	legs.shaderRGBA[2] = 200;	
+	}
 	legs.shaderRGBA[3] = 255;
 
 	VectorCopy( origin, legs.origin );
@@ -1712,6 +1721,15 @@ torso.customShader = trap_R_RegisterShaderNoMip("powerups/battleSuit");
 	torso.shaderRGBA[0] = trap_Cvar_VariableValue( "cg_tolightred");
 	torso.shaderRGBA[1] = trap_Cvar_VariableValue( "cg_tolightgreen");
 	torso.shaderRGBA[2] = trap_Cvar_VariableValue( "cg_tolightblue");
+	if(trap_Cvar_VariableValue( "cg_tolightred") == 0){
+	torso.shaderRGBA[0] = 200;	
+	}
+	if(trap_Cvar_VariableValue( "cg_tolightgreen") == 0){
+	torso.shaderRGBA[1] = 200;	
+	}
+	if(trap_Cvar_VariableValue( "cg_tolightblue") == 0){
+	torso.shaderRGBA[2] = 200;	
+	}
 	torso.shaderRGBA[3] = 255;
 
 	VectorCopy( origin, torso.lightingOrigin );
@@ -2192,6 +2210,15 @@ head.customShader = trap_R_RegisterShaderNoMip("powerups/battleSuit");
 	head.shaderRGBA[0] = trap_Cvar_VariableValue( "cg_helightred");
 	head.shaderRGBA[1] = trap_Cvar_VariableValue( "cg_helightgreen");
 	head.shaderRGBA[2] = trap_Cvar_VariableValue( "cg_helightblue");
+	if(trap_Cvar_VariableValue( "cg_helightred") == 0){
+	head.shaderRGBA[0] = 200;	
+	}
+	if(trap_Cvar_VariableValue( "cg_helightgreen") == 0){
+	head.shaderRGBA[1] = 200;	
+	}
+	if(trap_Cvar_VariableValue( "cg_helightblue") == 0){
+	head.shaderRGBA[2] = 200;	
+	}
 	head.shaderRGBA[3] = 255;
 
 	VectorCopy( origin, head.lightingOrigin );
