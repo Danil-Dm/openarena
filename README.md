@@ -1,8 +1,8 @@
 # OpenArenaPlus gamecode
 [![Build Status](https://travis-ci.org/OpenArena/gamecode.svg?branch=master)](https://travis-ci.org/OpenArena/gamecode) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/90453976351f455f89d42651658fa63a)](https://www.codacy.com/app/github_43/gamecode_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OpenArena/gamecode&amp;utm_campaign=Badge_Grade)
 
-## This legacy code is no longer being developed.
-Follow Arena Unlimited ##
+## This legacy code is no longer being developed##
+Follow Arena Unlimited 
 
 ## Description ##
 This is a mod that adds new variables, such as elimination_items, weapon settings: delay, damage, spread damage, explode, splash radius, vampire, infinity, count, speed, timeout, bounce, gravity, bouncemodifier. Runes settings: Speed, Gravity, Infammo, Firespeed. Respawn time: Armor, health, weapon, ammo, holdable, powerups, flag.
