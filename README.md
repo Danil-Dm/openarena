@@ -1,7 +1,7 @@
 # OpenArenaPlus gamecode
 [![Build Status](https://travis-ci.org/OpenArena/gamecode.svg?branch=master)](https://travis-ci.org/OpenArena/gamecode) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/90453976351f455f89d42651658fa63a)](https://www.codacy.com/app/github_43/gamecode_2?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OpenArena/gamecode&amp;utm_campaign=Badge_Grade)
 
-## This legacy code is no longer being developed##
+## This legacy code is no longer being developed ##
 Follow Arena Unlimited 
 
 ## Description ##
